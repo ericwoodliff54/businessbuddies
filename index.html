@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BusinessBuddies • Partner Reseller & Project Ledger</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Smooth custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.5);
+      border-radius: 9999px;
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950 pb-16">
+
+  <!-- TOP APP BAR -->
+  <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      
+      <!-- Brand & Project Title -->
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-slate-950 font-extrabold text-lg shadow-lg shadow-emerald-500/20 shrink-0">
+          🤝
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-sm tracking-tight text-white">BusinessBuddies</span>
+            <span class="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">POC</span>
+          </div>
+          <button id="projectSelectBtn" class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition group truncate text-left">
+            <span id="currentProjectName" class="font-medium text-slate-200 group-hover:text-emerald-400 truncate">Unit #402 - Main St Storage</span>
+            <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Active User Profile Switcher & Settings -->
+      <div class="flex items-center gap-2 shrink-0">
+        <!-- Switch Profile Pill -->
+        <div class="flex items-center bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 shadow-inner">
+          <span class="text-[11px] font-medium text-slate-400 px-2 hidden sm:inline">Active User:</span>
+          <button id="profileSwitchBtn" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition" title="Tap to switch who is entering data">
+            <span id="activeUserAvatar" class="w-4 h-4 rounded-full bg-emerald-400 text-slate-950 flex items-center justify-center text-[10px] font-bold">J</span>
+            <span id="activeUserName">Jordan</span>
+            <svg class="w-3 h-3 text-emerald-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
+          </button>
+        </div>
+
+        <!-- Project Settings Button -->
+        <button id="openProjectModalBtn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition" title="Project Settings & Splits">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <main class="max-w-4xl mx-auto px-4 py-4 w-full flex-1 space-y-4">
+
+    <!-- 1. PROFIT POT & HERO SUMMARY -->
+    <section class="bg-gradient-to-b from-slate-900 to-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 shadow-xl relative overflow-hidden">
+      <!-- Glow ambient -->
+      <div class="absolute -right-16 -top-16 w-56 h-56 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Top Pot Overview -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+        <div>
+          <span class="text-xs uppercase tracking-wider font-semibold text-slate-400 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Project Net Profit Pot
+          </span>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span id="heroNetProfit" class="text-3xl sm:text-4xl font-extrabold text-emerald-400 mono tracking-tight">$0.00</span>
+            <span id="heroProfitBadge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Profitable</span>
+          </div>
+        </div>
+
+        <!-- Quick 2-Column Metrics -->
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 shrink-0">
+          <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+            <div class="text-[11px] font-medium text-slate-400">Gross Sales</div>
+            <div id="heroGrossSales" class="text-base sm:text-lg font-bold text-white mono mt-0.5">$0.00</div>
+          </div>
+          <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+            <div class="text-[11px] font-medium text-slate-400">Total Expenses</div>
+            <div id="heroTotalExpenses" class="text-base sm:text-lg font-bold text-rose-400 mono mt-0.5">$0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Settlement ("Square Up") Card -->
+      <div class="mt-4 pt-1">
+        <div id="settlementCard" class="bg-slate-950/80 rounded-xl p-3.5 border border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-start gap-3">
+            <div id="settlementIconBox" class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5">
+              ⚖️
+            </div>
+            <div>
+              <div class="text-[11px] uppercase tracking-wider font-bold text-indigo-300" id="settlementSubtitle">Current Settlement Balance</div>
+              <div id="settlementStatement" class="text-sm sm:text-base font-semibold text-white mt-0.5">
+                Calculating partner balance...
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+            <button id="toggleMathBreakdownBtn" class="text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1">
+              <span>Math Breakdown</span>
+              <svg id="mathChevron" class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <button id="settleUpActionBtn" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/20 transition flex items-center gap-1">
+              <span>Settle Up</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Collapsible Math Breakdown Drawer -->
+        <div id="mathBreakdownDrawer" class="hidden mt-3 p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 text-xs space-y-2.5">
+          <div class="font-bold text-slate-300 text-xs flex items-center justify-between pb-1.5 border-b border-slate-800">
+            <span>How This Balance Is Calculated</span>
+            <span class="text-slate-500 font-normal">Preset Split: <span id="mathSplitLabel" class="text-slate-300 font-semibold">50% / 50%</span></span>
+          </div>
+          <div id="mathPartnerColumns" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <!-- Dynamically populated via JS -->
+          </div>
+          <div class="text-[11px] text-slate-400 bg-slate-900/60 p-2 rounded-lg border border-slate-800/80 leading-relaxed">
+            💡 <strong>Waterfall Rule:</strong> Out-of-pocket expenses (like U-Hauls & unit bids) are fully reimbursed to whoever paid them <em>before</em> the remaining profit pot is divided according to your split percentage.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. NAVIGATION TABS -->
+    <nav class="flex items-center gap-1.5 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800 shadow-sm overflow-x-auto text-xs font-medium">
+      <button id="tabInventoryBtn" class="tab-btn flex-1 py-2 px-3 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold flex items-center justify-center gap-1.5 transition whitespace-nowrap">
+        <span>📦 Items for Sale</span>
+        <span id="tabCountInventory" class="px-1.5 py-0.2 rounded-full bg-emerald-500/30 text-emerald-200 text-[10px] font-bold">0</span>
+      </button>
+      <button id="tabExpensesBtn" class="tab-btn flex-1 py-2 px-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 flex items-center justify-center gap-1.5 transition whitespace-nowrap">
+        <span>🧾 Expenses & Receipts</span>
+        <span id="tabCountExpenses" class="px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300 text-[10px] font-bold">0</span>
+      </button>
+      <button id="tabLedgerBtn" class="tab-btn flex-1 py-2 px-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 flex items-center justify-center gap-1.5 transition whitespace-nowrap">
+        <span>⚖️ Split Ledger</span>
+      </button>
+      <button id="tabPartnersBtn" class="tab-btn flex-1 py-2 px-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 flex items-center justify-center gap-1.5 transition whitespace-nowrap">
+        <span>👥 Partners</span>
+      </button>
+    </nav>
+
+    <!-- 3. TAB CONTENT PANELS -->
+
+    <!-- ==================== TAB 1: INVENTORY ==================== -->
+    <section id="panelInventory" class="space-y-3">
+      <!-- Action Bar -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+        <!-- Filter Pills -->
+        <div class="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+          <button id="filterAllItemsBtn" class="inv-filter px-3 py-1.5 rounded-lg bg-slate-800 text-white font-medium transition">All (<span id="countAll">0</span>)</button>
+          <button id="filterActiveItemsBtn" class="inv-filter px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Active (<span id="countActive">0</span>)</button>
+          <button id="filterSoldItemsBtn" class="inv-filter px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Sold (<span id="countSold">0</span>)</button>
+        </div>
+
+        <!-- Add Item Primary Button -->
+        <button id="openAddItemModalBtn" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition active:scale-95">
+          <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+          <span>Snap Photo & Add Item</span>
+        </button>
+      </div>
+
+      <!-- Inventory List Container -->
+      <div id="inventoryContainer" class="space-y-2.5">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyInventoryState" class="hidden text-center py-12 px-4 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-800/80 flex items-center justify-center text-2xl mb-3">📦</div>
+        <h3 class="text-sm font-semibold text-white">No items found in this view</h3>
+        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Take photos of items found in storage units, garage sales, or thrift hauls and set your target prices.</p>
+        <button id="emptyStateAddBtn" class="mt-4 px-3.5 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold hover:bg-emerald-500/30 transition">
+          + Add First Item
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: EXPENSES ==================== -->
+    <section id="panelExpenses" class="hidden space-y-3">
+      <!-- Expense Action Bar -->
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h2 class="text-sm font-bold text-white">Project Invoices & Receipts</h2>
+          <p class="text-xs text-slate-400">Track out-of-pocket costs to reimburse partners before profit splits.</p>
+        </div>
+        <button id="openAddExpenseModalBtn" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-600/20 transition shrink-0">
+          <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+          <span>Log Expense</span>
+        </button>
+      </div>
+
+      <!-- Expense List -->
+      <div id="expensesContainer" class="space-y-2.5">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyExpensesState" class="hidden text-center py-12 px-4 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-800/80 flex items-center justify-center text-2xl mb-3">🧾</div>
+        <h3 class="text-sm font-semibold text-white">No expenses logged yet</h3>
+        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Log unit bid costs, U-Haul rentals, gas, packing bins, and platform fees.</p>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: SETTLEMENT LEDGER ==================== -->
+    <section id="panelLedger" class="hidden space-y-4">
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-4">
+        <div>
+          <h2 class="text-sm font-bold text-white">Partnership Financial Breakdown</h2>
+          <p class="text-xs text-slate-400">Complete transparent view of who paid for what and who collected cash.</p>
+        </div>
+
+        <div id="ledgerPartnerCards" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Historical Settlement Log -->
+        <div class="pt-2 border-t border-slate-800">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Settlement Activity History</h3>
+            <button id="clearSettlementHistoryBtn" class="text-[11px] text-slate-500 hover:text-slate-300">Clear History</button>
+          </div>
+          <div id="settlementHistoryContainer" class="space-y-2 text-xs">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: PARTNERS & SPLITS ==================== -->
+    <section id="panelPartners" class="hidden space-y-4">
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-white">Project Partners & Agreed Splits</h2>
+            <p class="text-xs text-slate-400">Set the profit percentage for each partner on this project.</p>
+          </div>
+          <button id="addPartnerBtn" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition">
+            + Add Partner
+          </button>
+        </div>
+
+        <div id="partnersListContainer" class="space-y-3">
+          <!-- Rendered via JS -->
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+          <span class="text-xs text-slate-400">Total Profit Allocation:</span>
+          <span id="partnerTotalPercentage" class="text-xs font-bold mono text-emerald-400">100%</span>
+        </div>
+      </div>
+
+      <!-- Demo Data Controls -->
+      <div class="bg-slate-900/60 rounded-2xl border border-slate-800/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div>
+          <div class="text-xs font-bold text-slate-300">Demo Simulation Controls</div>
+          <div class="text-[11px] text-slate-500">Reset sample storage unit data or clear storage to start fresh.</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="resetDemoDataBtn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
+            Reload Sample Locker
+          </button>
+          <button id="clearAllDataBtn" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-semibold transition">
+            Clear All Data
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. ADD / EDIT ITEM MODAL -->
+  <div id="itemModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 id="itemModalTitle" class="text-sm font-bold text-white flex items-center gap-2">
+          <span>📦</span> Add Item to Project
+        </h3>
+        <button id="closeItemModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+      </div>
+
+      <form id="itemForm" class="space-y-3.5 text-xs">
+        <input type="hidden" id="itemEditId" value="">
+
+        <!-- Quick Demo Presets (for instant POC testing) -->
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1.5">⚡ Quick Demo Autofill (1-Tap):</label>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button type="button" class="preset-item-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="DeWalt 20V Max Cordless Drill Kit" data-price="75.00" data-platform="Facebook Marketplace">
+              <span class="font-bold text-slate-200 block truncate">🛠️ DeWalt 20V Drill</span>
+              <span class="text-[10px] text-emerald-400 mono">$75.00 • FB Market</span>
+            </button>
+            <button type="button" class="preset-item-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="Nintendo 64 Console + 2 Controllers" data-price="130.00" data-platform="eBay">
+              <span class="font-bold text-slate-200 block truncate">🎮 Nintendo 64 Bundle</span>
+              <span class="text-[10px] text-emerald-400 mono">$130.00 • eBay</span>
+            </button>
+            <button type="button" class="preset-item-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="Vintage Cast Iron Skillet #8 Griswold" data-price="95.00" data-platform="eBay">
+              <span class="font-bold text-slate-200 block truncate">🍳 Griswold Skillet #8</span>
+              <span class="text-[10px] text-emerald-400 mono">$95.00 • eBay</span>
+            </button>
+            <button type="button" class="preset-item-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="Toro 21-inch Self-Propelled Lawnmower" data-price="160.00" data-platform="OfferUp">
+              <span class="font-bold text-slate-200 block truncate">🚜 Toro Lawnmower</span>
+              <span class="text-[10px] text-emerald-400 mono">$160.00 • OfferUp</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div>
+          <label for="itemInputTitle" class="block font-semibold text-slate-300 mb-1">Item Title / Description *</label>
+          <input type="text" id="itemInputTitle" required placeholder="e.g. Vintage Leather Jacket, Makita Saw..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+        </div>
+
+        <!-- Target Price & Platform -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="itemInputPrice" class="block font-semibold text-slate-300 mb-1">Target Price ($) *</label>
+            <div class="relative">
+              <span class="absolute left-3 top-2 text-slate-500 font-bold">$</span>
+              <input type="number" step="0.01" min="0" id="itemInputPrice" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-white mono font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+            </div>
+          </div>
+          <div>
+            <label for="itemInputPlatform" class="block font-semibold text-slate-300 mb-1">Listing Platform</label>
+            <select id="itemInputPlatform" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500 transition">
+              <option value="Facebook Marketplace">FB Marketplace</option>
+              <option value="eBay">eBay</option>
+              <option value="OfferUp">OfferUp</option>
+              <option value="Mercari">Mercari</option>
+              <option value="Cash / In-Person">Cash / In-Person</option>
+              <option value="Not Listed Yet">Not Listed Yet</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Added By & Item Photo -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="itemInputAddedBy" class="block font-semibold text-slate-300 mb-1">Added By Partner</label>
+            <select id="itemInputAddedBy" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500 transition">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Photo / Camera</label>
+            <label class="flex items-center justify-center gap-1.5 w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl px-3 py-2 text-slate-300 cursor-pointer transition">
+              <span>📷 Snap Photo</span>
+              <input type="file" id="itemInputPhoto" accept="image/*" class="hidden">
+            </label>
+          </div>
+        </div>
+
+        <!-- Photo preview if uploaded -->
+        <div id="photoPreviewBox" class="hidden p-2 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-3">
+          <img id="photoPreviewImg" src="" alt="Item Preview" class="w-12 h-12 rounded-lg object-cover border border-slate-700">
+          <div class="min-w-0 flex-1">
+            <span class="text-[11px] font-semibold text-emerald-400 block">Photo Attached</span>
+            <span id="photoPreviewName" class="text-[10px] text-slate-400 truncate block">image.jpg</span>
+          </div>
+          <button type="button" id="removePhotoBtn" class="text-slate-500 hover:text-rose-400 text-xs px-2">Remove</button>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label for="itemInputNotes" class="block font-semibold text-slate-300 mb-1">Item Notes (Condition, Serial, Lot)</label>
+          <input type="text" id="itemInputNotes" placeholder="Tested working, minor scratches..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+        </div>
+
+        <!-- Form Submit -->
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" id="cancelItemModalBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition shadow-lg shadow-emerald-500/20">Save Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. MARK AS SOLD MODAL -->
+  <div id="markSoldModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span>💰</span> Record Sale
+        </h3>
+        <button id="closeMarkSoldModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+      </div>
+
+      <form id="markSoldForm" class="space-y-3.5 text-xs">
+        <input type="hidden" id="soldItemId" value="">
+
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-3">
+          <div id="soldItemThumb" class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-lg">📦</div>
+          <div class="min-w-0 flex-1">
+            <h4 id="soldItemTitle" class="font-bold text-white truncate text-xs">Item Name</h4>
+            <div class="text-[11px] text-slate-400 mt-0.5">Target: <span id="soldItemTargetPrice" class="mono text-slate-300">$0.00</span></div>
+          </div>
+        </div>
+
+        <!-- Final Sold Price -->
+        <div>
+          <label for="soldInputPrice" class="block font-semibold text-slate-300 mb-1">Final Agreed Sold Price ($) *</label>
+          <div class="relative">
+            <span class="absolute left-3 top-2 text-slate-500 font-bold">$</span>
+            <input type="number" step="0.01" min="0" id="soldInputPrice" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-white mono font-bold text-sm placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+          </div>
+        </div>
+
+        <!-- Platform Fee / Shipping deduction -->
+        <div>
+          <label for="soldInputFees" class="block font-semibold text-slate-300 mb-1">Platform Fees & Shipping Deductions ($)</label>
+          <div class="relative">
+            <span class="absolute left-3 top-2 text-slate-500 font-bold">$</span>
+            <input type="number" step="0.01" min="0" id="soldInputFees" value="0.00" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-white mono placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">E.g., eBay cut, PayPal fee, or shipping label cost. Leaves net amount in pot.</p>
+        </div>
+
+        <!-- Who Sold It & Who Holds the Cash -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="soldInputSoldBy" class="block font-semibold text-slate-300 mb-1">Sold By</label>
+            <select id="soldInputSoldBy" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500 transition">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+          <div>
+            <label for="soldInputCollectedBy" class="block font-semibold text-slate-300 mb-1">Payment Collected By</label>
+            <select id="soldInputCollectedBy" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500 transition">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Platform -->
+        <div>
+          <label for="soldInputPlatform" class="block font-semibold text-slate-300 mb-1">Sold Platform</label>
+          <select id="soldInputPlatform" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500 transition">
+            <option value="Facebook Marketplace">Facebook Marketplace (Cash)</option>
+            <option value="eBay">eBay (Direct Deposit)</option>
+            <option value="OfferUp">OfferUp</option>
+            <option value="Mercari">Mercari</option>
+            <option value="Cash / Garage Sale">Cash / Garage Sale</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" id="cancelMarkSoldModalBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition shadow-lg shadow-emerald-500/20">Confirm Sale & Tally</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. ADD EXPENSE MODAL -->
+  <div id="expenseModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span>🧾</span> Log Project Expense / Receipt
+        </h3>
+        <button id="closeExpenseModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+      </div>
+
+      <form id="expenseForm" class="space-y-3.5 text-xs">
+        <!-- Quick Demo Expense Presets -->
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1.5">⚡ Quick Presets (1-Tap):</label>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button type="button" class="preset-exp-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="Storage Unit 402 Winning Bid" data-amount="500.00" data-cat="Acquisition / Bid">
+              <span class="font-bold text-slate-200 block truncate">🏢 Unit 402 Auction Bid</span>
+              <span class="text-[10px] text-rose-400 mono">$500.00</span>
+            </button>
+            <button type="button" class="preset-exp-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="U-Haul 10ft Cargo Van & Mileage" data-amount="100.00" data-cat="Transportation / Gas">
+              <span class="font-bold text-slate-200 block truncate">🚚 U-Haul Truck Rental</span>
+              <span class="text-[10px] text-rose-400 mono">$100.00</span>
+            </button>
+            <button type="button" class="preset-exp-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="Home Depot Heavy Duty Storage Totes (4)" data-amount="56.80" data-cat="Supplies & Boxes">
+              <span class="font-bold text-slate-200 block truncate">📦 4x Storage Totes</span>
+              <span class="text-[10px] text-rose-400 mono">$56.80</span>
+            </button>
+            <button type="button" class="preset-exp-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="Lock Cut Fee & Replacement Padlock" data-amount="25.00" data-cat="Supplies & Boxes">
+              <span class="font-bold text-slate-200 block truncate">🔒 New Padlock & Cut</span>
+              <span class="text-[10px] text-rose-400 mono">$25.00</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label for="expInputTitle" class="block font-semibold text-slate-300 mb-1">Expense Description *</label>
+          <input type="text" id="expInputTitle" required placeholder="e.g. U-Haul rental, storage fee, gas..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="expInputAmount" class="block font-semibold text-slate-300 mb-1">Total Paid ($) *</label>
+            <div class="relative">
+              <span class="absolute left-3 top-2 text-slate-500 font-bold">$</span>
+              <input type="number" step="0.01" min="0" id="expInputAmount" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-white mono font-bold placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+            </div>
+          </div>
+          <div>
+            <label for="expInputPaidBy" class="block font-semibold text-slate-300 mb-1">Paid Out-of-Pocket By *</label>
+            <select id="expInputPaidBy" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="expInputCategory" class="block font-semibold text-slate-300 mb-1">Category</label>
+            <select id="expInputCategory" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition">
+              <option value="Acquisition / Bid">Acquisition / Bid</option>
+              <option value="Transportation / Gas">Transportation / Gas</option>
+              <option value="Supplies & Boxes">Supplies & Boxes</option>
+              <option value="Platform Fees">Platform Fees</option>
+              <option value="Storage Rent">Storage Rent</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Receipt Photo</label>
+            <label class="flex items-center justify-center gap-1.5 w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl px-3 py-2 text-slate-300 cursor-pointer transition">
+              <span>🧾 Snap Slip</span>
+              <input type="file" id="expInputPhoto" accept="image/*" class="hidden">
+            </label>
+          </div>
+        </div>
+
+        <!-- Receipt preview if attached -->
+        <div id="receiptPreviewBox" class="hidden p-2 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-3">
+          <img id="receiptPreviewImg" src="" alt="Receipt Preview" class="w-12 h-12 rounded-lg object-cover border border-slate-700">
+          <div class="min-w-0 flex-1">
+            <span class="text-[11px] font-semibold text-indigo-400 block">Receipt Slip Attached</span>
+            <span id="receiptPreviewName" class="text-[10px] text-slate-400 truncate block">receipt.jpg</span>
+          </div>
+          <button type="button" id="removeReceiptBtn" class="text-slate-500 hover:text-rose-400 text-xs px-2">Remove</button>
+        </div>
+
+        <p class="text-[11px] text-indigo-300/80 bg-indigo-950/40 border border-indigo-900/60 p-2.5 rounded-xl">
+          ✨ This expense will directly reduce the project's profit pot, and the partner selected will be reimbursed before any net profits are split.
+        </p>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" id="cancelExpenseModalBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow-lg shadow-indigo-600/20">Record Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. PROJECT SELECTOR & SETTINGS MODAL -->
+  <div id="projectModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span>📁</span> Projects & Settings
+        </h3>
+        <button id="closeProjectModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+      </div>
+
+      <!-- Current Project Name -->
+      <div class="space-y-2">
+        <label for="editProjectNameInput" class="block text-xs font-semibold text-slate-300">Project Name</label>
+        <div class="flex gap-2">
+          <input type="text" id="editProjectNameInput" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-emerald-500 transition">
+          <button id="saveProjectNameBtn" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold border border-slate-700">Save</button>
+        </div>
+      </div>
+
+      <!-- Switch to Other Projects -->
+      <div class="space-y-2 pt-2 border-t border-slate-800">
+        <label class="block text-xs font-semibold text-slate-300">Switch Projects</label>
+        <div id="projectListContainer" class="space-y-1.5 text-xs max-h-36 overflow-y-auto">
+          <!-- Populated via JS -->
+        </div>
+        <button id="createNewProjectBtn" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-semibold text-xs border border-slate-700 transition">
+          + Create New Project
+        </button>
+      </div>
+
+      <div class="pt-2 flex justify-end">
+        <button id="closeProjectModalFooterBtn" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. SETTLE UP CONFIRMATION MODAL -->
+  <div id="settleModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span>🤝</span> Settle Up Project
+        </h3>
+        <button id="closeSettleModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1 text-center">
+          <span class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Recommended Transfer</span>
+          <div id="modalSettleAmount" class="text-xl font-extrabold text-emerald-400 mono">$0.00</div>
+          <div id="modalSettleDescription" class="text-xs text-slate-200 mt-1 font-medium">Jordan pays Alex</div>
+        </div>
+
+        <p class="text-slate-400 leading-relaxed text-[11px]">
+          Recording a settlement logs that the cash has been transferred between partners via Venmo, Cash App, or physical cash, bringing all balances to $0.00.
+        </p>
+
+        <!-- Venmo Deep Link option -->
+        <a id="venmoDeepLink" href="#" target="_blank" class="block w-full text-center py-2.5 px-4 rounded-xl bg-[#008CFF]/20 hover:bg-[#008CFF]/30 border border-[#008CFF]/40 text-[#008CFF] font-bold text-xs transition">
+          💸 Open Venmo (Pre-Filled)
+        </a>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" id="cancelSettleModalBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Cancel</button>
+          <button type="button" id="confirmSettleActionBtn" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition shadow-lg shadow-emerald-500/20">
+            Confirm & Square Up
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. IN-PAGE CONFIRM & PROMPT MODAL (NO BLOCKED BROWSER DIALOGS) -->
+  <div id="dialogModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-5 space-y-3.5 shadow-2xl relative">
+      <div class="flex items-center gap-2.5">
+        <div id="dialogIconBox" class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold shrink-0">
+          💬
+        </div>
+        <h4 id="dialogTitle" class="text-sm font-bold text-white">Confirmation</h4>
+      </div>
+      <p id="dialogMessage" class="text-xs text-slate-300 leading-relaxed"></p>
+      <div id="dialogInputWrapper" class="hidden">
+        <input type="text" id="dialogTextInput" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-emerald-500">
+      </div>
+      <div class="pt-2 flex items-center justify-end gap-2">
+        <button type="button" id="dialogCancelBtn" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Cancel</button>
+        <button type="button" id="dialogConfirmBtn" class="px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-md shadow-emerald-500/20">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white px-4 py-2.5 rounded-xl border border-slate-700 shadow-2xl flex items-center gap-2.5 text-xs font-semibold">
+    <span id="toastIcon">✓</span>
+    <span id="toastMessage">Action completed</span>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    // --- DEFAULT INITIAL STATE & SAMPLE DATA ---
+    const STORAGE_KEY = 'businessbuddies_state_v1';
+
+    const INITIAL_DEMO_STATE = {
+      activeProjectId: 'proj_1',
+      activeUserId: 'p2', // Default: Jordan
+      projects: [
+        {
+          id: 'proj_1',
+          name: 'Unit #402 - Main St Storage',
+          created: '2026-11-01',
+          partners: [
+            { id: 'p1', name: 'Alex', split: 50, venmo: 'alex-resell' },
+            { id: 'p2', name: 'Jordan', split: 50, venmo: 'jordan-flips' }
+          ],
+          items: [
+            {
+              id: 'item_1',
+              title: 'DeWalt 20V Max Cordless Drill Kit (With 2 Batteries & Charger)',
+              targetPrice: 75.00,
+              soldPrice: 70.00,
+              platformFees: 0.00,
+              platform: 'Facebook Marketplace',
+              addedBy: 'p2',
+              soldBy: 'p2',
+              collectedBy: 'p2', // Jordan collected cash
+              status: 'sold',
+              dateAdded: '2026-11-02',
+              dateSold: '2026-11-04',
+              photo: '',
+              notes: 'Tested working 100%, battery holds full charge.'
+            },
+            {
+              id: 'item_2',
+              title: 'Nintendo 64 Console + 2 Atomic Purple Controllers & Super Mario 64',
+              targetPrice: 140.00,
+              soldPrice: 155.00,
+              platformFees: 20.00, // eBay cut & label
+              platform: 'eBay',
+              addedBy: 'p1',
+              soldBy: 'p1',
+              collectedBy: 'p1', // Alex collected via eBay deposit
+              status: 'sold',
+              dateAdded: '2026-11-02',
+              dateSold: '2026-11-05',
+              photo: '',
+              notes: 'Cleaned contacts, jumper pak included, sold within 4 hours.'
+            },
+            {
+              id: 'item_3',
+              title: 'Vintage Griswold #8 Cast Iron Skillet (Erie PA slant logo)',
+              targetPrice: 95.00,
+              soldPrice: null,
+              platformFees: 0,
+              platform: 'eBay',
+              addedBy: 'p1',
+              soldBy: null,
+              collectedBy: null,
+              status: 'active',
+              dateAdded: '2026-11-03',
+              dateSold: null,
+              photo: '',
+              notes: 'Stripped and re-seasoned with grape seed oil. Sits flat.'
+            },
+            {
+              id: 'item_4',
+              title: 'Toro 21-inch Recycler Self-Propelled Lawnmower (Briggs Engine)',
+              targetPrice: 160.00,
+              soldPrice: null,
+              platformFees: 0,
+              platform: 'OfferUp',
+              addedBy: 'p2',
+              soldBy: null,
+              collectedBy: null,
+              status: 'active',
+              dateAdded: '2026-11-03',
+              dateSold: null,
+              photo: '',
+              notes: 'Cleaned carburetor, fresh spark plug, starts 1st pull.'
+            }
+          ],
+          expenses: [
+            {
+              id: 'exp_1',
+              title: 'Storage Unit 402 Winning Auction Bid',
+              amount: 500.00,
+              paidBy: 'p1', // Alex paid
+              category: 'Acquisition / Bid',
+              date: '2026-11-01',
+              receiptPhoto: ''
+            },
+            {
+              id: 'exp_2',
+              title: 'U-Haul 10ft Cargo Van & Mileage Rental',
+              amount: 100.00,
+              paidBy: 'p2', // Jordan paid
+              category: 'Transportation / Gas',
+              date: '2026-11-01',
+              receiptPhoto: ''
+            }
+          ],
+          settlements: []
+        }
+      ]
+    };
+
+    // --- APP CONTROLLER ---
+    class AppController {
+      constructor() {
+        this.state = this.loadState();
+        this.currentFilter = 'all'; // 'all', 'active', 'sold'
+        this.expandedItemId = null;
+        this.mathDrawerOpen = false;
+        this.dialogCallback = null;
+
+        this.initDOMElements();
+        this.attachEventListeners();
+        this.renderAll();
+      }
+
+      loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed.projects && parsed.projects.length > 0) {
+              return parsed;
+            }
+          }
+        } catch (e) {
+          console.error('Failed to load localStorage state:', e);
+        }
+        return JSON.parse(JSON.stringify(INITIAL_DEMO_STATE));
+      }
+
+      saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+        } catch (e) {
+          console.error('Failed to save to localStorage:', e);
+        }
+      }
+
+      getActiveProject() {
+        let p = this.state.projects.find(p => p.id === this.state.activeProjectId);
+        if (!p) {
+          p = this.state.projects[0];
+          this.state.activeProjectId = p.id;
+        }
+        return p;
+      }
+
+      getActiveUser() {
+        const p = this.getActiveProject();
+        let u = p.partners.find(u => u.id === this.state.activeUserId);
+        if (!u) {
+          u = p.partners[0];
+          this.state.activeUserId = u.id;
+        }
+        return u;
+      }
+
+      initDOMElements() {
+        // Headers & Switchers
+        this.elCurrentProjectName = document.getElementById('currentProjectName');
+        this.elProjectSelectBtn = document.getElementById('projectSelectBtn');
+        this.elProfileSwitchBtn = document.getElementById('profileSwitchBtn');
+        this.elActiveUserAvatar = document.getElementById('activeUserAvatar');
+        this.elActiveUserName = document.getElementById('activeUserName');
+        this.elOpenProjectModalBtn = document.getElementById('openProjectModalBtn');
+
+        // Hero Stats
+        this.elHeroNetProfit = document.getElementById('heroNetProfit');
+        this.elHeroProfitBadge = document.getElementById('heroProfitBadge');
+        this.elHeroGrossSales = document.getElementById('heroGrossSales');
+        this.elHeroTotalExpenses = document.getElementById('heroTotalExpenses');
+        this.elSettlementStatement = document.getElementById('settlementStatement');
+        this.elSettlementSubtitle = document.getElementById('settlementSubtitle');
+        this.elSettlementIconBox = document.getElementById('settlementIconBox');
+        this.elToggleMathBreakdownBtn = document.getElementById('toggleMathBreakdownBtn');
+        this.elMathChevron = document.getElementById('mathChevron');
+        this.elMathBreakdownDrawer = document.getElementById('mathBreakdownDrawer');
+        this.elMathSplitLabel = document.getElementById('mathSplitLabel');
+        this.elMathPartnerColumns = document.getElementById('mathPartnerColumns');
+        this.elSettleUpActionBtn = document.getElementById('settleUpActionBtn');
+
+        // Tabs
+        this.tabInventoryBtn = document.getElementById('tabInventoryBtn');
+        this.tabExpensesBtn = document.getElementById('tabExpensesBtn');
+        this.tabLedgerBtn = document.getElementById('tabLedgerBtn');
+        this.tabPartnersBtn = document.getElementById('tabPartnersBtn');
+
+        this.panelInventory = document.getElementById('panelInventory');
+        this.panelExpenses = document.getElementById('panelExpenses');
+        this.panelLedger = document.getElementById('panelLedger');
+        this.panelPartners = document.getElementById('panelPartners');
+
+        this.tabCountInventory = document.getElementById('tabCountInventory');
+        this.tabCountExpenses = document.getElementById('tabCountExpenses');
+
+        // Inventory
+        this.inventoryContainer = document.getElementById('inventoryContainer');
+        this.emptyInventoryState = document.getElementById('emptyInventoryState');
+        this.filterAllItemsBtn = document.getElementById('filterAllItemsBtn');
+        this.filterActiveItemsBtn = document.getElementById('filterActiveItemsBtn');
+        this.filterSoldItemsBtn = document.getElementById('filterSoldItemsBtn');
+        this.countAll = document.getElementById('countAll');
+        this.countActive = document.getElementById('countActive');
+        this.countSold = document.getElementById('countSold');
+        this.openAddItemModalBtn = document.getElementById('openAddItemModalBtn');
+        this.emptyStateAddBtn = document.getElementById('emptyStateAddBtn');
+
+        // Expenses
+        this.expensesContainer = document.getElementById('expensesContainer');
+        this.emptyExpensesState = document.getElementById('emptyExpensesState');
+        this.openAddExpenseModalBtn = document.getElementById('openAddExpenseModalBtn');
+
+        // Ledger & Partners
+        this.ledgerPartnerCards = document.getElementById('ledgerPartnerCards');
+        this.settlementHistoryContainer = document.getElementById('settlementHistoryContainer');
+        this.clearSettlementHistoryBtn = document.getElementById('clearSettlementHistoryBtn');
+        this.partnersListContainer = document.getElementById('partnersListContainer');
+        this.partnerTotalPercentage = document.getElementById('partnerTotalPercentage');
+        this.addPartnerBtn = document.getElementById('addPartnerBtn');
+        this.resetDemoDataBtn = document.getElementById('resetDemoDataBtn');
+        this.clearAllDataBtn = document.getElementById('clearAllDataBtn');
+
+        // Modals
+        this.itemModal = document.getElementById('itemModal');
+        this.closeItemModalBtn = document.getElementById('closeItemModalBtn');
+        this.cancelItemModalBtn = document.getElementById('cancelItemModalBtn');
+        this.itemForm = document.getElementById('itemForm');
+        this.itemModalTitle = document.getElementById('itemModalTitle');
+        this.itemEditId = document.getElementById('itemEditId');
+        this.itemInputTitle = document.getElementById('itemInputTitle');
+        this.itemInputPrice = document.getElementById('itemInputPrice');
+        this.itemInputPlatform = document.getElementById('itemInputPlatform');
+        this.itemInputAddedBy = document.getElementById('itemInputAddedBy');
+        this.itemInputPhoto = document.getElementById('itemInputPhoto');
+        this.itemInputNotes = document.getElementById('itemInputNotes');
+        this.photoPreviewBox = document.getElementById('photoPreviewBox');
+        this.photoPreviewImg = document.getElementById('photoPreviewImg');
+        this.photoPreviewName = document.getElementById('photoPreviewName');
+        this.removePhotoBtn = document.getElementById('removePhotoBtn');
+
+        this.markSoldModal = document.getElementById('markSoldModal');
+        this.closeMarkSoldModalBtn = document.getElementById('closeMarkSoldModalBtn');
+        this.cancelMarkSoldModalBtn = document.getElementById('cancelMarkSoldModalBtn');
+        this.markSoldForm = document.getElementById('markSoldForm');
+        this.soldItemId = document.getElementById('soldItemId');
+        this.soldItemThumb = document.getElementById('soldItemThumb');
+        this.soldItemTitle = document.getElementById('soldItemTitle');
+        this.soldItemTargetPrice = document.getElementById('soldItemTargetPrice');
+        this.soldInputPrice = document.getElementById('soldInputPrice');
+        this.soldInputFees = document.getElementById('soldInputFees');
+        this.soldInputSoldBy = document.getElementById('soldInputSoldBy');
+        this.soldInputCollectedBy = document.getElementById('soldInputCollectedBy');
+        this.soldInputPlatform = document.getElementById('soldInputPlatform');
+
+        this.expenseModal = document.getElementById('expenseModal');
+        this.closeExpenseModalBtn = document.getElementById('closeExpenseModalBtn');
+        this.cancelExpenseModalBtn = document.getElementById('cancelExpenseModalBtn');
+        this.expenseForm = document.getElementById('expenseForm');
+        this.expInputTitle = document.getElementById('expInputTitle');
+        this.expInputAmount = document.getElementById('expInputAmount');
+        this.expInputPaidBy = document.getElementById('expInputPaidBy');
+        this.expInputCategory = document.getElementById('expInputCategory');
+        this.expInputPhoto = document.getElementById('expInputPhoto');
+        this.receiptPreviewBox = document.getElementById('receiptPreviewBox');
+        this.receiptPreviewImg = document.getElementById('receiptPreviewImg');
+        this.receiptPreviewName = document.getElementById('receiptPreviewName');
+        this.removeReceiptBtn = document.getElementById('removeReceiptBtn');
+
+        this.projectModal = document.getElementById('projectModal');
+        this.closeProjectModalBtn = document.getElementById('closeProjectModalBtn');
+        this.closeProjectModalFooterBtn = document.getElementById('closeProjectModalFooterBtn');
+        this.editProjectNameInput = document.getElementById('editProjectNameInput');
+        this.saveProjectNameBtn = document.getElementById('saveProjectNameBtn');
+        this.projectListContainer = document.getElementById('projectListContainer');
+        this.createNewProjectBtn = document.getElementById('createNewProjectBtn');
+
+        this.settleModal = document.getElementById('settleModal');
+        this.closeSettleModalBtn = document.getElementById('closeSettleModalBtn');
+        this.cancelSettleModalBtn = document.getElementById('cancelSettleModalBtn');
+        this.confirmSettleActionBtn = document.getElementById('confirmSettleActionBtn');
+        this.modalSettleAmount = document.getElementById('modalSettleAmount');
+        this.modalSettleDescription = document.getElementById('modalSettleDescription');
+        this.venmoDeepLink = document.getElementById('venmoDeepLink');
+
+        // Custom Dialog Modal
+        this.dialogModal = document.getElementById('dialogModal');
+        this.dialogTitle = document.getElementById('dialogTitle');
+        this.dialogMessage = document.getElementById('dialogMessage');
+        this.dialogInputWrapper = document.getElementById('dialogInputWrapper');
+        this.dialogTextInput = document.getElementById('dialogTextInput');
+        this.dialogCancelBtn = document.getElementById('dialogCancelBtn');
+        this.dialogConfirmBtn = document.getElementById('dialogConfirmBtn');
+        this.dialogIconBox = document.getElementById('dialogIconBox');
+
+        this.toast = document.getElementById('toast');
+        this.toastMessage = document.getElementById('toastMessage');
+      }
+
+      showToast(msg, icon = '✓') {
+        this.toastMessage.textContent = msg;
+        document.getElementById('toastIcon').textContent = icon;
+        this.toast.classList.remove('translate-y-16', 'opacity-0');
+        setTimeout(() => {
+          this.toast.classList.add('translate-y-16', 'opacity-0');
+        }, 2600);
+      }
+
+      showConfirm(title, message, onConfirm, isDanger = false) {
+        this.dialogTitle.textContent = title;
+        this.dialogMessage.textContent = message;
+        this.dialogInputWrapper.classList.add('hidden');
+        this.dialogIconBox.textContent = isDanger ? '⚠️' : '❓';
+        this.dialogIconBox.className = isDanger 
+          ? 'w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm font-bold shrink-0'
+          : 'w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold shrink-0';
+        this.dialogConfirmBtn.className = isDanger
+          ? 'px-4 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white text-xs font-bold shadow-md shadow-rose-500/20'
+          : 'px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-md shadow-emerald-500/20';
+
+        this.dialogCallback = (confirmed) => {
+          if (confirmed && onConfirm) onConfirm();
+        };
+        this.dialogModal.classList.remove('hidden');
+      }
+
+      showPrompt(title, message, defaultValue, onConfirm) {
+        this.dialogTitle.textContent = title;
+        this.dialogMessage.textContent = message;
+        this.dialogInputWrapper.classList.remove('hidden');
+        this.dialogTextInput.value = defaultValue || '';
+        this.dialogIconBox.textContent = '✏️';
+        this.dialogIconBox.className = 'w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm font-bold shrink-0';
+        this.dialogConfirmBtn.className = 'px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-md shadow-emerald-500/20';
+
+        this.dialogCallback = (confirmed) => {
+          if (confirmed && onConfirm) {
+            const val = this.dialogTextInput.value.trim();
+            if (val) onConfirm(val);
+          }
+        };
+        this.dialogModal.classList.remove('hidden');
+        setTimeout(() => this.dialogTextInput.focus(), 100);
+      }
+
+      attachEventListeners() {
+        // Dialog Modal Controls
+        this.dialogCancelBtn.addEventListener('click', () => {
+          this.dialogModal.classList.add('hidden');
+          if (this.dialogCallback) this.dialogCallback(false);
+        });
+        this.dialogConfirmBtn.addEventListener('click', () => {
+          this.dialogModal.classList.add('hidden');
+          if (this.dialogCallback) this.dialogCallback(true);
+        });
+
+        // Tab switching
+        const tabs = [
+          { btn: this.tabInventoryBtn, panel: this.panelInventory },
+          { btn: this.tabExpensesBtn, panel: this.panelExpenses },
+          { btn: this.tabLedgerBtn, panel: this.panelLedger },
+          { btn: this.tabPartnersBtn, panel: this.panelPartners }
+        ];
+
+        tabs.forEach(({ btn, panel }) => {
+          btn.addEventListener('click', () => {
+            tabs.forEach(t => {
+              t.panel.classList.add('hidden');
+              t.btn.className = 'tab-btn flex-1 py-2 px-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 flex items-center justify-center gap-1.5 transition whitespace-nowrap';
+            });
+            panel.classList.remove('hidden');
+            btn.className = 'tab-btn flex-1 py-2 px-3 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold flex items-center justify-center gap-1.5 transition whitespace-nowrap';
+          });
+        });
+
+        // Switch active user profile
+        this.elProfileSwitchBtn.addEventListener('click', () => {
+          const project = this.getActiveProject();
+          const currIdx = project.partners.findIndex(p => p.id === this.state.activeUserId);
+          const nextIdx = (currIdx + 1) % project.partners.length;
+          this.state.activeUserId = project.partners[nextIdx].id;
+          this.saveState();
+          this.renderHeader();
+          this.showToast(`Switched active profile to ${project.partners[nextIdx].name}`, '👤');
+        });
+
+        // Project settings / selector modal
+        const openProjectModal = () => {
+          const p = this.getActiveProject();
+          this.editProjectNameInput.value = p.name;
+          this.renderProjectList();
+          this.projectModal.classList.remove('hidden');
+        };
+        this.elProjectSelectBtn.addEventListener('click', openProjectModal);
+        this.elOpenProjectModalBtn.addEventListener('click', openProjectModal);
+        this.closeProjectModalBtn.addEventListener('click', () => this.projectModal.classList.add('hidden'));
+        this.closeProjectModalFooterBtn.addEventListener('click', () => this.projectModal.classList.add('hidden'));
+
+        this.saveProjectNameBtn.addEventListener('click', () => {
+          const val = this.editProjectNameInput.value.trim();
+          if (val) {
+            this.getActiveProject().name = val;
+            this.saveState();
+            this.renderHeader();
+            this.showToast('Project renamed', '✓');
+          }
+        });
+
+        this.createNewProjectBtn.addEventListener('click', () => {
+          this.showPrompt('Create Project', 'Enter the name of your new resale or storage project:', 'Summer Thrift Flip #2', (name) => {
+            const newProj = {
+              id: 'proj_' + Date.now(),
+              name: name,
+              created: new Date().toISOString().split('T')[0],
+              partners: [
+                { id: 'p1', name: 'Alex', split: 50, venmo: 'alex-resell' },
+                { id: 'p2', name: 'Jordan', split: 50, venmo: 'jordan-flips' }
+              ],
+              items: [],
+              expenses: [],
+              settlements: []
+            };
+            this.state.projects.push(newProj);
+            this.state.activeProjectId = newProj.id;
+            this.saveState();
+            this.projectModal.classList.add('hidden');
+            this.renderAll();
+            this.showToast('Created new project: ' + newProj.name, '📁');
+          });
+        });
+
+        // Toggle Math Breakdown Drawer
+        this.elToggleMathBreakdownBtn.addEventListener('click', () => {
+          this.mathDrawerOpen = !this.mathDrawerOpen;
+          if (this.mathDrawerOpen) {
+            this.elMathBreakdownDrawer.classList.remove('hidden');
+            this.elMathChevron.classList.add('rotate-180');
+          } else {
+            this.elMathBreakdownDrawer.classList.add('hidden');
+            this.elMathChevron.classList.remove('rotate-180');
+          }
+        });
+
+        // Settle up modal
+        this.elSettleUpActionBtn.addEventListener('click', () => {
+          this.openSettleModal();
+        });
+        this.closeSettleModalBtn.addEventListener('click', () => this.settleModal.classList.add('hidden'));
+        this.cancelSettleModalBtn.addEventListener('click', () => this.settleModal.classList.add('hidden'));
+
+        this.confirmSettleActionBtn.addEventListener('click', () => {
+          const project = this.getActiveProject();
+          const math = this.calculateSettlement(project);
+          if (math.status === 'balanced') {
+            this.showToast('Already squared up!', '✓');
+            this.settleModal.classList.add('hidden');
+            return;
+          }
+
+          const entry = {
+            id: 'set_' + Date.now(),
+            date: new Date().toISOString().split('T')[0],
+            from: math.payer.name,
+            to: math.payee.name,
+            amount: math.balance,
+            notes: `Paid ${math.payee.name} to square up project.`
+          };
+          project.settlements.push(entry);
+          this.saveState();
+          this.settleModal.classList.add('hidden');
+          this.renderAll();
+          this.showToast(`Recorded settlement: ${math.payer.name} paid ${math.payee.name} $${math.balance.toFixed(2)}`, '🤝');
+        });
+
+        // Inventory filters
+        const filters = [
+          { btn: this.filterAllItemsBtn, type: 'all' },
+          { btn: this.filterActiveItemsBtn, type: 'active' },
+          { btn: this.filterSoldItemsBtn, type: 'sold' }
+        ];
+        filters.forEach(({ btn, type }) => {
+          btn.addEventListener('click', () => {
+            this.currentFilter = type;
+            filters.forEach(f => {
+              f.btn.className = 'inv-filter px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
+            });
+            btn.className = 'inv-filter px-3 py-1.5 rounded-lg bg-slate-800 text-white font-medium transition';
+            this.renderInventory();
+          });
+        });
+
+        // Add Item Modal
+        const openItemModal = () => {
+          this.itemForm.reset();
+          this.itemEditId.value = '';
+          this.itemModalTitle.innerHTML = '<span>📦</span> Add Item to Project';
+          this.photoPreviewBox.classList.add('hidden');
+          this.photoPreviewImg.src = '';
+          this.populatePartnerDropdown(this.itemInputAddedBy);
+          this.itemInputAddedBy.value = this.state.activeUserId;
+          this.itemModal.classList.remove('hidden');
+        };
+        this.openAddItemModalBtn.addEventListener('click', openItemModal);
+        this.emptyStateAddBtn.addEventListener('click', openItemModal);
+        this.closeItemModalBtn.addEventListener('click', () => this.itemModal.classList.add('hidden'));
+        this.cancelItemModalBtn.addEventListener('click', () => this.itemModal.classList.add('hidden'));
+
+        // Preset autofill buttons
+        document.querySelectorAll('.preset-item-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            this.itemInputTitle.value = btn.dataset.title;
+            this.itemInputPrice.value = btn.dataset.price;
+            this.itemInputPlatform.value = btn.dataset.platform;
+            this.itemInputNotes.value = 'Found in unit inspection, great condition.';
+            this.showToast('Autofilled: ' + btn.dataset.title, '⚡');
+          });
+        });
+
+        // Photo Upload Handling
+        this.itemInputPhoto.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              this.photoPreviewImg.src = event.target.result;
+              this.photoPreviewName.textContent = file.name;
+              this.photoPreviewBox.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+        this.removePhotoBtn.addEventListener('click', () => {
+          this.itemInputPhoto.value = '';
+          this.photoPreviewImg.src = '';
+          this.photoPreviewBox.classList.add('hidden');
+        });
+
+        // Submit Item Form
+        this.itemForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const project = this.getActiveProject();
+          const editId = this.itemEditId.value;
+
+          const title = this.itemInputTitle.value.trim();
+          const targetPrice = parseFloat(this.itemInputPrice.value) || 0;
+          const platform = this.itemInputPlatform.value;
+          const addedBy = this.itemInputAddedBy.value;
+          const notes = this.itemInputNotes.value.trim();
+          const photo = this.photoPreviewImg.src || '';
+
+          if (editId) {
+            // Edit existing
+            const item = project.items.find(i => i.id === editId);
+            if (item) {
+              item.title = title;
+              item.targetPrice = targetPrice;
+              item.platform = platform;
+              item.addedBy = addedBy;
+              item.notes = notes;
+              if (photo) item.photo = photo;
+              this.showToast('Item updated', '✓');
+            }
+          } else {
+            // New item
+            const newItem = {
+              id: 'item_' + Date.now(),
+              title,
+              targetPrice,
+              soldPrice: null,
+              platformFees: 0,
+              platform,
+              addedBy,
+              soldBy: null,
+              collectedBy: null,
+              status: 'active',
+              dateAdded: new Date().toISOString().split('T')[0],
+              dateSold: null,
+              photo,
+              notes
+            };
+            project.items.unshift(newItem);
+            this.showToast('Added item to inventory', '📦');
+          }
+
+          this.saveState();
+          this.itemModal.classList.add('hidden');
+          this.renderAll();
+        });
+
+        // Mark as Sold Modal
+        this.closeMarkSoldModalBtn.addEventListener('click', () => this.markSoldModal.classList.add('hidden'));
+        this.cancelMarkSoldModalBtn.addEventListener('click', () => this.markSoldModal.classList.add('hidden'));
+
+        this.markSoldForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const project = this.getActiveProject();
+          const itemId = this.soldItemId.value;
+          const item = project.items.find(i => i.id === itemId);
+
+          if (item) {
+            item.soldPrice = parseFloat(this.soldInputPrice.value) || 0;
+            item.platformFees = parseFloat(this.soldInputFees.value) || 0;
+            item.soldBy = this.soldInputSoldBy.value;
+            item.collectedBy = this.soldInputCollectedBy.value;
+            item.platform = this.soldInputPlatform.value;
+            item.status = 'sold';
+            item.dateSold = new Date().toISOString().split('T')[0];
+
+            this.saveState();
+            this.markSoldModal.classList.add('hidden');
+            this.renderAll();
+            this.showToast(`Sold for $${item.soldPrice.toFixed(2)}! Profit pot updated.`, '💰');
+          }
+        });
+
+        // Expenses Modal
+        const openExpenseModal = () => {
+          this.expenseForm.reset();
+          this.receiptPreviewBox.classList.add('hidden');
+          this.receiptPreviewImg.src = '';
+          this.populatePartnerDropdown(this.expInputPaidBy);
+          this.expInputPaidBy.value = this.state.activeUserId;
+          this.expenseModal.classList.remove('hidden');
+        };
+        this.openAddExpenseModalBtn.addEventListener('click', openExpenseModal);
+        this.closeExpenseModalBtn.addEventListener('click', () => this.expenseModal.classList.add('hidden'));
+        this.cancelExpenseModalBtn.addEventListener('click', () => this.expenseModal.classList.add('hidden'));
+
+        // Preset expense autofill buttons
+        document.querySelectorAll('.preset-exp-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            this.expInputTitle.value = btn.dataset.title;
+            this.expInputAmount.value = btn.dataset.amount;
+            this.expInputCategory.value = btn.dataset.cat;
+            this.showToast('Autofilled: ' + btn.dataset.title, '⚡');
+          });
+        });
+
+        this.expInputPhoto.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              this.receiptPreviewImg.src = event.target.result;
+              this.receiptPreviewName.textContent = file.name;
+              this.receiptPreviewBox.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+        this.removeReceiptBtn.addEventListener('click', () => {
+          this.expInputPhoto.value = '';
+          this.receiptPreviewImg.src = '';
+          this.receiptPreviewBox.classList.add('hidden');
+        });
+
+        this.expenseForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const project = this.getActiveProject();
+          const title = this.expInputTitle.value.trim();
+          const amount = parseFloat(this.expInputAmount.value) || 0;
+          const paidBy = this.expInputPaidBy.value;
+          const category = this.expInputCategory.value;
+          const receiptPhoto = this.receiptPreviewImg.src || '';
+
+          const newExp = {
+            id: 'exp_' + Date.now(),
+            title,
+            amount,
+            paidBy,
+            category,
+            date: new Date().toISOString().split('T')[0],
+            receiptPhoto
+          };
+
+          project.expenses.push(newExp);
+          this.saveState();
+          this.expenseModal.classList.add('hidden');
+          this.renderAll();
+          this.showToast('Logged expense of $' + amount.toFixed(2), '🧾');
+        });
+
+        // Clear settlement activity history
+        this.clearSettlementHistoryBtn.addEventListener('click', () => {
+          const project = this.getActiveProject();
+          this.showConfirm('Clear Settlement Log', 'Clear settlement transaction history for this project?', () => {
+            project.settlements = [];
+            this.saveState();
+            this.renderAll();
+            this.showToast('Settlement history cleared', '✓');
+          }, true);
+        });
+
+        // Demo data reset & clear
+        this.resetDemoDataBtn.addEventListener('click', () => {
+          this.showConfirm('Reload Demo Data', 'Reset project to sample Storage Unit 402 data with realistic sales and expenses?', () => {
+            this.state = JSON.parse(JSON.stringify(INITIAL_DEMO_STATE));
+            this.saveState();
+            this.renderAll();
+            this.showToast('Sample project data reloaded', '🔄');
+          });
+        });
+
+        this.clearAllDataBtn.addEventListener('click', () => {
+          this.showConfirm('Clear All Data', 'Erase all projects and start completely fresh?', () => {
+            const freshProject = {
+              id: 'proj_' + Date.now(),
+              name: 'My New Storage Flip',
+              created: new Date().toISOString().split('T')[0],
+              partners: [
+                { id: 'p1', name: 'Partner 1', split: 50, venmo: '' },
+                { id: 'p2', name: 'Partner 2', split: 50, venmo: '' }
+              ],
+              items: [],
+              expenses: [],
+              settlements: []
+            };
+            this.state = {
+              activeProjectId: freshProject.id,
+              activeUserId: 'p1',
+              projects: [freshProject]
+            };
+            this.saveState();
+            this.renderAll();
+            this.showToast('All data cleared', '🗑️');
+          }, true);
+        });
+
+        // Add Partner
+        this.addPartnerBtn.addEventListener('click', () => {
+          this.showPrompt('Add Partner', 'Enter the name of the new project partner:', 'Sam', (name) => {
+            const project = this.getActiveProject();
+            const newId = 'p_' + Date.now();
+            project.partners.push({
+              id: newId,
+              name: name,
+              split: 0,
+              venmo: ''
+            });
+            this.saveState();
+            this.renderPartners();
+            this.showToast('Added partner ' + name, '👥');
+          });
+        });
+      }
+
+      populatePartnerDropdown(selectEl) {
+        const project = this.getActiveProject();
+        selectEl.innerHTML = '';
+        project.partners.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = `${p.name} (${p.split}%)`;
+          selectEl.appendChild(opt);
+        });
+      }
+
+      // --- FINANCIAL SETTLEMENT CALCULATOR (WATERFALL RULES) ---
+      calculateSettlement(project) {
+        // 1. Calculate Gross Sales
+        let grossSales = 0;
+        let totalFees = 0;
+        const salesByPartner = {};
+        const collectedByPartner = {};
+        const expensesByPartner = {};
+
+        project.partners.forEach(p => {
+          salesByPartner[p.id] = 0;
+          collectedByPartner[p.id] = 0;
+          expensesByPartner[p.id] = 0;
+        });
+
+        project.items.forEach(item => {
+          if (item.status === 'sold' && item.soldPrice !== null) {
+            const netItemSale = item.soldPrice - (item.platformFees || 0);
+            grossSales += netItemSale;
+            totalFees += (item.platformFees || 0);
+
+            if (item.soldBy && salesByPartner[item.soldBy] !== undefined) {
+              salesByPartner[item.soldBy] += netItemSale;
+            }
+            // Who is physically holding the money?
+            const holder = item.collectedBy || item.soldBy || project.partners[0].id;
+            if (collectedByPartner[holder] !== undefined) {
+              collectedByPartner[holder] += netItemSale;
+            }
+          }
+        });
+
+        // 2. Calculate Total Expenses Paid Out-of-Pocket
+        let totalExpenses = 0;
+        project.expenses.forEach(exp => {
+          totalExpenses += exp.amount;
+          if (exp.paidBy && expensesByPartner[exp.paidBy] !== undefined) {
+            expensesByPartner[exp.paidBy] += exp.amount;
+          }
+        });
+
+        // 3. Adjust for manual settlements recorded in history
+        project.settlements.forEach(s => {
+          const payer = project.partners.find(p => p.name === s.from);
+          const payee = project.partners.find(p => p.name === s.to);
+          if (payer && payee) {
+            // Payer transferred cash to payee
+            collectedByPartner[payer.id] += s.amount;
+            collectedByPartner[payee.id] -= s.amount;
+          }
+        });
+
+        // 4. Net Profit Pot
+        const netProfit = grossSales - totalExpenses;
+
+        // 5. Calculate Entitlement for each partner
+        // Waterfall: Reimburse expenses first + (Net Profit * Split %)
+        const partnerStats = project.partners.map(p => {
+          const splitRatio = (p.split || 0) / 100;
+          const profitShare = netProfit > 0 ? (netProfit * splitRatio) : (netProfit * splitRatio); // shares loss equally if negative
+          const reimbursementOwed = expensesByPartner[p.id] || 0;
+          const totalEntitled = reimbursementOwed + profitShare;
+          const cashInHand = collectedByPartner[p.id] || 0;
+          const netBalance = cashInHand - totalEntitled; 
+          // If netBalance > 0, they hold MORE cash than they are entitled to (THEY OWE THE POT)
+          // If netBalance < 0, they hold LESS cash than they are entitled to (THEY ARE OWED MONEY)
+
+          return {
+            id: p.id,
+            name: p.name,
+            split: p.split,
+            venmo: p.venmo,
+            expensesPaid: reimbursementOwed,
+            salesMade: salesByPartner[p.id] || 0,
+            cashInHand: cashInHand,
+            profitShare: profitShare,
+            totalEntitled: totalEntitled,
+            netBalance: netBalance // > 0 = owes, < 0 = is owed
+          };
+        });
+
+        // 6. Determine 2-party settlement recommendation (simplest pair)
+        let payer = null;
+        let payee = null;
+        let balance = 0;
+
+        if (partnerStats.length === 2) {
+          const p1 = partnerStats[0];
+          const p2 = partnerStats[1];
+
+          if (Math.abs(p1.netBalance) > 0.01) {
+            if (p1.netBalance > 0) {
+              payer = p1;
+              payee = p2;
+              balance = p1.netBalance;
+            } else {
+              payer = p2;
+              payee = p1;
+              balance = p2.netBalance;
+            }
+          }
+        }
+
+        return {
+          grossSales,
+          totalExpenses,
+          netProfit,
+          partnerStats,
+          payer,
+          payee,
+          balance: Math.abs(balance),
+          status: Math.abs(balance) < 0.01 ? 'balanced' : 'unsettled'
+        };
+      }
+
+      openSettleModal() {
+        const project = this.getActiveProject();
+        const math = this.calculateSettlement(project);
+
+        if (math.status === 'balanced') {
+          this.modalSettleAmount.textContent = '$0.00';
+          this.modalSettleDescription.textContent = '🎉 All partners are completely squared up!';
+          this.venmoDeepLink.classList.add('hidden');
+        } else {
+          this.modalSettleAmount.textContent = `$${math.balance.toFixed(2)}`;
+          this.modalSettleDescription.textContent = `${math.payer.name} pays ${math.payee.name}`;
+
+          if (math.payee && math.payee.venmo) {
+            this.venmoDeepLink.href = `https://venmo.com/${math.payee.venmo}?txn=pay&amount=${math.balance.toFixed(2)}&note=${encodeURIComponent('BusinessBuddies: ' + project.name)}`;
+            this.venmoDeepLink.textContent = `💸 Pay ${math.payee.name} via Venmo ($${math.balance.toFixed(2)})`;
+            this.venmoDeepLink.classList.remove('hidden');
+          } else {
+            this.venmoDeepLink.classList.add('hidden');
+          }
+        }
+
+        this.settleModal.classList.remove('hidden');
+      }
+
+      // --- RENDER FUNCTIONS ---
+      renderAll() {
+        this.renderHeader();
+        this.renderHeroAndSettlement();
+        this.renderInventory();
+        this.renderExpenses();
+        this.renderLedger();
+        this.renderPartners();
+      }
+
+      renderHeader() {
+        const project = this.getActiveProject();
+        const user = this.getActiveUser();
+
+        this.elCurrentProjectName.textContent = project.name;
+        this.elActiveUserName.textContent = user.name;
+        this.elActiveUserAvatar.textContent = user.name.charAt(0).toUpperCase();
+      }
+
+      renderHeroAndSettlement() {
+        const project = this.getActiveProject();
+        const math = this.calculateSettlement(project);
+
+        this.elHeroGrossSales.textContent = `$${math.grossSales.toFixed(2)}`;
+        this.elHeroTotalExpenses.textContent = `$${math.totalExpenses.toFixed(2)}`;
+        this.elHeroNetProfit.textContent = `$${math.netProfit.toFixed(2)}`;
+
+        if (math.netProfit >= 0) {
+          this.elHeroNetProfit.className = 'text-3xl sm:text-4xl font-extrabold text-emerald-400 mono tracking-tight';
+          this.elHeroProfitBadge.textContent = 'Profitable';
+          this.elHeroProfitBadge.className = 'text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+        } else {
+          this.elHeroNetProfit.className = 'text-3xl sm:text-4xl font-extrabold text-rose-400 mono tracking-tight';
+          this.elHeroProfitBadge.textContent = 'In The Red';
+          this.elHeroProfitBadge.className = 'text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30';
+        }
+
+        // Settlement Banner
+        if (math.status === 'balanced') {
+          this.elSettlementIconBox.className = 'w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5';
+          this.elSettlementSubtitle.textContent = 'Settlement Status';
+          this.elSettlementSubtitle.className = 'text-[11px] uppercase tracking-wider font-bold text-emerald-400';
+          this.elSettlementStatement.textContent = '🤝 All partners are squared up! Zero balances owed.';
+          this.elSettleUpActionBtn.classList.add('hidden');
+        } else {
+          this.elSettlementIconBox.className = 'w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5';
+          this.elSettlementSubtitle.textContent = 'Action Required to Settle';
+          this.elSettlementSubtitle.className = 'text-[11px] uppercase tracking-wider font-bold text-indigo-300';
+          this.elSettlementStatement.innerHTML = `<span class="text-indigo-400 font-bold">${math.payer.name}</span> pays <span class="text-emerald-400 font-bold">${math.payee.name}</span> <span class="mono text-white font-extrabold">$${math.balance.toFixed(2)}</span> to square up.`;
+          this.elSettleUpActionBtn.classList.remove('hidden');
+        }
+
+        // Render Math Breakdown
+        const splitText = project.partners.map(p => `${p.name}: ${p.split}%`).join(' / ');
+        this.elMathSplitLabel.textContent = splitText;
+
+        this.elMathPartnerColumns.innerHTML = '';
+        math.partnerStats.forEach(stat => {
+          const col = document.createElement('div');
+          col.className = 'p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1.5';
+
+          const netBadge = stat.netBalance > 0 
+            ? `<span class="text-rose-400 font-bold mono">Owes $${stat.netBalance.toFixed(2)}</span>`
+            : stat.netBalance < 0
+              ? `<span class="text-emerald-400 font-bold mono">Owed $${Math.abs(stat.netBalance).toFixed(2)}</span>`
+              : `<span class="text-slate-400 font-bold mono">$0.00 (Even)</span>`;
+
+          col.innerHTML = `
+            <div class="flex items-center justify-between font-bold text-white border-b border-slate-800 pb-1">
+              <span>${stat.name} (${stat.split}%)</span>
+              ${netBadge}
+            </div>
+            <div class="flex justify-between text-slate-400">
+              <span>Expenses Reimbursed:</span>
+              <span class="mono text-slate-200">+$${stat.expensesPaid.toFixed(2)}</span>
+            </div>
+            <div class="flex justify-between text-slate-400">
+              <span>Profit Share (${stat.split}%):</span>
+              <span class="mono text-emerald-400">+$${stat.profitShare.toFixed(2)}</span>
+            </div>
+            <div class="flex justify-between text-slate-300 font-semibold border-t border-slate-800 pt-1">
+              <span>Total Entitled to Keep:</span>
+              <span class="mono text-white">$${stat.totalEntitled.toFixed(2)}</span>
+            </div>
+            <div class="flex justify-between text-slate-400">
+              <span>Cash Currently in Hand:</span>
+              <span class="mono text-indigo-300">$${stat.cashInHand.toFixed(2)}</span>
+            </div>
+          `;
+          this.elMathPartnerColumns.appendChild(col);
+        });
+      }
+
+      renderInventory() {
+        const project = this.getActiveProject();
+        const items = project.items;
+
+        const countAll = items.length;
+        const countActive = items.filter(i => i.status === 'active').length;
+        const countSold = items.filter(i => i.status === 'sold').length;
+
+        this.countAll.textContent = countAll;
+        this.countActive.textContent = countActive;
+        this.countSold.textContent = countSold;
+        this.tabCountInventory.textContent = countActive;
+
+        let filtered = items;
+        if (this.currentFilter === 'active') filtered = items.filter(i => i.status === 'active');
+        if (this.currentFilter === 'sold') filtered = items.filter(i => i.status === 'sold');
+
+        this.inventoryContainer.innerHTML = '';
+
+        if (filtered.length === 0) {
+          this.emptyInventoryState.classList.remove('hidden');
+          return;
+        } else {
+          this.emptyInventoryState.classList.add('hidden');
+        }
+
+        filtered.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'bg-slate-900 rounded-xl border border-slate-800 hover:border-slate-700 transition overflow-hidden shadow-sm';
+
+          const addedByPartner = project.partners.find(p => p.id === item.addedBy);
+          const addedByName = addedByPartner ? addedByPartner.name : 'Partner';
+
+          const isSold = item.status === 'sold';
+          const isExpanded = this.expandedItemId === item.id;
+
+          const statusBadge = isSold
+            ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">💰 SOLD</span>`
+            : `<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">📦 FOR SALE</span>`;
+
+          const priceBadge = isSold
+            ? `<div class="text-right">
+                <span class="text-xs font-bold text-emerald-400 mono">$${item.soldPrice.toFixed(2)}</span>
+                <span class="text-[10px] text-slate-500 block line-through">$${item.targetPrice.toFixed(2)}</span>
+               </div>`
+            : `<div class="text-right">
+                <span class="text-xs font-bold text-white mono">$${item.targetPrice.toFixed(2)}</span>
+                <span class="text-[10px] text-slate-400 block">Target</span>
+               </div>`;
+
+          const photoHtml = item.photo
+            ? `<img src="${item.photo}" alt="${item.title}" class="w-12 h-12 rounded-lg object-cover border border-slate-700 shrink-0">`
+            : `<div class="w-12 h-12 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xl shrink-0">📦</div>`;
+
+          card.innerHTML = `
+            <!-- Collapsed Header Row -->
+            <div class="p-3 sm:p-3.5 flex items-center justify-between gap-3 cursor-pointer select-none card-header" data-id="${item.id}">
+              <div class="flex items-center gap-3 min-w-0">
+                ${photoHtml}
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 mb-0.5">
+                    ${statusBadge}
+                    <span class="text-[11px] font-medium text-slate-400 truncate">${item.platform || 'General'}</span>
+                  </div>
+                  <h4 class="text-xs sm:text-sm font-semibold text-white truncate">${item.title}</h4>
+                  <div class="text-[10px] text-slate-500 mt-0.5">
+                    Added by <span class="text-slate-300 font-medium">${addedByName}</span> • ${item.dateAdded}
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3 shrink-0">
+                ${priceBadge}
+                <svg class="w-4 h-4 text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
+
+            <!-- Expandable Drawer Details -->
+            <div class="${isExpanded ? 'block' : 'hidden'} px-3.5 pb-3.5 pt-1 border-t border-slate-800/80 bg-slate-950/40 text-xs space-y-3">
+              ${item.notes ? `<div class="text-[11px] text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">📝 <strong>Notes:</strong> ${item.notes}</div>` : ''}
+
+              ${isSold ? `
+                <div class="grid grid-cols-2 gap-2 text-[11px] bg-emerald-950/20 p-2.5 rounded-lg border border-emerald-900/40">
+                  <div>
+                    <span class="text-slate-400 block">Sold By:</span>
+                    <span class="font-bold text-white">${project.partners.find(p => p.id === item.soldBy)?.name || 'Partner'}</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 block">Cash Collected By:</span>
+                    <span class="font-bold text-emerald-300">${project.partners.find(p => p.id === item.collectedBy)?.name || 'Partner'}</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 block">Platform Fees Deducted:</span>
+                    <span class="mono font-semibold text-rose-300">-$${(item.platformFees || 0).toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 block">Net Added to Pot:</span>
+                    <span class="mono font-bold text-emerald-400">+$${(item.soldPrice - (item.platformFees || 0)).toFixed(2)}</span>
+                  </div>
+                </div>
+              ` : ''}
+
+              <div class="flex items-center justify-between pt-1">
+                <div>
+                  ${!isSold ? `
+                    <button class="mark-sold-btn px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md shadow-emerald-500/20 transition flex items-center gap-1.5" data-id="${item.id}">
+                      <span>💰 Mark as Sold</span>
+                    </button>
+                  ` : `
+                    <button class="mark-unsold-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition" data-id="${item.id}">
+                      ↺ Move Back to Active
+                    </button>
+                  `}
+                </div>
+                <div class="flex items-center gap-2">
+                  <button class="edit-item-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition" data-id="${item.id}">Edit</button>
+                  <button class="delete-item-btn px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs transition" data-id="${item.id}">Delete</button>
+                </div>
+              </div>
+            </div>
+          `;
+
+          // Card click to expand
+          card.querySelector('.card-header').addEventListener('click', (e) => {
+            if (e.target.closest('button')) return;
+            this.expandedItemId = this.expandedItemId === item.id ? null : item.id;
+            this.renderInventory();
+          });
+
+          // Mark as sold trigger
+          const markSoldBtn = card.querySelector('.mark-sold-btn');
+          if (markSoldBtn) {
+            markSoldBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              this.openMarkSoldModal(item);
+            });
+          }
+
+          // Move back to unsold trigger
+          const markUnsoldBtn = card.querySelector('.mark-unsold-btn');
+          if (markUnsoldBtn) {
+            markUnsoldBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              item.status = 'active';
+              item.soldPrice = null;
+              item.soldBy = null;
+              item.collectedBy = null;
+              item.dateSold = null;
+              this.saveState();
+              this.renderAll();
+              this.showToast('Item moved back to active inventory', '↺');
+            });
+          }
+
+          // Edit item trigger
+          card.querySelector('.edit-item-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.openEditItemModal(item);
+          });
+
+          // Delete item trigger
+          card.querySelector('.delete-item-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.showConfirm('Delete Item', `Are you sure you want to delete "${item.title}" from project inventory?`, () => {
+              project.items = project.items.filter(i => i.id !== item.id);
+              this.saveState();
+              this.renderAll();
+              this.showToast('Item deleted', '🗑️');
+            }, true);
+          });
+
+          this.inventoryContainer.appendChild(card);
+        });
+      }
+
+      openMarkSoldModal(item) {
+        this.soldItemId.value = item.id;
+        this.soldItemTitle.textContent = item.title;
+        this.soldItemTargetPrice.textContent = `$${item.targetPrice.toFixed(2)}`;
+        this.soldInputPrice.value = item.targetPrice.toFixed(2);
+        this.soldInputFees.value = '0.00';
+        this.soldInputPlatform.value = item.platform || 'Facebook Marketplace';
+
+        this.populatePartnerDropdown(this.soldInputSoldBy);
+        this.populatePartnerDropdown(this.soldInputCollectedBy);
+
+        this.soldInputSoldBy.value = this.state.activeUserId;
+        this.soldInputCollectedBy.value = this.state.activeUserId;
+
+        if (item.photo) {
+          this.soldItemThumb.innerHTML = `<img src="${item.photo}" class="w-full h-full object-cover rounded-lg">`;
+        } else {
+          this.soldItemThumb.innerHTML = '📦';
+        }
+
+        this.markSoldModal.classList.remove('hidden');
+      }
+
+      openEditItemModal(item) {
+        this.itemEditId.value = item.id;
+        this.itemModalTitle.innerHTML = '<span>✏️</span> Edit Item';
+        this.itemInputTitle.value = item.title;
+        this.itemInputPrice.value = item.targetPrice;
+        this.itemInputPlatform.value = item.platform || 'Facebook Marketplace';
+        this.itemInputNotes.value = item.notes || '';
+
+        this.populatePartnerDropdown(this.itemInputAddedBy);
+        this.itemInputAddedBy.value = item.addedBy || this.state.activeUserId;
+
+        if (item.photo) {
+          this.photoPreviewImg.src = item.photo;
+          this.photoPreviewName.textContent = 'Existing photo attached';
+          this.photoPreviewBox.classList.remove('hidden');
+        } else {
+          this.photoPreviewBox.classList.add('hidden');
+          this.photoPreviewImg.src = '';
+        }
+
+        this.itemModal.classList.remove('hidden');
+      }
+
+      renderExpenses() {
+        const project = this.getActiveProject();
+        const expenses = project.expenses;
+        this.tabCountExpenses.textContent = expenses.length;
+
+        this.expensesContainer.innerHTML = '';
+        if (expenses.length === 0) {
+          this.emptyExpensesState.classList.remove('hidden');
+          return;
+        } else {
+          this.emptyExpensesState.classList.add('hidden');
+        }
+
+        expenses.forEach(exp => {
+          const card = document.createElement('div');
+          card.className = 'bg-slate-900 rounded-xl border border-slate-800 p-3.5 flex items-center justify-between gap-3 shadow-sm';
+
+          const payer = project.partners.find(p => p.id === exp.paidBy);
+          const payerName = payer ? payer.name : 'Partner';
+
+          card.innerHTML = `
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg shrink-0">
+                🧾
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">${exp.category}</span>
+                  <span class="text-[10px] text-slate-500">${exp.date}</span>
+                </div>
+                <h4 class="text-xs sm:text-sm font-semibold text-white truncate">${exp.title}</h4>
+                <div class="text-[10px] text-slate-400 mt-0.5">
+                  Paid out-of-pocket by <span class="text-indigo-300 font-bold">${payerName}</span> (100% reimbursed)
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 shrink-0">
+              <span class="text-sm sm:text-base font-extrabold text-rose-400 mono">-$${exp.amount.toFixed(2)}</span>
+              <button class="delete-exp-btn text-slate-500 hover:text-rose-400 p-1" data-id="${exp.id}" title="Delete expense">✕</button>
+            </div>
+          `;
+
+          card.querySelector('.delete-exp-btn').addEventListener('click', () => {
+            this.showConfirm('Delete Expense', `Remove expense "${exp.title}" of $${exp.amount.toFixed(2)}?`, () => {
+              project.expenses = project.expenses.filter(e => e.id !== exp.id);
+              this.saveState();
+              this.renderAll();
+              this.showToast('Expense removed', '🗑️');
+            }, true);
+          });
+
+          this.expensesContainer.appendChild(card);
+        });
+      }
+
+      renderLedger() {
+        const project = this.getActiveProject();
+        const math = this.calculateSettlement(project);
+
+        this.ledgerPartnerCards.innerHTML = '';
+        math.partnerStats.forEach(stat => {
+          const card = document.createElement('div');
+          card.className = 'bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2';
+
+          const netBadge = stat.netBalance > 0
+            ? `<span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] font-bold">OWES $${stat.netBalance.toFixed(2)}</span>`
+            : stat.netBalance < 0
+              ? `<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">OWED $${Math.abs(stat.netBalance).toFixed(2)}</span>`
+              : `<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-bold">SQUARED UP</span>`;
+
+          card.innerHTML = `
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <span class="font-bold text-white text-xs">${stat.name}</span>
+              ${netBadge}
+            </div>
+            <div class="space-y-1 text-[11px]">
+              <div class="flex justify-between text-slate-400">
+                <span>Agreed Profit Split:</span>
+                <span class="text-white font-semibold">${stat.split}%</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Expenses Fronted (Reimbursed):</span>
+                <span class="mono text-slate-200">+$${stat.expensesPaid.toFixed(2)}</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Net Profit Share (${stat.split}%):</span>
+                <span class="mono text-emerald-400">+$${stat.profitShare.toFixed(2)}</span>
+              </div>
+              <div class="flex justify-between text-slate-300 font-bold border-t border-slate-800/80 pt-1">
+                <span>Total Amount Entitled:</span>
+                <span class="mono text-white">$${stat.totalEntitled.toFixed(2)}</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Total Cash Currently in Hand:</span>
+                <span class="mono text-indigo-300">$${stat.cashInHand.toFixed(2)}</span>
+              </div>
+            </div>
+          `;
+          this.ledgerPartnerCards.appendChild(card);
+        });
+
+        // Historical Activity List
+        this.settlementHistoryContainer.innerHTML = '';
+        if (project.settlements.length === 0) {
+          this.settlementHistoryContainer.innerHTML = '<div class="text-slate-500 italic py-2">No historical settlements recorded yet. Tap "Settle Up" to record a cash transfer.</div>';
+        } else {
+          project.settlements.slice().reverse().forEach(s => {
+            const row = document.createElement('div');
+            row.className = 'p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/60 flex items-center justify-between';
+            row.innerHTML = `
+              <div>
+                <span class="font-bold text-slate-200">${s.from}</span> transferred to <span class="font-bold text-emerald-300">${s.to}</span>
+                <div class="text-[10px] text-slate-500 mt-0.5">${s.date} • ${s.notes || 'Settlement'}</div>
+              </div>
+              <span class="mono font-bold text-emerald-400">+$${s.amount.toFixed(2)}</span>
+            `;
+            this.settlementHistoryContainer.appendChild(row);
+          });
+        }
+      }
+
+      renderPartners() {
+        const project = this.getActiveProject();
+        this.partnersListContainer.innerHTML = '';
+
+        let totalSplit = 0;
+
+        project.partners.forEach(partner => {
+          totalSplit += partner.split;
+          const row = document.createElement('div');
+          row.className = 'p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3 text-xs';
+
+          row.innerHTML = `
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center font-bold shrink-0">
+                ${partner.name.charAt(0).toUpperCase()}
+              </div>
+              <div class="min-w-0">
+                <span class="font-bold text-white block truncate">${partner.name}</span>
+                <span class="text-[10px] text-slate-500">${partner.venmo ? '@' + partner.venmo : 'No Venmo set'}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 shrink-0">
+              <div class="flex items-center gap-1.5">
+                <input type="number" min="0" max="100" value="${partner.split}" class="partner-split-input w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-center font-bold text-white mono focus:outline-none focus:border-emerald-500" data-id="${partner.id}">
+                <span class="text-slate-400 font-bold">%</span>
+              </div>
+              ${project.partners.length > 2 ? `
+                <button class="delete-partner-btn text-slate-500 hover:text-rose-400 p-1" data-id="${partner.id}">✕</button>
+              ` : ''}
+            </div>
+          `;
+
+          const splitInput = row.querySelector('.partner-split-input');
+          splitInput.addEventListener('change', (e) => {
+            const val = parseInt(e.target.value) || 0;
+            partner.split = val;
+            this.saveState();
+            this.renderAll();
+          });
+
+          const deleteBtn = row.querySelector('.delete-partner-btn');
+          if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => {
+              this.showConfirm('Remove Partner', `Remove partner ${partner.name} from project?`, () => {
+                project.partners = project.partners.filter(p => p.id !== partner.id);
+                this.saveState();
+                this.renderAll();
+              }, true);
+            });
+          }
+
+          this.partnersListContainer.appendChild(row);
+        });
+
+        this.partnerTotalPercentage.textContent = totalSplit + '%';
+        if (totalSplit === 100) {
+          this.partnerTotalPercentage.className = 'text-xs font-bold mono text-emerald-400';
+        } else {
+          this.partnerTotalPercentage.className = 'text-xs font-bold mono text-rose-400';
+        }
+      }
+
+      renderProjectList() {
+        this.projectListContainer.innerHTML = '';
+        this.state.projects.forEach(p => {
+          const isCurrent = p.id === this.state.activeProjectId;
+          const btn = document.createElement('button');
+          btn.className = `w-full text-left p-2.5 rounded-xl border transition flex items-center justify-between ${isCurrent ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'}`;
+          btn.innerHTML = `
+            <span class="font-medium truncate">${p.name}</span>
+            ${isCurrent ? '<span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Active</span>' : ''}
+          `;
+          btn.addEventListener('click', () => {
+            this.state.activeProjectId = p.id;
+            this.saveState();
+            this.projectModal.classList.add('hidden');
+            this.renderAll();
+            this.showToast('Loaded project: ' + p.name, '📁');
+          });
+          this.projectListContainer.appendChild(btn);
+        });
+      }
+    }
+
+    // Initialize when DOM ready
+    window.addEventListener('DOMContentLoaded', () => {
+      window.app = new AppController();
+    });
+  </script>
+</body>
+</html>
