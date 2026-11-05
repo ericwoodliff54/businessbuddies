@@ -1,16 +1,16 @@
 {
-  "name": "BusinessBuddies",
+  "name": "Business Buddies",
   "short_name": "BusinessBuddies",
-  "description": "Partner Reselling & Project Ledger",
+  "description": "Multi Partner Side Hustle Manager",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#0f172a",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤝</text></svg>",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml"
+      "src": "./logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
     }
   ]
 }

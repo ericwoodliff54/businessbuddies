@@ -1,8 +1,9 @@
-const CACHE_NAME = 'businessbuddies-v1';
+const CACHE_NAME = 'businessbuddies-v2';
 const ASSETS = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './logo.jpg'
 ];
 
 self.addEventListener('install', (e) => {
