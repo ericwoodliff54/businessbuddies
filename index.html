@@ -864,9 +864,14 @@
         <div id="projectListContainer" class="space-y-1.5 text-xs max-h-36 overflow-y-auto">
           <!-- Populated via JS -->
         </div>
-        <button id="createNewProjectBtn" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 font-semibold text-xs border border-slate-700 transition">
-          + Create New Project
-        </button>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="createSoloProjectBtn" type="button" class="py-2 px-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs transition">
+            + Solo Project (100%)
+          </button>
+          <button id="createNewProjectBtn" type="button" class="py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 font-semibold text-xs border border-slate-700 transition">
+            + Partner Project
+          </button>
+        </div>
       </div>
 
       <!-- App Preferences -->
@@ -1523,6 +1528,7 @@
         this.saveProjectNameBtn = document.getElementById('saveProjectNameBtn');
         this.projectListContainer = document.getElementById('projectListContainer');
         this.createNewProjectBtn = document.getElementById('createNewProjectBtn');
+        this.createSoloProjectBtn = document.getElementById('createSoloProjectBtn');
 
         this.settleModal = document.getElementById('settleModal');
         this.closeSettleModalBtn = document.getElementById('closeSettleModalBtn');
@@ -1659,6 +1665,32 @@
             this.showToast('Project renamed', 'Done');
           }
         });
+
+        if (this.createSoloProjectBtn) {
+          this.createSoloProjectBtn.addEventListener('click', () => {
+            const currentUser = this.getActiveUser();
+            this.showPrompt('Create Solo Project', 'Enter the name of your solo project:', 'Solo Flip #1', (name) => {
+              const newProj = {
+                id: 'proj_' + Date.now(),
+                name: name,
+                created: new Date().toISOString().split('T')[0],
+                partners: [
+                  { id: 'p1', name: currentUser ? currentUser.name : 'Me', split: 100, color: 'sky', venmo: currentUser?.venmo || '' }
+                ],
+                items: [],
+                expenses: [],
+                settlements: []
+              };
+              this.state.projects.push(newProj);
+              this.state.activeProjectId = newProj.id;
+              this.state.activeUserId = 'p1';
+              this.saveState();
+              this.projectModal.classList.add('hidden');
+              this.renderAll();
+              this.showToast('Created solo project: ' + name);
+            });
+          });
+        }
 
         this.createNewProjectBtn.addEventListener('click', () => {
           this.showPrompt('Create Project', 'Enter the name of your new resale or storage project:', 'Summer Thrift Flip #2', (name) => {
@@ -3330,7 +3362,12 @@
         }
 
         // Settlement Banner
-        if (math.status === 'balanced') {
+        if (project.partners.length === 1) {
+          this.elSettlementSubtitle.textContent = 'Solo Project';
+          this.elSettlementSubtitle.className = 'text-[11px] uppercase tracking-wider font-bold text-sky-400';
+          this.elSettlementStatement.innerHTML = `100% of net profit goes to <span class="text-sky-400 font-bold">${project.partners[0].name}</span>.`;
+          this.elSettleUpActionBtn.classList.add('hidden');
+        } else if (math.status === 'balanced') {
           if (this.elSettlementIconBox) this.elSettlementIconBox.className = 'w-8 h-8 rounded-lg bg-sky-500/20 border border-sky-500/30 text-sky-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5';
           this.elSettlementSubtitle.textContent = 'Settlement Status';
           this.elSettlementSubtitle.className = 'text-[11px] uppercase tracking-wider font-bold text-sky-400';
@@ -3845,7 +3882,7 @@
                 <input type="number" step="0.01" min="0" max="100" value="${partner.split}" class="partner-split-input w-14 bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1 text-center font-bold text-white mono focus:outline-none focus:border-sky-500" data-id="${partner.id}">
                 <span class="text-slate-400 font-bold">%</span>
               </div>
-              ${project.partners.length > 2 ? `
+              ${project.partners.length > 1 ? `
                 <button type="button" class="delete-partner-btn text-slate-500 hover:text-rose-400 px-1.5 py-1 text-xs font-semibold" data-id="${partner.id}">Remove</button>
               ` : ''}
             </div>
@@ -3878,6 +3915,12 @@
             deleteBtn.addEventListener('click', () => {
               this.showConfirm('Remove Partner', `Remove partner ${partner.name} from project?`, () => {
                 project.partners = project.partners.filter(p => p.id !== partner.id);
+                if (project.partners.length === 1) {
+                  project.partners[0].split = 100;
+                  this.state.activeUserId = project.partners[0].id;
+                } else if (this.state.activeUserId === partner.id && project.partners.length > 0) {
+                  this.state.activeUserId = project.partners[0].id;
+                }
                 this.saveState();
                 this.renderAll();
               }, true);
