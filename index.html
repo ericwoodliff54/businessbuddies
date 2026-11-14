@@ -126,7 +126,6 @@
         <div class="min-w-0">
           <div class="flex items-center gap-2">
             <span class="font-bold text-sm tracking-tight text-white">Business Buddies</span>
-            <span class="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">POC</span>
           </div>
           <button id="projectSelectBtn" class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition group truncate text-left">
             <span id="currentProjectName" class="font-medium text-slate-200 group-hover:text-emerald-400 truncate">Unit #402 - Main St Storage</span>
@@ -197,10 +196,7 @@
       <!-- Live Settlement ("Square Up") Card -->
       <div class="mt-4 pt-1">
         <div id="settlementCard" class="bg-slate-950/80 rounded-xl p-3.5 border border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div class="flex items-start gap-3">
-            <div id="settlementIconBox" class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5">
-              
-            </div>
+          <div class="flex items-start">
             <div>
               <div class="text-[11px] uppercase tracking-wider font-bold text-indigo-300" id="settlementSubtitle">Current Settlement Balance</div>
               <div id="settlementStatement" class="text-sm sm:text-base font-semibold text-white mt-0.5">
@@ -431,25 +427,6 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Demo Data Controls -->
-      <div class="bg-slate-900/60 rounded-2xl border border-slate-800/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div>
-          <div class="text-xs font-bold text-slate-300">Demo Simulation Controls</div>
-          <div class="text-[11px] text-slate-500">Reset sample storage unit data or clear storage to start fresh.</div>
-        </div>
-        <div class="flex items-center gap-2 flex-wrap">
-          <button id="replaySplashBtn" class="px-3 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/30 text-xs font-semibold transition">
-            Replay Splash Screen
-          </button>
-          <button id="resetDemoDataBtn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
-            Reload Sample Locker
-          </button>
-          <button id="clearAllDataBtn" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-semibold transition">
-            Clear All Data
-          </button>
         </div>
       </div>
     </section>
@@ -765,10 +742,8 @@
   <div id="settleModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <span></span> Settle Up Project
-        </h3>
-        <button id="closeSettleModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">Close</button>
+        <h3 class="text-sm font-bold text-white">Settle Up Project</h3>
+        <button id="closeSettleModalBtn" type="button" class="text-slate-400 hover:text-white px-2 py-1 rounded-lg text-xs">Close</button>
       </div>
 
       <div class="space-y-3 text-xs">
@@ -778,19 +753,37 @@
           <div id="modalSettleDescription" class="text-xs text-slate-200 mt-1 font-medium">Jordan pays Alex</div>
         </div>
 
-        <p class="text-slate-400 leading-relaxed text-[11px]">
-          Recording a settlement logs that the cash has been transferred between partners via Venmo, Cash App, or physical cash, bringing all balances to $0.00.
-        </p>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="settleInputAmount" class="font-semibold text-slate-300">Settlement Amount ($)</label>
+            <button type="button" id="useRecommendedSettleBtn" class="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 underline">Use Recommended</button>
+          </div>
+          <div class="relative">
+            <span class="absolute left-3 top-2 text-slate-500 font-bold">$</span>
+            <input type="number" step="0.01" min="0.01" id="settleInputAmount" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-white mono font-bold focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
 
-        <!-- Venmo Deep Link option -->
-        <a id="venmoDeepLink" href="#" target="_blank" class="block w-full text-center py-2.5 px-4 rounded-xl bg-[#008CFF]/20 hover:bg-[#008CFF]/30 border border-[#008CFF]/40 text-[#008CFF] font-bold text-xs transition">
-          Open Venmo (Pre-Filled)
+        <div>
+          <label for="settleMethodSelect" class="block font-semibold text-slate-300 mb-1">Payment Method</label>
+          <select id="settleMethodSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+            <option value="Venmo">Venmo</option>
+            <option value="Cash App">Cash App</option>
+            <option value="Zelle">Zelle</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Cash">Cash / In-Person</option>
+          </select>
+        </div>
+
+        <!-- Payment App Deep Link / Copy Action -->
+        <a id="venmoDeepLink" href="#" target="_blank" class="block w-full text-center py-2.5 px-4 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/35 text-indigo-300 font-bold text-xs transition">
+          Open Venmo
         </a>
 
         <div class="pt-2 flex items-center justify-end gap-2">
           <button type="button" id="cancelSettleModalBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Cancel</button>
           <button type="button" id="confirmSettleActionBtn" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition shadow-lg shadow-emerald-500/20">
-            Confirm & Square Up
+            Record Settlement
           </button>
         </div>
       </div>
@@ -1131,7 +1124,7 @@
         this.elHeroTotalExpenses = document.getElementById('heroTotalExpenses');
         this.elSettlementStatement = document.getElementById('settlementStatement');
         this.elSettlementSubtitle = document.getElementById('settlementSubtitle');
-        this.elSettlementIconBox = document.getElementById('settlementIconBox');
+        this.elSettlementIconBox = null;
         this.elToggleMathBreakdownBtn = document.getElementById('toggleMathBreakdownBtn');
         this.elMathChevron = document.getElementById('mathChevron');
         this.elMathBreakdownDrawer = document.getElementById('mathBreakdownDrawer');
@@ -1296,6 +1289,11 @@
         this.modalSettleAmount = document.getElementById('modalSettleAmount');
         this.modalSettleDescription = document.getElementById('modalSettleDescription');
         this.venmoDeepLink = document.getElementById('venmoDeepLink');
+        this.settleInputAmount = document.getElementById('settleInputAmount');
+        this.useRecommendedSettleBtn = document.getElementById('useRecommendedSettleBtn');
+        this.settleMethodSelect = document.getElementById('settleMethodSelect');
+        this.recommendedSettleAmount = 0;
+        this.currentPayeeObj = null;
 
         // Custom Dialog Modal
         this.dialogModal = document.getElementById('dialogModal');
@@ -1479,6 +1477,12 @@
             return;
           }
 
+          const customAmt = Math.round((parseFloat(this.settleInputAmount?.value) || 0) * 100) / 100;
+          if (customAmt <= 0) {
+            this.showToast('Enter a settlement amount greater than $0.00');
+            return;
+          }
+          const method = this.settleMethodSelect?.value || 'Cash';
           const entry = {
             id: 'set_' + Date.now(),
             date: new Date().toISOString().split('T')[0],
@@ -1486,14 +1490,15 @@
             toId: math.payee.id,
             from: math.payer.name,
             to: math.payee.name,
-            amount: math.balance,
-            notes: `Paid ${math.payee.name} to square up project.`
+            amount: customAmt,
+            method,
+            notes: `Paid ${math.payee.name} via ${method}.`
           };
           project.settlements.push(entry);
           this.saveState();
           this.settleModal.classList.add('hidden');
           this.renderAll();
-          this.showToast(`Recorded settlement: ${math.payer.name} paid ${math.payee.name} $${math.balance.toFixed(2)}`);
+          this.showToast(`Recorded $${customAmt.toFixed(2)} via ${method}`);
         });
 
         // Inventory filters
@@ -1517,7 +1522,7 @@
         const openItemModal = () => {
           this.itemForm.reset();
           this.itemEditId.value = '';
-          this.itemModalTitle.innerHTML = '<span>Item</span> Add Item to Project';
+          this.itemModalTitle.textContent = 'Add Item to Project';
           this.photoPreviewBox.classList.add('hidden');
           this.photoPreviewImg.src = '';
           this.populatePartnerDropdown(this.itemInputAddedBy);
@@ -1848,6 +1853,19 @@
         if (this.restoreProBtn) {
           this.restoreProBtn.addEventListener('click', () => {
             this.showToast('Store purchase restore connects via RevenueCat in native build');
+          });
+        }
+
+        if (this.settleInputAmount) {
+          this.settleInputAmount.addEventListener('input', () => this.updateSettlePaymentLink());
+        }
+        if (this.settleMethodSelect) {
+          this.settleMethodSelect.addEventListener('change', () => this.updateSettlePaymentLink());
+        }
+        if (this.useRecommendedSettleBtn) {
+          this.useRecommendedSettleBtn.addEventListener('click', () => {
+            if (this.settleInputAmount) this.settleInputAmount.value = this.recommendedSettleAmount.toFixed(2);
+            this.updateSettlePaymentLink();
           });
         }
 
@@ -2713,25 +2731,66 @@
         };
       }
 
+      updateSettlePaymentLink() {
+        const amt = Math.max(0, parseFloat(this.settleInputAmount?.value) || 0);
+        const method = this.settleMethodSelect?.value || 'Venmo';
+        const payee = this.currentPayeeObj;
+        const project = this.getActiveProject();
+        if (!payee || amt <= 0 || method === 'Cash') {
+          this.venmoDeepLink.classList.add('hidden');
+          return;
+        }
+        const handle = (payee.venmo || '').replace(/^[@$]/, '');
+        const note = encodeURIComponent('BusinessBuddies: ' + project.name);
+
+        this.venmoDeepLink.onclick = null;
+        if (method === 'Venmo' && handle) {
+          this.venmoDeepLink.href = `https://venmo.com/${handle}?txn=pay&amount=${amt.toFixed(2)}&note=${note}`;
+          this.venmoDeepLink.textContent = `Open Venmo (@${handle}) — $${amt.toFixed(2)}`;
+          this.venmoDeepLink.classList.remove('hidden');
+        } else if (method === 'Cash App' && handle) {
+          this.venmoDeepLink.href = `https://cash.app/$${handle}/${amt.toFixed(2)}`;
+          this.venmoDeepLink.textContent = `Open Cash App ($${handle}) — $${amt.toFixed(2)}`;
+          this.venmoDeepLink.classList.remove('hidden');
+        } else if (method === 'PayPal' && handle) {
+          this.venmoDeepLink.href = `https://paypal.me/${handle}/${amt.toFixed(2)}`;
+          this.venmoDeepLink.textContent = `Open PayPal (${handle}) — $${amt.toFixed(2)}`;
+          this.venmoDeepLink.classList.remove('hidden');
+        } else if (method === 'Zelle') {
+          this.venmoDeepLink.href = '#';
+          this.venmoDeepLink.textContent = handle ? `Copy Zelle Info (${handle} — $${amt.toFixed(2)})` : `Zelle $${amt.toFixed(2)} to ${payee.name}`;
+          this.venmoDeepLink.onclick = (e) => {
+            e.preventDefault();
+            const info = handle ? `${handle} ($${amt.toFixed(2)})` : `${payee.name} ($${amt.toFixed(2)})`;
+            navigator.clipboard?.writeText(info).then(() => this.showToast('Copied Zelle info: ' + info)).catch(() => this.showToast(info));
+          };
+          this.venmoDeepLink.classList.remove('hidden');
+        } else {
+          this.venmoDeepLink.classList.add('hidden');
+        }
+      }
+
       openSettleModal() {
         const project = this.getActiveProject();
         const math = this.calculateSettlement(project);
 
         if (math.status === 'balanced') {
+          this.recommendedSettleAmount = 0;
+          this.currentPayeeObj = null;
           this.modalSettleAmount.textContent = '$0.00';
           this.modalSettleDescription.textContent = 'All partners are completely squared up!';
+          if (this.settleInputAmount) this.settleInputAmount.value = '0.00';
           this.venmoDeepLink.classList.add('hidden');
         } else {
+          this.recommendedSettleAmount = math.balance;
+          this.currentPayeeObj = math.payee;
           this.modalSettleAmount.textContent = `$${math.balance.toFixed(2)}`;
           this.modalSettleDescription.textContent = `${math.payer.name} pays ${math.payee.name}`;
-
-          if (math.payee && math.payee.venmo) {
-            this.venmoDeepLink.href = `https://venmo.com/${math.payee.venmo}?txn=pay&amount=${math.balance.toFixed(2)}&note=${encodeURIComponent('BusinessBuddies: ' + project.name)}`;
-            this.venmoDeepLink.textContent = `Pay ${math.payee.name} via Venmo ($${math.balance.toFixed(2)})`;
-            this.venmoDeepLink.classList.remove('hidden');
-          } else {
-            this.venmoDeepLink.classList.add('hidden');
+          if (this.settleInputAmount) this.settleInputAmount.value = math.balance.toFixed(2);
+          if (this.useRecommendedSettleBtn) {
+            this.useRecommendedSettleBtn.textContent = `Use Recommended ($${math.balance.toFixed(2)})`;
           }
+          this.updateSettlePaymentLink();
         }
 
         this.settleModal.classList.remove('hidden');
@@ -2815,13 +2874,13 @@
 
         // Settlement Banner
         if (math.status === 'balanced') {
-          this.elSettlementIconBox.className = 'w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5';
+          if (this.elSettlementIconBox) this.elSettlementIconBox.className = 'w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5';
           this.elSettlementSubtitle.textContent = 'Settlement Status';
           this.elSettlementSubtitle.className = 'text-[11px] uppercase tracking-wider font-bold text-emerald-400';
           this.elSettlementStatement.textContent = 'All partners are squared up! Zero balances owed.';
           this.elSettleUpActionBtn.classList.add('hidden');
         } else {
-          this.elSettlementIconBox.className = 'w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5';
+          if (this.elSettlementIconBox) this.elSettlementIconBox.className = 'w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5';
           this.elSettlementSubtitle.textContent = math.transfers.length > 1 ? `Action Required (${math.transfers.length} Transfers)` : 'Action Required to Settle';
           this.elSettlementSubtitle.className = 'text-[11px] uppercase tracking-wider font-bold text-indigo-300';
           this.elSettlementStatement.innerHTML = math.transfers
@@ -2923,7 +2982,7 @@
 
           const photoHtml = item.photo
             ? `<img src="${item.photo.startsWith('idb:') ? (this.photoCache.get(item.photo.slice(4)) || '') : item.photo}" data-idb-photo="${item.photo.startsWith('idb:') ? item.photo : ''}" alt="${item.title}" class="w-12 h-12 rounded-lg object-cover border border-slate-700 shrink-0">`
-            : `<div class="w-12 h-12 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xl shrink-0">Item</div>`;
+            : `<div class="w-12 h-12 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-400 flex items-center justify-center shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></div>`;
 
           card.innerHTML = `
             <!-- Collapsed Header Row -->
