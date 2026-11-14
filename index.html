@@ -355,11 +355,16 @@
           <button id="filterSoldItemsBtn" class="inv-filter px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Sold (<span id="countSold">0</span>)</button>
         </div>
 
-        <!-- Add Item Primary Button -->
-        <button id="openAddItemModalBtn" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-400 hover:to-blue-400 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20 transition active:scale-95">
-          <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-          <span>Snap Photo & Add Item</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <label class="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs cursor-pointer transition flex items-center justify-center gap-1.5">
+            <span>Batch Haul Scan</span>
+            <input type="file" id="batchHaulPhotoInput" accept="image/*" class="hidden">
+          </label>
+          <button id="openAddItemModalBtn" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-400 hover:to-blue-400 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20 transition active:scale-95">
+            <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+            <span>Add Item</span>
+          </button>
+        </div>
       </div>
 
       <!-- Inventory Search -->
@@ -704,7 +709,13 @@
 
         <!-- Platform Fee / Shipping deduction -->
         <div>
-          <label for="soldInputFees" class="block font-semibold text-slate-300 mb-1">Platform Fees & Shipping Deductions ($)</label>
+          <div class="flex items-center justify-between mb-1">
+              <label for="soldInputFees" class="font-semibold text-slate-300">Platform Fees & Shipping ($)</label>
+              <label class="flex items-center gap-1 text-[10px] text-sky-400 font-semibold cursor-pointer">
+                <input type="checkbox" id="soldAutoFeeCheck" checked class="rounded border-slate-700 bg-slate-900 text-sky-500">
+                <span>Auto</span>
+              </label>
+            </div>
           <div class="relative">
             <span class="absolute left-3 top-2 text-slate-500 font-bold">$</span>
             <input type="number" step="0.01" min="0" id="soldInputFees" value="0.00" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-white mono placeholder-slate-500 focus:outline-none focus:border-sky-500 transition">
@@ -827,8 +838,12 @@
             <button type="button" id="removeReceiptBtn" class="text-slate-500 hover:text-rose-400 text-xs px-2">Remove</button>
           </div>
           <button type="button" id="aiScanReceiptBtn" class="w-full py-2 px-3 rounded-lg bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-200 border border-indigo-500/40 text-xs font-bold transition flex items-center justify-center gap-1.5">
-            <span></span> AI Auto-Fill from Receipt
+            AI Auto-Fill from Receipt
           </button>
+          <label id="receiptImportInvRow" class="hidden flex items-center gap-2 pt-1 text-[11px] text-slate-300 cursor-pointer">
+            <input type="checkbox" id="receiptAutoImportInvCheck" class="rounded border-slate-700 bg-slate-900 text-sky-500">
+            <span id="receiptAutoImportInvLabel">Also add extracted items to Inventory</span>
+          </label>
         </div>
 
         <div class="pt-2 flex items-center justify-end gap-2">
@@ -1414,6 +1429,12 @@
         this.mileageRateInput = document.getElementById('mileageRateInput');
         this.applyMileageBtn = document.getElementById('applyMileageBtn');
         this.searchQuery = '';
+        this.batchHaulPhotoInput = document.getElementById('batchHaulPhotoInput');
+        this.soldAutoFeeCheck = document.getElementById('soldAutoFeeCheck');
+        this.receiptImportInvRow = document.getElementById('receiptImportInvRow');
+        this.receiptAutoImportInvCheck = document.getElementById('receiptAutoImportInvCheck');
+        this.receiptAutoImportInvLabel = document.getElementById('receiptAutoImportInvLabel');
+        this.lastOcrLineItems = [];
         this.toggleBarcodeScannerBtn = document.getElementById('toggleBarcodeScannerBtn');
         this.stopBarcodeScannerBtn = document.getElementById('stopBarcodeScannerBtn');
         this.barcodeScannerBox = document.getElementById('barcodeScannerBox');
@@ -2045,6 +2066,30 @@
           }
 
           this.saveState();
+          if (this.receiptAutoImportInvCheck && this.receiptAutoImportInvCheck.checked && this.lastOcrLineItems.length > 0) {
+            const today = new Date().toISOString().split('T')[0];
+            this.lastOcrLineItems.forEach((li, idx) => {
+              const cost = Number(li.price) || 0;
+              project.items.unshift({
+                id: 'item_' + Date.now() + '_' + idx,
+                title: li.name,
+                targetPrice: cost > 0 ? Math.round(cost * 2 * 100) / 100 : 15.00,
+                soldPrice: null,
+                platformFees: 0,
+                platform: 'Facebook Marketplace',
+                addedBy: this.state.activeUserId,
+                heldBy: this.state.activeUserId,
+                soldBy: null,
+                collectedBy: null,
+                status: 'active',
+                dateAdded: today,
+                dateSold: null,
+                photo: '',
+                notes: cost > 0 ? `Cost basis: $${cost.toFixed(2)} (from receipt)` : 'Imported from receipt'
+              });
+            });
+            this.saveState();
+          }
           this.expenseModal.classList.add('hidden');
           this.renderAll();
         });
@@ -2187,6 +2232,43 @@
         if (this.aiIdentifyItemBtn) {
           this.aiIdentifyItemBtn.addEventListener('click', () => this.identifyItemWithAI());
         }
+        const recalcAutoFee = () => {
+          if (!this.soldAutoFeeCheck || !this.soldAutoFeeCheck.checked) return;
+          const price = parseFloat(this.soldInputPrice?.value) || 0;
+          const plat = this.soldInputPlatform?.value || '';
+          let fee = 0;
+          if (plat === 'eBay') fee = price > 0 ? price * 0.1325 + 0.30 : 0;
+          else if (plat === 'Mercari') fee = price * 0.10;
+          else if (plat === 'OfferUp') fee = price * 0.129;
+          if (this.soldInputFees) this.soldInputFees.value = (Math.round(fee * 100) / 100).toFixed(2);
+        };
+        if (this.soldInputPrice) this.soldInputPrice.addEventListener('input', recalcAutoFee);
+        if (this.soldInputPlatform) this.soldInputPlatform.addEventListener('change', recalcAutoFee);
+        if (this.soldAutoFeeCheck) this.soldAutoFeeCheck.addEventListener('change', recalcAutoFee);
+
+        if (this.batchHaulPhotoInput) {
+          this.batchHaulPhotoInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            e.target.value = '';
+            if (file) await this.batchScanHaulPhoto(file);
+          });
+        }
+
+        setInterval(() => {
+          if (!document.hidden && navigator.onLine) {
+            if (localStorage.getItem('businessbuddies_pending_sync') === '1') {
+              this.pushActiveProjectSync(true);
+            } else {
+              this.pullActiveProjectSync(true);
+            }
+          }
+        }, 25000);
+        window.addEventListener('online', () => {
+          if (localStorage.getItem('businessbuddies_pending_sync') === '1') {
+            this.pushActiveProjectSync(true);
+          }
+        });
+
         if (this.shareSummaryBtn) {
           this.shareSummaryBtn.addEventListener('click', () => this.shareSettlementSummary());
         }
@@ -2575,6 +2657,16 @@
           const prevOcr = parseInt(localStorage.getItem('businessbuddies_ocr_count') || '0', 10);
           localStorage.setItem('businessbuddies_ocr_count', String(prevOcr + 1));
           this.renderTierPill();
+          this.lastOcrLineItems = Array.isArray(r.lineItems) ? r.lineItems.filter(x => x && x.name) : [];
+          if (this.receiptImportInvRow && this.receiptAutoImportInvCheck && this.receiptAutoImportInvLabel) {
+            if (this.lastOcrLineItems.length > 0) {
+              this.receiptAutoImportInvLabel.textContent = `Also add ${this.lastOcrLineItems.length} extracted items to Inventory`;
+              this.receiptAutoImportInvCheck.checked = false;
+              this.receiptImportInvRow.classList.remove('hidden');
+            } else {
+              this.receiptImportInvRow.classList.add('hidden');
+            }
+          }
           this.showToast('Receipt auto-filled!');
         } catch (err) {
           clearTimeout(timer);
@@ -2718,13 +2810,18 @@
           });
           const data = await res.json();
           if (res.ok && data.ok) {
+            localStorage.removeItem('businessbuddies_pending_sync');
             proj.sync.version = data.version;
             proj.sync.updatedAt = data.updatedAt;
             this.saveState(true);
             this.renderSyncStatus();
             if (!silent) this.showToast('Pushed update to partner', 'Done');
+          } else {
+            localStorage.setItem('businessbuddies_pending_sync', '1');
           }
-        } catch {}
+        } catch {
+          localStorage.setItem('businessbuddies_pending_sync', '1');
+        }
       }
 
       async startJoinSyncScanner() {
@@ -2782,6 +2879,9 @@
         const project = this.getActiveProject();
         this.expenseForm.reset();
         this.expSharesManuallyEdited = false;
+        this.lastOcrLineItems = [];
+        if (this.receiptImportInvRow) this.receiptImportInvRow.classList.add('hidden');
+        if (this.receiptAutoImportInvCheck) this.receiptAutoImportInvCheck.checked = false;
         this.receiptPreviewBox.classList.add('hidden');
         this.receiptPreviewImg.src = '';
 
@@ -2982,6 +3082,55 @@
           this.showToast('Settlement summary copied to clipboard');
         } catch {
           this.showToast('Summary ready in Ledger');
+        }
+      }
+
+      async batchScanHaulPhoto(file) {
+        const workerUrl = this.getWorkerUrl();
+        this.showToast('Scanning haul photo with Gemini...');
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 25000);
+        try {
+          const compressed = await compressImageFile(file, 1400, 0.82);
+          const res = await fetch(`${workerUrl}/batch-identify-items`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({ imageBase64: compressed, mimeType: 'image/jpeg' })
+          });
+          clearTimeout(timer);
+          const data = await res.json();
+          if (!res.ok || !Array.isArray(data.items) || data.items.length === 0) {
+            throw new Error(data.error || 'No items detected in photo');
+          }
+          const project = this.getActiveProject();
+          const today = new Date().toISOString().split('T')[0];
+          data.items.forEach((it, idx) => {
+            project.items.unshift({
+              id: 'item_' + Date.now() + '_' + idx,
+              title: it.title || 'Detected Haul Item',
+              targetPrice: Number(it.suggestedPrice) || 20.00,
+              soldPrice: null,
+              platformFees: 0,
+              platform: it.platform || 'Facebook Marketplace',
+              addedBy: this.state.activeUserId,
+              heldBy: this.state.activeUserId,
+              soldBy: null,
+              collectedBy: null,
+              status: 'active',
+              dateAdded: today,
+              dateSold: null,
+              photo: '',
+              notes: it.conditionNotes || 'Added via Batch Haul Scan'
+            });
+          });
+          this.saveState();
+          this.renderAll();
+          this.triggerFeedback('success');
+          this.showToast(`Added ${data.items.length} items from haul photo!`);
+        } catch (err) {
+          clearTimeout(timer);
+          this.showToast(err.name === 'AbortError' ? 'Batch scan timed out (25s)' : ('Batch scan error: ' + err.message));
         }
       }
 
@@ -3529,9 +3678,9 @@
               <div class="flex items-center justify-between pt-1">
                 <div>
                   ${!isSold ? `
-                    <button class="mark-sold-btn px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs shadow-md shadow-sky-500/20 transition flex items-center gap-1.5" data-id="${item.id}">
+                    <div class="flex items-center gap-1.5"><button class="mark-sold-btn px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs shadow-md shadow-sky-500/20 transition flex items-center gap-1.5" data-id="${item.id}">
                       <span>Mark as Sold</span>
-                    </button>
+                    </button><button type="button" class="copy-listing-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition" data-id="${item.id}">Copy Listing</button></div>
                   ` : `
                     <button class="mark-unsold-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition" data-id="${item.id}">
                       Return / Refund
@@ -3552,6 +3701,18 @@
             this.expandedItemId = this.expandedItemId === item.id ? null : item.id;
             this.renderInventory();
           });
+
+          // Copy Marketplace Listing Post
+          const copyListingBtn = card.querySelector('.copy-listing-btn');
+          if (copyListingBtn) {
+            copyListingBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const post = `${item.title} - $${item.targetPrice.toFixed(2)}\n${item.notes ? item.notes + '\n' : ''}Message if interested!`;
+              navigator.clipboard?.writeText(post).then(() => {
+                this.showToast('Listing post copied!');
+              }).catch(() => this.showToast('Copy not supported on this browser'));
+            });
+          }
 
           // Mark as sold trigger
           const markSoldBtn = card.querySelector('.mark-sold-btn');
@@ -3644,6 +3805,9 @@
         const soldImg = this.soldItemThumb.querySelector('img[data-idb-photo]');
         if (soldImg && !soldImg.getAttribute('src')) {
           this.resolvePhotoSrc(soldImg.getAttribute('data-idb-photo')).then(src => { if (src) soldImg.src = src; });
+        }
+        if (this.soldAutoFeeCheck && this.soldAutoFeeCheck.checked && this.soldInputPrice) {
+          this.soldInputPrice.dispatchEvent(new Event('input'));
         }
         this.markSoldModal.classList.remove('hidden');
       }
