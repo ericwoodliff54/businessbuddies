@@ -660,31 +660,36 @@
   <div id="expenseModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <span>Receipt</span> Log Project Expense / Receipt
-        </h3>
-        <button id="closeExpenseModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">Close</button>
+        <h3 id="expenseModalTitle" class="text-sm font-bold text-white">Log Project Expense</h3>
+        <button id="closeExpenseModalBtn" type="button" class="text-slate-400 hover:text-white px-2 py-1 rounded-lg text-xs">Close</button>
       </div>
 
       <form id="expenseForm" class="space-y-3.5 text-xs">
+        <input type="hidden" id="expEditId" value="">
         <div>
           <label for="expInputTitle" class="block font-semibold text-slate-300 mb-1">Expense Description *</label>
           <input type="text" id="expInputTitle" required placeholder="e.g. U-Haul rental, storage fee, gas..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label for="expInputAmount" class="block font-semibold text-slate-300 mb-1">Total Paid ($) *</label>
-            <div class="relative">
-              <span class="absolute left-3 top-2 text-slate-500 font-bold">$</span>
-              <input type="number" step="0.01" min="0" id="expInputAmount" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-white mono font-bold placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
-            </div>
+        <div>
+          <label for="expInputAmount" class="block font-semibold text-slate-300 mb-1">Total Expense Amount ($) *</label>
+          <div class="relative">
+            <span class="absolute left-3 top-2 text-slate-500 font-bold">$</span>
+            <input type="number" step="0.01" min="0" id="expInputAmount" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-white mono font-bold placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
           </div>
-          <div>
-            <label for="expInputPaidBy" class="block font-semibold text-slate-300 mb-1">Paid Out-of-Pocket By *</label>
-            <select id="expInputPaidBy" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition">
-              <!-- Dynamically populated -->
-            </select>
+        </div>
+
+        <!-- Customizable Per-Partner Out-of-Pocket Breakdown -->
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-semibold text-slate-300">Out-of-Pocket Paid By</span>
+            <span id="expShareTotalStatus" class="text-[11px] mono font-bold text-emerald-400">$0.00 / $0.00</span>
+          </div>
+          <div id="expQuickSplitBar" class="flex flex-wrap gap-1.5">
+            <!-- Quick 100% / Split Evenly buttons -->
+          </div>
+          <div id="expPartnerSharesList" class="space-y-2">
+            <!-- Per-partner $ inputs -->
           </div>
         </div>
 
@@ -714,7 +719,7 @@
 
         <div class="pt-2 flex items-center justify-end gap-2">
           <button type="button" id="cancelExpenseModalBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Cancel</button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow-lg shadow-indigo-600/20">Record Expense</button>
+          <button type="submit" id="expenseSubmitBtn" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow-lg shadow-indigo-600/20">Record Expense</button>
         </div>
       </form>
     </div>
@@ -1263,7 +1268,12 @@
         this.expenseForm = document.getElementById('expenseForm');
         this.expInputTitle = document.getElementById('expInputTitle');
         this.expInputAmount = document.getElementById('expInputAmount');
-        this.expInputPaidBy = document.getElementById('expInputPaidBy');
+        this.expEditId = document.getElementById('expEditId');
+        this.expenseModalTitle = document.getElementById('expenseModalTitle');
+        this.expenseSubmitBtn = document.getElementById('expenseSubmitBtn');
+        this.expShareTotalStatus = document.getElementById('expShareTotalStatus');
+        this.expQuickSplitBar = document.getElementById('expQuickSplitBar');
+        this.expPartnerSharesList = document.getElementById('expPartnerSharesList');
         this.expInputCategory = document.getElementById('expInputCategory');
         this.expInputPhoto = document.getElementById('expInputPhoto');
         this.receiptPreviewBox = document.getElementById('receiptPreviewBox');
@@ -1642,16 +1652,25 @@
           }
         });
 
-        // Expenses Modal
+        // Expenses Modal (Add & Edit with Custom Out-of-Pocket Amounts)
         const openExpenseModal = () => {
-          this.expenseForm.reset();
-          this.receiptPreviewBox.classList.add('hidden');
-          this.receiptPreviewImg.src = '';
-          this.populatePartnerDropdown(this.expInputPaidBy, 'expense');
-          this.expInputPaidBy.value = this.state.activeUserId;
-          this.expenseModal.classList.remove('hidden');
+          this.openEditExpenseModal(null);
         };
         this.openAddExpenseModalBtn.addEventListener('click', openExpenseModal);
+        if (this.expInputAmount) {
+          this.expInputAmount.addEventListener('input', () => {
+            const total = parseFloat(this.expInputAmount.value) || 0;
+            const inputs = Array.from(this.expPartnerSharesList.querySelectorAll('.exp-share-input'));
+            const nonZero = inputs.filter(i => (parseFloat(i.value) || 0) > 0);
+            if (nonZero.length === 1 && !this.expSharesManuallyEdited) {
+              nonZero[0].value = total.toFixed(2);
+            } else if (nonZero.length === 0 && inputs.length > 0 && !this.expSharesManuallyEdited) {
+              const activeInput = inputs.find(i => i.dataset.partnerId === this.state.activeUserId) || inputs[0];
+              activeInput.value = total.toFixed(2);
+            }
+            this.updateExpenseShareStatus();
+          });
+        }
         this.closeExpenseModalBtn.addEventListener('click', () => this.expenseModal.classList.add('hidden'));
         this.cancelExpenseModalBtn.addEventListener('click', () => this.expenseModal.classList.add('hidden'));
 
@@ -1687,35 +1706,70 @@
         this.expenseForm.addEventListener('submit', (e) => {
           e.preventDefault();
           const project = this.getActiveProject();
+          const editId = this.expEditId.value;
           const title = this.expInputTitle.value.trim();
-          const amount = parseFloat(this.expInputAmount.value) || 0;
-          const paidBy = this.expInputPaidBy.value;
-          const category = this.expInputCategory.value;
+          const amount = Math.round((parseFloat(this.expInputAmount.value) || 0) * 100) / 100;
+          const category = this.expInputCategory.value || 'Expense';
+
+          const paidShares = {};
+          let allocated = 0;
+          this.expPartnerSharesList.querySelectorAll('.exp-share-input').forEach(inp => {
+            const val = Math.round((parseFloat(inp.value) || 0) * 100) / 100;
+            paidShares[inp.dataset.partnerId] = val;
+            allocated += val;
+          });
+          allocated = Math.round(allocated * 100) / 100;
+
+          if (Math.abs(allocated - amount) > 0.02) {
+            this.showToast(`Allocated $${allocated.toFixed(2)} must equal $${amount.toFixed(2)}`);
+            return;
+          }
+
+          const nonZeroIds = Object.keys(paidShares).filter(id => paidShares[id] > 0);
+          const paidBy = nonZeroIds.length === 1 ? nonZeroIds[0] : 'split_custom';
+
           const rawReceipt = this.receiptPreviewImg.src || '';
-          const newExpId = 'exp_' + Date.now();
+          const targetId = editId || ('exp_' + Date.now());
           let receiptPhoto = '';
           if (rawReceipt && rawReceipt.startsWith('data:image/')) {
-            const key = 'exp_' + newExpId;
+            const key = 'exp_' + targetId;
             receiptPhoto = 'idb:' + key;
             this.photoCache.set(key, rawReceipt);
             MediaIDB.put(key, rawReceipt).catch(console.error);
           }
 
-          const newExp = {
-            id: newExpId,
-            title,
-            amount,
-            paidBy,
-            category,
-            date: new Date().toISOString().split('T')[0],
-            receiptPhoto
-          };
+          if (editId) {
+            const existing = project.expenses.find(ex => ex.id === editId);
+            if (existing) {
+              existing.title = title;
+              existing.amount = amount;
+              existing.paidBy = paidBy;
+              existing.paidShares = paidShares;
+              existing.category = category;
+              if (receiptPhoto) {
+                existing.receiptPhoto = receiptPhoto;
+              } else if (!rawReceipt) {
+                existing.receiptPhoto = '';
+              }
+              this.showToast('Updated expense ($' + amount.toFixed(2) + ')');
+            }
+          } else {
+            project.expenses.push({
+              id: targetId,
+              title,
+              amount,
+              paidBy,
+              paidShares,
+              category,
+              date: new Date().toISOString().split('T')[0],
+              receiptPhoto
+            });
+            this.showToast('Logged expense of $' + amount.toFixed(2));
+          }
 
-          project.expenses.push(newExp);
           this.saveState();
           this.expenseModal.classList.add('hidden');
           this.renderAll();
-          this.showToast('Logged expense of $' + amount.toFixed(2), 'Receipt');
         });
 
         if (this.workerUrlInput) {
@@ -2185,6 +2239,7 @@
           }
           if (typeof r.total === 'number' && r.total > 0) {
             this.expInputAmount.value = r.total.toFixed(2);
+            this.expInputAmount.dispatchEvent(new Event('input'));
           }
           if (r.category && this.expInputCategory) {
             this.expInputCategory.value = r.category;
@@ -2393,6 +2448,136 @@
         if (this.joinSyncScannerBox) this.joinSyncScannerBox.classList.add('hidden');
       }
 
+      openEditExpenseModal(expId = null) {
+        const project = this.getActiveProject();
+        this.expenseForm.reset();
+        this.expSharesManuallyEdited = false;
+        this.receiptPreviewBox.classList.add('hidden');
+        this.receiptPreviewImg.src = '';
+
+        let initialShares = {};
+        if (expId) {
+          const exp = project.expenses.find(e => e.id === expId);
+          if (!exp) return;
+          this.expEditId.value = exp.id;
+          this.expenseModalTitle.textContent = 'Edit Expense';
+          this.expenseSubmitBtn.textContent = 'Save Changes';
+          this.expInputTitle.value = exp.title || '';
+          this.expInputAmount.value = (exp.amount || 0).toFixed(2);
+          this.expInputCategory.value = exp.category || 'Expense';
+
+          if (exp.paidShares && typeof exp.paidShares === 'object') {
+            initialShares = { ...exp.paidShares };
+          } else if (exp.paidBy === 'split_all' && project.partners.length > 0) {
+            const per = Math.round((exp.amount / project.partners.length) * 100) / 100;
+            project.partners.forEach((p, idx) => {
+              initialShares[p.id] = idx === 0
+                ? Math.round((exp.amount - per * (project.partners.length - 1)) * 100) / 100
+                : per;
+            });
+          } else if (exp.paidBy) {
+            initialShares[exp.paidBy] = exp.amount || 0;
+          }
+
+          if (exp.receiptPhoto) {
+            this.receiptPreviewName.textContent = 'Existing receipt attached';
+            this.receiptPreviewBox.classList.remove('hidden');
+            this.resolvePhotoSrc(exp.receiptPhoto).then(src => {
+              if (src) this.receiptPreviewImg.src = src;
+            });
+          }
+        } else {
+          this.expEditId.value = '';
+          this.expenseModalTitle.textContent = 'Log Project Expense';
+          this.expenseSubmitBtn.textContent = 'Record Expense';
+          initialShares[this.state.activeUserId] = 0;
+        }
+
+        this.renderExpenseShareInputs(initialShares);
+        this.expenseModal.classList.remove('hidden');
+      }
+
+      renderExpenseShareInputs(initialShares = {}) {
+        const project = this.getActiveProject();
+        this.expQuickSplitBar.innerHTML = '';
+        this.expPartnerSharesList.innerHTML = '';
+
+        const setSinglePayer = (targetId) => {
+          const total = Math.round((parseFloat(this.expInputAmount.value) || 0) * 100) / 100;
+          this.expSharesManuallyEdited = false;
+          this.expPartnerSharesList.querySelectorAll('.exp-share-input').forEach(inp => {
+            inp.value = inp.dataset.partnerId === targetId ? total.toFixed(2) : '0.00';
+          });
+          this.updateExpenseShareStatus();
+        };
+
+        project.partners.forEach(p => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold transition';
+          btn.textContent = `100% ${p.name}`;
+          btn.addEventListener('click', () => setSinglePayer(p.id));
+          this.expQuickSplitBar.appendChild(btn);
+        });
+
+        if (project.partners.length > 1) {
+          const splitBtn = document.createElement('button');
+          splitBtn.type = 'button';
+          splitBtn.className = 'px-2.5 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/35 text-indigo-300 border border-indigo-500/30 text-[11px] font-semibold transition';
+          splitBtn.textContent = 'Split Evenly';
+          splitBtn.addEventListener('click', () => {
+            const total = Math.round((parseFloat(this.expInputAmount.value) || 0) * 100) / 100;
+            const n = project.partners.length;
+            const base = Math.floor((total * 100) / n) / 100;
+            let remCents = Math.round(total * 100) - Math.round(base * 100) * n;
+            this.expSharesManuallyEdited = true;
+            this.expPartnerSharesList.querySelectorAll('.exp-share-input').forEach(inp => {
+              const extra = remCents > 0 ? 0.01 : 0;
+              if (remCents > 0) remCents--;
+              inp.value = (base + extra).toFixed(2);
+            });
+            this.updateExpenseShareStatus();
+          });
+          this.expQuickSplitBar.appendChild(splitBtn);
+        }
+
+        project.partners.forEach(p => {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between gap-2';
+          const val = initialShares[p.id] !== undefined ? Number(initialShares[p.id]) : 0;
+          row.innerHTML = `
+            <span class="text-slate-300 font-medium truncate">${p.name}</span>
+            <div class="relative w-32 shrink-0">
+              <span class="absolute left-2.5 top-1.5 text-slate-500 font-bold">$</span>
+              <input type="number" step="0.01" min="0" value="${val.toFixed(2)}" data-partner-id="${p.id}" class="exp-share-input w-full bg-slate-900 border border-slate-700 rounded-lg pl-6 pr-2 py-1 text-right text-white mono font-semibold focus:outline-none focus:border-indigo-500">
+            </div>
+          `;
+          row.querySelector('.exp-share-input').addEventListener('input', () => {
+            this.expSharesManuallyEdited = true;
+            this.updateExpenseShareStatus();
+          });
+          this.expPartnerSharesList.appendChild(row);
+        });
+
+        this.updateExpenseShareStatus();
+      }
+
+      updateExpenseShareStatus() {
+        if (!this.expShareTotalStatus) return;
+        const total = Math.round((parseFloat(this.expInputAmount.value) || 0) * 100) / 100;
+        let allocated = 0;
+        this.expPartnerSharesList.querySelectorAll('.exp-share-input').forEach(inp => {
+          allocated += parseFloat(inp.value) || 0;
+        });
+        allocated = Math.round(allocated * 100) / 100;
+        this.expShareTotalStatus.textContent = `$${allocated.toFixed(2)} / $${total.toFixed(2)}`;
+        if (Math.abs(allocated - total) <= 0.02) {
+          this.expShareTotalStatus.className = 'text-[11px] mono font-bold text-emerald-400';
+        } else {
+          this.expShareTotalStatus.className = 'text-[11px] mono font-bold text-rose-400';
+        }
+      }
+
       // --- FINANCIAL SETTLEMENT CALCULATOR (WATERFALL RULES) ---
       calculateSettlement(project) {
         // 1. Calculate Gross Sales
@@ -2429,7 +2614,13 @@
         let totalExpenses = 0;
         project.expenses.forEach(exp => {
           totalExpenses += exp.amount;
-          if (exp.paidBy === 'split_all' && project.partners.length > 0) {
+          if (exp.paidShares && typeof exp.paidShares === 'object') {
+            Object.entries(exp.paidShares).forEach(([pid, amt]) => {
+              if (expensesByPartner[pid] !== undefined) {
+                expensesByPartner[pid] += Number(amt) || 0;
+              }
+            });
+          } else if (exp.paidBy === 'split_all' && project.partners.length > 0) {
             const share = exp.amount / project.partners.length;
             project.partners.forEach(p => {
               expensesByPartner[p.id] += share;
@@ -2928,31 +3119,53 @@
           const card = document.createElement('div');
           card.className = 'bg-slate-900 rounded-xl border border-slate-800 p-3.5 flex items-center justify-between gap-3 shadow-sm';
 
-          const payer = project.partners.find(p => p.id === exp.paidBy);
-          const payerName = exp.paidBy === 'split_all' ? 'All Partners (Split Evenly)' : (payer ? payer.name : 'Partner');
+          let paidSummaryHtml = '';
+          if (exp.paidShares && typeof exp.paidShares === 'object') {
+            const parts = project.partners
+              .map(p => ({ name: p.name, amt: Number(exp.paidShares[p.id] || 0) }))
+              .filter(x => x.amt > 0.005);
+            if (parts.length === 1) {
+              paidSummaryHtml = `Paid 100% by <span class="text-indigo-300 font-bold">${parts[0].name}</span>`;
+            } else if (parts.length > 1) {
+              paidSummaryHtml = parts.map(x => `<span class="text-indigo-300 font-bold">${x.name}</span> $${x.amt.toFixed(2)}`).join(' · ');
+            } else {
+              paidSummaryHtml = 'Unallocated';
+            }
+          } else {
+            const payer = project.partners.find(p => p.id === exp.paidBy);
+            const payerName = exp.paidBy === 'split_all' ? 'All Partners (Split Evenly)' : (payer ? payer.name : 'Partner');
+            paidSummaryHtml = exp.paidBy === 'split_all'
+              ? 'Shared expense — <span class="text-indigo-300 font-bold">Split evenly</span>'
+              : `Paid 100% by <span class="text-indigo-300 font-bold">${payerName}</span>`;
+          }
 
           card.innerHTML = `
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg shrink-0">
-                Receipt
+              <div class="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-[11px] font-bold shrink-0">
+                EXP
               </div>
               <div class="min-w-0">
                 <div class="flex items-center gap-2 mb-0.5">
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">${exp.category}</span>
                   <span class="text-[10px] text-slate-500">${exp.date}</span>
+                  ${exp.receiptPhoto ? '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-800 text-indigo-300">Receipt</span>' : ''}
                 </div>
                 <h4 class="text-xs sm:text-sm font-semibold text-white truncate">${exp.title}</h4>
                 <div class="text-[10px] text-slate-400 mt-0.5">
-                  ${exp.paidBy === 'split_all' ? 'Shared expense — <span class="text-indigo-300 font-bold">Split evenly</span>' : `Paid 100% by <span class="text-indigo-300 font-bold">${payerName}</span> (reimbursed)`}
+                  ${paidSummaryHtml}
                 </div>
               </div>
             </div>
 
-            <div class="flex items-center gap-3 shrink-0">
-              <span class="text-sm sm:text-base font-extrabold text-rose-400 mono">-$${exp.amount.toFixed(2)}</span>
-              <button class="delete-exp-btn text-slate-500 hover:text-rose-400 p-1" data-id="${exp.id}" title="Delete expense">Close</button>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="text-sm sm:text-base font-extrabold text-rose-400 mono mr-1">-$${exp.amount.toFixed(2)}</span>
+              <button type="button" class="edit-exp-btn px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold transition" data-id="${exp.id}">Edit</button>
+              <button type="button" class="delete-exp-btn text-slate-500 hover:text-rose-400 px-1.5 py-1 text-[11px] font-semibold" data-id="${exp.id}">Remove</button>
             </div>
           `;
+
+          card.querySelector('.edit-exp-btn').addEventListener('click', () => {
+            this.openEditExpenseModal(exp.id);
+          });
 
           card.querySelector('.delete-exp-btn').addEventListener('click', () => {
             this.showConfirm('Delete Expense', `Remove expense "${exp.title}" of $${exp.amount.toFixed(2)}?`, () => {
