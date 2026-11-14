@@ -1,4 +1,4 @@
-const CACHE_NAME = 'businessbuddies-v16';
+const CACHE_NAME = 'businessbuddies-v17';
 const ASSETS = [
   './',
   './index.html',
@@ -35,7 +35,7 @@ self.addEventListener('fetch', (e) => {
 
   if (isHtmlNav) {
     e.respondWith(
-      fetch(e.request)
+      fetch(e.request, { cache: 'no-store' })
         .then((res) => {
           const clone = res.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));

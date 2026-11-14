@@ -939,6 +939,57 @@
   </div>
 
   <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <!-- ADD / CUSTOMIZE PARTNER MODAL -->
+  <div id="partnerModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <form id="partnerForm" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="partnerModalTitle" class="text-base font-bold text-white">Customize Partner</h3>
+        <button type="button" id="closePartnerModalBtn" class="text-slate-400 hover:text-white text-sm px-2 py-1">Close</button>
+      </div>
+      <input type="hidden" id="partnerEditId" value="">
+      <div class="space-y-3 text-xs">
+        <div>
+          <label for="partnerInputName" class="block font-semibold text-slate-300 mb-1">Partner Name *</label>
+          <input type="text" id="partnerInputName" required placeholder="e.g. Alex, Jordan, Sam" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-sky-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="partnerInputSplit" class="block font-semibold text-slate-300 mb-1">Profit Split (%) *</label>
+            <input type="number" id="partnerInputSplit" step="0.01" min="0" max="100" required placeholder="50" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white mono focus:outline-none focus:border-sky-500">
+          </div>
+          <div>
+            <label for="partnerInputColor" class="block font-semibold text-slate-300 mb-1">Badge Color</label>
+            <select id="partnerInputColor" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sky-500">
+              <option value="emerald">Emerald</option>
+              <option value="indigo">Indigo</option>
+              <option value="amber">Amber</option>
+              <option value="cyan">Cyan</option>
+              <option value="rose">Rose</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="partnerInputVenmo" class="block font-semibold text-slate-300 mb-1">Payment Handle (Venmo / Zelle / CashApp)</label>
+          <input type="text" id="partnerInputVenmo" placeholder="e.g. alex-resell (optional)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-sky-500">
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" id="cancelPartnerModalBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">Cancel</button>
+        <button type="submit" class="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition">Save Partner</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- PRO UPGRADE / PAYWALL MODAL (RevenueCat Ready) -->
+  <div id="proModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">BusinessBuddies Pro</span>
+          <h3 class="text-lg font-extrabold text-white mt-1.5">Sync & Automate Your Hustle</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Built for reselling partners, storage-unit buyers, and flea-market teams.</p>
+        </div>
+
   <script>
     // --- DEFAULT INITIAL STATE & SAMPLE DATA ---
     const STORAGE_KEY = 'businessbuddies_state_v1';
@@ -1900,16 +1951,6 @@
           this.renderAll();
         });
 
-        if (this.workerUrlInput) {
-          this.workerUrlInput.value = this.getWorkerUrl();
-        }
-        if (this.saveWorkerUrlBtn && this.workerUrlInput) {
-          this.saveWorkerUrlBtn.addEventListener('click', () => {
-            const val = this.workerUrlInput.value.trim().replace(/\/+$/, '');
-            localStorage.setItem('businessbuddies_worker_url', val);
-            this.showToast(val ? 'Worker URL saved' : 'Worker URL cleared', 'Done');
-          });
-        }
         if (this.toggleBarcodeScannerBtn) {
           this.toggleBarcodeScannerBtn.addEventListener('click', () => this.toggleBarcodeScanner());
         }
@@ -3661,62 +3702,22 @@
       }
     }
 
-    // Initialize when DOM ready
-    window.addEventListener('DOMContentLoaded', () => {
-      window.app = new AppController();
-    });
+    // Initialize safely whether DOMContentLoaded has fired or not
+    const bootApp = () => {
+      if (window.app) return;
+      try {
+        window.app = new AppController();
+      } catch (err) {
+        console.error('BusinessBuddies initialization error:', err);
+      }
+    };
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', bootApp);
+    } else {
+      bootApp();
+    }
   </script>
 
-  <!-- ADD / CUSTOMIZE PARTNER MODAL -->
-  <div id="partnerModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <form id="partnerForm" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 id="partnerModalTitle" class="text-base font-bold text-white">Customize Partner</h3>
-        <button type="button" id="closePartnerModalBtn" class="text-slate-400 hover:text-white text-sm px-2 py-1">Close</button>
-      </div>
-      <input type="hidden" id="partnerEditId" value="">
-      <div class="space-y-3 text-xs">
-        <div>
-          <label for="partnerInputName" class="block font-semibold text-slate-300 mb-1">Partner Name *</label>
-          <input type="text" id="partnerInputName" required placeholder="e.g. Alex, Jordan, Sam" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-sky-500">
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label for="partnerInputSplit" class="block font-semibold text-slate-300 mb-1">Profit Split (%) *</label>
-            <input type="number" id="partnerInputSplit" step="0.01" min="0" max="100" required placeholder="50" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white mono focus:outline-none focus:border-sky-500">
-          </div>
-          <div>
-            <label for="partnerInputColor" class="block font-semibold text-slate-300 mb-1">Badge Color</label>
-            <select id="partnerInputColor" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sky-500">
-              <option value="emerald">Emerald</option>
-              <option value="indigo">Indigo</option>
-              <option value="amber">Amber</option>
-              <option value="cyan">Cyan</option>
-              <option value="rose">Rose</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label for="partnerInputVenmo" class="block font-semibold text-slate-300 mb-1">Payment Handle (Venmo / Zelle / CashApp)</label>
-          <input type="text" id="partnerInputVenmo" placeholder="e.g. alex-resell (optional)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-sky-500">
-        </div>
-      </div>
-      <div class="flex items-center justify-end gap-2 pt-2">
-        <button type="button" id="cancelPartnerModalBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">Cancel</button>
-        <button type="submit" class="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition">Save Partner</button>
-      </div>
-    </form>
-  </div>
-
-  <!-- PRO UPGRADE / PAYWALL MODAL (RevenueCat Ready) -->
-  <div id="proModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">BusinessBuddies Pro</span>
-          <h3 class="text-lg font-extrabold text-white mt-1.5">Sync & Automate Your Hustle</h3>
-          <p class="text-xs text-slate-400 mt-0.5">Built for reselling partners, storage-unit buyers, and flea-market teams.</p>
-        </div>
         <button type="button" id="closeProModalBtn" class="text-slate-400 hover:text-white text-lg leading-none px-1">Close</button>
       </div>
 
