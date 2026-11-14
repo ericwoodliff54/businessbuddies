@@ -136,7 +136,11 @@
       </div>
 
       <!-- Active User Profile Switcher & Settings -->
-      <div class="flex items-center gap-2 shrink-0">
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <!-- Free / Pro Tier Pill -->
+        <button id="tierPillBtn" type="button" class="px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-bold transition shrink-0">
+          Free
+        </button>
         <!-- Switch Profile Pill -->
         <div class="flex items-center bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 shadow-inner">
           <span class="text-[11px] font-medium text-slate-400 px-2 hidden sm:inline">Active User:</span>
@@ -328,6 +332,12 @@
 
         <div id="ledgerPartnerCards" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <!-- Dynamically populated -->
+        </div>
+
+        <!-- Record-Keeping & Legal Disclaimer -->
+        <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+          <strong class="text-slate-300">Record-Keeping Notice:</strong> BusinessBuddies is a personal cost-splitting and inventory calculator operated by Twin Ravens Digital LLC. It does not process payments, hold funds, or provide tax, legal, or accounting advice. Always verify AI receipt scans against original receipts.
+          <a href="https://privacy.twinravensdigital.com" target="_blank" rel="noopener" class="text-emerald-400 underline ml-1">Privacy Policy</a>
         </div>
 
         <!-- Historical Settlement Log -->
@@ -1232,6 +1242,12 @@
         this.syncNowBtn = document.getElementById('syncNowBtn');
         this.copySyncTokenBtn = document.getElementById('copySyncTokenBtn');
         this.unlinkSyncBtn = document.getElementById('unlinkSyncBtn');
+        this.tierPillBtn = document.getElementById('tierPillBtn');
+        this.proModal = document.getElementById('proModal');
+        this.closeProModalBtn = document.getElementById('closeProModalBtn');
+        this.proPlanLabel = document.getElementById('proPlanLabel');
+        this.startTrialBtn = document.getElementById('startTrialBtn');
+        this.restoreProBtn = document.getElementById('restoreProBtn');
         this.joinSyncStream = null;
         this.joinSyncLoopId = null;
         this.syncPushTimer = null;
@@ -1798,6 +1814,24 @@
         });
         setTimeout(() => this.pullActiveProjectSync(true), 1600);
 
+        if (this.tierPillBtn) this.tierPillBtn.addEventListener('click', () => this.openProModal());
+        if (this.closeProModalBtn) this.closeProModalBtn.addEventListener('click', () => this.proModal.classList.add('hidden'));
+        if (this.startTrialBtn) {
+          this.startTrialBtn.addEventListener('click', () => {
+            if (!localStorage.getItem('businessbuddies_trial_start')) {
+              localStorage.setItem('businessbuddies_trial_start', String(Date.now()));
+            }
+            this.renderTierPill();
+            this.proModal.classList.add('hidden');
+            this.showToast('7-Day Pro Trial activated!', '🎉');
+          });
+        }
+        if (this.restoreProBtn) {
+          this.restoreProBtn.addEventListener('click', () => {
+            this.showToast('Store purchase restore connects via RevenueCat in native build', 'ℹ️');
+          });
+        }
+
         if (this.exportCsvBtn) {
           this.exportCsvBtn.addEventListener('click', () => this.exportProjectCSV());
         }
@@ -1920,6 +1954,10 @@
       }
 
       exportProjectCSV() {
+        if (!this.getTierState().isPro) {
+          this.openProModal('CSV export is a Pro feature — start your 7-day free trial!');
+          return;
+        }
         const project = this.getActiveProject();
         const math = this.calculateSettlement(project);
         const esc = (v) => {
@@ -2097,6 +2135,11 @@
       }
 
       async scanReceiptWithAI() {
+        const ts = this.getTierState();
+        if (!ts.isPro && ts.ocrCount >= 3) {
+          this.openProModal('Free tier includes 3 AI receipt scans — start your 7-day free trial!');
+          return;
+        }
         const workerUrl = this.getWorkerUrl();
         if (!workerUrl) {
           this.showToast('Set your Cloudflare Worker URL in Partners tab first', '⚠️');
@@ -2140,6 +2183,9 @@
               this.expInputCategory.value = r.category;
             }
           }
+          const prevOcr = parseInt(localStorage.getItem('businessbuddies_ocr_count') || '0', 10);
+          localStorage.setItem('businessbuddies_ocr_count', String(prevOcr + 1));
+          this.renderTierPill();
           this.showToast('Receipt auto-filled!', '✨');
         } catch (err) {
           clearTimeout(timer);
@@ -2179,6 +2225,10 @@
       }
 
       async createSyncRoom() {
+        if (!this.getTierState().isPro) {
+          this.openProModal('2-Person QR Sync is a Pro feature — start your 7-day free trial!');
+          return;
+        }
         const workerUrl = this.getWorkerUrl();
         if (!workerUrl) {
           this.showToast('Save your Cloudflare Worker URL first', '⚠️');
@@ -2486,6 +2536,40 @@
       }
 
       // --- RENDER FUNCTIONS ---
+      getTierState() {
+        const tier = localStorage.getItem('businessbuddies_tier') || 'free';
+        const trialStart = parseInt(localStorage.getItem('businessbuddies_trial_start') || '0', 10);
+        const ocrCount = parseInt(localStorage.getItem('businessbuddies_ocr_count') || '0', 10);
+        const now = Date.now();
+        const trialDaysLeft = trialStart ? Math.max(0, Math.ceil((trialStart + 7 * 86400000 - now) / 86400000)) : 0;
+        const isPro = tier === 'pro' || trialDaysLeft > 0;
+        return { tier, isPro, trialDaysLeft, ocrCount };
+      }
+
+      renderTierPill() {
+        if (!this.tierPillBtn) return;
+        const { tier, isPro, trialDaysLeft } = this.getTierState();
+        if (tier === 'pro') {
+          this.tierPillBtn.textContent = 'Pro';
+          this.tierPillBtn.className = 'px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-bold transition shrink-0';
+        } else if (trialDaysLeft > 0) {
+          this.tierPillBtn.textContent = `Trial (${trialDaysLeft}d)`;
+          this.tierPillBtn.className = 'px-2.5 py-1 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold transition shrink-0';
+        } else {
+          this.tierPillBtn.textContent = 'Free';
+          this.tierPillBtn.className = 'px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-bold transition shrink-0';
+        }
+        if (this.proPlanLabel) {
+          this.proPlanLabel.textContent = tier === 'pro' ? 'Pro Active' : (isPro ? `7-Day Trial (${trialDaysLeft} days left)` : 'Free (3 AI OCR scans included)');
+        }
+      }
+
+      openProModal(reason = '') {
+        this.renderTierPill();
+        if (reason) this.showToast(reason, '⭐');
+        if (this.proModal) this.proModal.classList.remove('hidden');
+      }
+
       getWorkerUrl() {
         return (localStorage.getItem('businessbuddies_worker_url') || '').trim().replace(/\/+$/, '');
       }
@@ -2500,6 +2584,7 @@
       }
 
       renderHeader() {
+        this.renderTierPill();
         const project = this.getActiveProject();
         const user = this.getActiveUser();
 
@@ -3028,6 +3113,45 @@
       window.app = new AppController();
     });
   </script>
+  <!-- PRO UPGRADE / PAYWALL MODAL (RevenueCat Ready) -->
+  <div id="proModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">BusinessBuddies Pro</span>
+          <h3 class="text-lg font-extrabold text-white mt-1.5">Sync & Automate Your Hustle</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Built for reselling partners, storage-unit buyers, and flea-market teams.</p>
+        </div>
+        <button type="button" id="closeProModalBtn" class="text-slate-400 hover:text-white text-lg leading-none px-1">✕</button>
+      </div>
+
+      <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2 text-xs text-slate-300">
+        <div class="flex items-center gap-2"><span class="text-emerald-400">✓</span> <span><strong>2-Person QR Partner Sync</strong> across phones via Cloudflare KV</span></div>
+        <div class="flex items-center gap-2"><span class="text-emerald-400">✓</span> <span><strong>Unlimited AI Receipt OCR</strong> (Free includes 3 starter scans)</span></div>
+        <div class="flex items-center gap-2"><span class="text-emerald-400">✓</span> <span><strong>3+ Partners & Unlimited Projects</strong> per haul</span></div>
+        <div class="flex items-center gap-2"><span class="text-emerald-400">✓</span> <span><strong>One-Tap CSV & Tax-Summary Export</strong></span></div>
+      </div>
+
+      <div id="proStatusBanner" class="text-xs text-center text-slate-400 bg-slate-950/60 border border-slate-800 rounded-xl p-2.5">
+        Current Plan: <strong id="proPlanLabel" class="text-white">Free</strong>
+      </div>
+
+      <div class="space-y-2">
+        <button type="button" id="startTrialBtn" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs transition shadow-lg">
+          Start 7-Day Free Trial ($2.99/mo or $24.99/yr after)
+        </button>
+        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+          <button type="button" id="restoreProBtn" class="hover:text-white underline">Restore Purchases</button>
+          <a href="https://privacy.twinravensdigital.com" target="_blank" rel="noopener" class="hover:text-white underline">Privacy & Terms</a>
+        </div>
+      </div>
+
+      <p class="text-[10px] text-slate-500 leading-relaxed">
+        Personal record-keeping tool only. BusinessBuddies does not process payments or provide tax, legal, or financial advice.
+      </p>
+    </div>
+  </div>
+
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
