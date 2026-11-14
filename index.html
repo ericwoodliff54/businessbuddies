@@ -64,6 +64,82 @@
         font-size: 16px !important;
       }
     }
+    /* Light Mode Theme Overrides */
+    body.light-mode {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
+    body.light-mode header {
+      background-color: rgba(255, 255, 255, 0.92) !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.light-mode .bg-slate-950,
+    body.light-mode .bg-slate-950\/80,
+    body.light-mode .bg-slate-950\/60,
+    body.light-mode .bg-slate-950\/40 {
+      background-color: #f8fafc !important;
+    }
+    body.light-mode .bg-slate-900,
+    body.light-mode .bg-slate-900\/90,
+    body.light-mode .bg-slate-900\/60,
+    body.light-mode .bg-slate-900\/40 {
+      background-color: #ffffff !important;
+    }
+    body.light-mode .bg-gradient-to-b.from-slate-900 {
+      background: #ffffff !important;
+    }
+    body.light-mode .bg-slate-800,
+    body.light-mode .bg-slate-800\/80 {
+      background-color: #e2e8f0 !important;
+    }
+    body.light-mode .hover\:bg-slate-700:hover,
+    body.light-mode .hover\:bg-slate-800:hover {
+      background-color: #cbd5e1 !important;
+    }
+    body.light-mode .border-slate-800,
+    body.light-mode .border-slate-800\/80,
+    body.light-mode .border-slate-700,
+    body.light-mode .border-slate-700\/60 {
+      border-color: #cbd5e1 !important;
+    }
+    body.light-mode .text-white {
+      color: #0f172a !important;
+    }
+    body.light-mode .text-slate-200,
+    body.light-mode .text-slate-300 {
+      color: #334155 !important;
+    }
+    body.light-mode .text-slate-400,
+    body.light-mode .text-slate-500 {
+      color: #64748b !important;
+    }
+    body.light-mode .text-emerald-300,
+    body.light-mode .text-emerald-400 {
+      color: #047857 !important;
+    }
+    body.light-mode .text-indigo-300,
+    body.light-mode .text-indigo-400 {
+      color: #4338ca !important;
+    }
+    body.light-mode .text-rose-400 {
+      color: #be123c !important;
+    }
+    body.light-mode .text-amber-300 {
+      color: #b45309 !important;
+    }
+    body.light-mode input,
+    body.light-mode select,
+    body.light-mode textarea {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.light-mode .bg-emerald-600 .text-white,
+    body.light-mode .bg-emerald-600,
+    body.light-mode .bg-indigo-600,
+    body.light-mode .bg-emerald-500 {
+      color: #ffffff !important;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3/dist/iife/polyfill.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -150,8 +226,13 @@
           </button>
         </div>
 
+        <!-- App Preferences / Settings Button -->
+        <button id="openSettingsModalBtn" type="button" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition" title="App Settings (Theme, Notifications, Haptics, Sound)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+        </button>
+
         <!-- Project Settings Button -->
-        <button id="openProjectModalBtn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition" title="Project Settings & Splits">
+        <button id="openProjectModalBtn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition" title="Projects & Switcher">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
         </button>
       </div>
@@ -1014,6 +1095,7 @@
 
         this.initDOMElements();
         this.migrateLegacyPhotos();
+        this.applyPreferences();
         this.initSplashScreen();
         this.attachEventListeners();
         this.renderAll();
@@ -1200,6 +1282,15 @@
         this.proPlanLabel = document.getElementById('proPlanLabel');
         this.startTrialBtn = document.getElementById('startTrialBtn');
         this.restoreProBtn = document.getElementById('restoreProBtn');
+        this.openSettingsModalBtn = document.getElementById('openSettingsModalBtn');
+        this.settingsModal = document.getElementById('settingsModal');
+        this.closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
+        this.doneSettingsModalBtn = document.getElementById('doneSettingsModalBtn');
+        this.themeDarkBtn = document.getElementById('themeDarkBtn');
+        this.themeLightBtn = document.getElementById('themeLightBtn');
+        this.toggleNotificationsBtn = document.getElementById('toggleNotificationsBtn');
+        this.toggleHapticsBtn = document.getElementById('toggleHapticsBtn');
+        this.toggleSoundBtn = document.getElementById('toggleSoundBtn');
         this.splitEvenlyBtn = document.getElementById('splitEvenlyBtn');
         this.partnerModal = document.getElementById('partnerModal');
         this.partnerForm = document.getElementById('partnerForm');
@@ -1838,6 +1929,60 @@
         });
         setTimeout(() => this.pullActiveProjectSync(true), 1600);
 
+        if (this.openSettingsModalBtn) {
+          this.openSettingsModalBtn.addEventListener('click', () => {
+            this.applyPreferences();
+            this.settingsModal.classList.remove('hidden');
+          });
+        }
+        if (this.closeSettingsModalBtn) this.closeSettingsModalBtn.addEventListener('click', () => this.settingsModal.classList.add('hidden'));
+        if (this.doneSettingsModalBtn) this.doneSettingsModalBtn.addEventListener('click', () => this.settingsModal.classList.add('hidden'));
+        if (this.themeDarkBtn) {
+          this.themeDarkBtn.addEventListener('click', () => {
+            localStorage.setItem('businessbuddies_theme', 'dark');
+            this.applyPreferences();
+            this.triggerFeedback('tap');
+          });
+        }
+        if (this.themeLightBtn) {
+          this.themeLightBtn.addEventListener('click', () => {
+            localStorage.setItem('businessbuddies_theme', 'light');
+            this.applyPreferences();
+            this.triggerFeedback('tap');
+          });
+        }
+        if (this.toggleHapticsBtn) {
+          this.toggleHapticsBtn.addEventListener('click', () => {
+            const cur = this.getPreferences().haptics;
+            localStorage.setItem('businessbuddies_haptics', String(!cur));
+            this.applyPreferences();
+            if (!cur) this.triggerFeedback('tap');
+          });
+        }
+        if (this.toggleSoundBtn) {
+          this.toggleSoundBtn.addEventListener('click', () => {
+            const cur = this.getPreferences().sound;
+            localStorage.setItem('businessbuddies_sound', String(!cur));
+            this.applyPreferences();
+            if (!cur) this.triggerFeedback('tap');
+          });
+        }
+        if (this.toggleNotificationsBtn) {
+          this.toggleNotificationsBtn.addEventListener('click', async () => {
+            const cur = this.getPreferences().notifications;
+            if (!cur && 'Notification' in window) {
+              const perm = await Notification.requestPermission();
+              if (perm !== 'granted') {
+                this.showToast('Browser notification permission was not granted');
+                return;
+              }
+            }
+            localStorage.setItem('businessbuddies_notifications', String(!cur));
+            this.applyPreferences();
+            this.triggerFeedback('tap');
+          });
+        }
+
         if (this.tierPillBtn) this.tierPillBtn.addEventListener('click', () => this.openProModal());
         if (this.closeProModalBtn) this.closeProModalBtn.addEventListener('click', () => this.proModal.classList.add('hidden'));
         if (this.startTrialBtn) {
@@ -2383,6 +2528,8 @@
             if (idx >= 0) this.state.projects[idx] = updated;
             this.saveState(true);
             this.renderAll();
+            this.triggerFeedback('success');
+            this.sendAppNotification('BusinessBuddies Synced', `Partner updated ${updated.name} (v${data.version})`);
             if (!silent) this.showToast(`Synced v${data.version} from partner`, '↻');
           } else if (!silent) {
             this.showToast('Ledger already up to date', 'Done');
@@ -2797,6 +2944,90 @@
       }
 
       // --- RENDER FUNCTIONS ---
+      getPreferences() {
+        return {
+          theme: localStorage.getItem('businessbuddies_theme') || 'dark',
+          notifications: localStorage.getItem('businessbuddies_notifications') === 'true',
+          haptics: localStorage.getItem('businessbuddies_haptics') !== 'false',
+          sound: localStorage.getItem('businessbuddies_sound') !== 'false'
+        };
+      }
+
+      applyPreferences() {
+        const prefs = this.getPreferences();
+        document.body.classList.toggle('light-mode', prefs.theme === 'light');
+        const themeMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeMeta) {
+          themeMeta.setAttribute('content', prefs.theme === 'light' ? '#ffffff' : '#0f172a');
+        }
+
+        if (this.themeDarkBtn && this.themeLightBtn) {
+          const activeCls = 'px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-600 text-white transition';
+          const idleCls = 'px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-400 hover:text-white transition';
+          this.themeDarkBtn.className = prefs.theme === 'dark' ? activeCls : idleCls;
+          this.themeLightBtn.className = prefs.theme === 'light' ? activeCls : idleCls;
+        }
+
+        const setToggleStyle = (btn, enabled) => {
+          if (!btn) return;
+          btn.textContent = enabled ? 'On' : 'Off';
+          btn.className = enabled
+            ? 'px-3 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition shrink-0'
+            : 'px-3 py-1.5 rounded-lg text-[11px] font-bold bg-slate-800 text-slate-400 border border-slate-700 transition shrink-0';
+        };
+        setToggleStyle(this.toggleNotificationsBtn, prefs.notifications);
+        setToggleStyle(this.toggleHapticsBtn, prefs.haptics);
+        setToggleStyle(this.toggleSoundBtn, prefs.sound);
+      }
+
+      triggerFeedback(type = 'tap') {
+        const prefs = this.getPreferences();
+        if (prefs.haptics && navigator.vibrate) {
+          try { navigator.vibrate(type === 'scan' ? [15, 30, 15] : 12); } catch {}
+        }
+        if (prefs.sound) {
+          try {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return;
+            const ctx = this._audioCtx || (this._audioCtx = new Ctx());
+            if (ctx.state === 'suspended') ctx.resume();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            const now = ctx.currentTime;
+            if (type === 'scan') {
+              osc.frequency.setValueAtTime(880, now);
+              osc.frequency.exponentialRampToValueAtTime(1320, now + 0.09);
+              gain.gain.setValueAtTime(0.08, now);
+              gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+              osc.connect(gain); gain.connect(ctx.destination);
+              osc.start(now); osc.stop(now + 0.14);
+            } else if (type === 'success') {
+              osc.frequency.setValueAtTime(587.33, now);
+              osc.frequency.setValueAtTime(880, now + 0.08);
+              gain.gain.setValueAtTime(0.07, now);
+              gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+              osc.connect(gain); gain.connect(ctx.destination);
+              osc.start(now); osc.stop(now + 0.2);
+            } else {
+              osc.frequency.setValueAtTime(520, now);
+              gain.gain.setValueAtTime(0.03, now);
+              gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+              osc.connect(gain); gain.connect(ctx.destination);
+              osc.start(now); osc.stop(now + 0.05);
+            }
+          } catch {}
+        }
+      }
+
+      sendAppNotification(title, body) {
+        const prefs = this.getPreferences();
+        if (!prefs.notifications || !('Notification' in window) || Notification.permission !== 'granted') return;
+        try {
+          new Notification(title, { body, icon: './icon-192.png' });
+        } catch {}
+      }
+
       getTierState() {
         const tier = localStorage.getItem('businessbuddies_tier') || 'free';
         const trialStart = parseInt(localStorage.getItem('businessbuddies_trial_start') || '0', 10);
@@ -3445,6 +3676,61 @@
       window.app = new AppController();
     });
   </script>
+  <!-- APP SETTINGS MODAL (Theme, Notifications, Haptics, Sound) -->
+  <div id="settingsModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-bold text-white">App Settings</h3>
+        <button type="button" id="closeSettingsModalBtn" class="text-slate-400 hover:text-white px-2 py-1 text-xs">Close</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <!-- Theme Selector -->
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3">
+          <div>
+            <div class="font-bold text-white">Appearance</div>
+            <div class="text-[11px] text-slate-400">Switch between Dark and Light mode</div>
+          </div>
+          <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg p-0.5 shrink-0">
+            <button type="button" id="themeDarkBtn" class="px-2.5 py-1 rounded-md text-[11px] font-bold transition">Dark</button>
+            <button type="button" id="themeLightBtn" class="px-2.5 py-1 rounded-md text-[11px] font-bold transition">Light</button>
+          </div>
+        </div>
+
+        <!-- Notifications Toggle -->
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3">
+          <div>
+            <div class="font-bold text-white">Notifications</div>
+            <div class="text-[11px] text-slate-400">Alert on partner ledger updates and sales</div>
+          </div>
+          <button type="button" id="toggleNotificationsBtn" class="px-3 py-1.5 rounded-lg text-[11px] font-bold border transition shrink-0">Off</button>
+        </div>
+
+        <!-- Haptics Toggle -->
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3">
+          <div>
+            <div class="font-bold text-white">Haptics</div>
+            <div class="text-[11px] text-slate-400">Vibration feedback on scans and saves</div>
+          </div>
+          <button type="button" id="toggleHapticsBtn" class="px-3 py-1.5 rounded-lg text-[11px] font-bold border transition shrink-0">On</button>
+        </div>
+
+        <!-- Sound Toggle -->
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3">
+          <div>
+            <div class="font-bold text-white">Sound Effects</div>
+            <div class="text-[11px] text-slate-400">Audio chime for barcode scans and settlements</div>
+          </div>
+          <button type="button" id="toggleSoundBtn" class="px-3 py-1.5 rounded-lg text-[11px] font-bold border transition shrink-0">On</button>
+        </div>
+      </div>
+
+      <div class="pt-1 flex justify-end">
+        <button type="button" id="doneSettingsModalBtn" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">Done</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ADD / CUSTOMIZE PARTNER MODAL -->
   <div id="partnerModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <form id="partnerForm" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
