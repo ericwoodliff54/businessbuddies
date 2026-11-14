@@ -1291,8 +1291,6 @@
         this.settlementHistoryContainer = document.getElementById('settlementHistoryContainer');
         this.clearSettlementHistoryBtn = document.getElementById('clearSettlementHistoryBtn');
         this.exportCsvBtn = document.getElementById('exportCsvBtn');
-        this.workerUrlInput = document.getElementById('workerUrlInput');
-        this.saveWorkerUrlBtn = document.getElementById('saveWorkerUrlBtn');
         this.toggleBarcodeScannerBtn = document.getElementById('toggleBarcodeScannerBtn');
         this.stopBarcodeScannerBtn = document.getElementById('stopBarcodeScannerBtn');
         this.barcodeScannerBox = document.getElementById('barcodeScannerBox');
@@ -1348,8 +1346,6 @@
         this.partnersListContainer = document.getElementById('partnersListContainer');
         this.partnerTotalPercentage = document.getElementById('partnerTotalPercentage');
         this.addPartnerBtn = document.getElementById('addPartnerBtn');
-        this.resetDemoDataBtn = document.getElementById('resetDemoDataBtn');
-        this.clearAllDataBtn = document.getElementById('clearAllDataBtn');
 
         // Modals
         this.itemModal = document.getElementById('itemModal');
@@ -1485,7 +1481,6 @@
 
       attachEventListeners() {
         // Replay splash button
-        const replayBtn = document.getElementById('replaySplashBtn');
         if (replayBtn) {
           replayBtn.addEventListener('click', () => {
             this.replaySplashScreen();
@@ -2058,42 +2053,6 @@
             this.showToast('Settlement history cleared', 'Done');
           }, true);
         });
-
-        // Demo data reset & clear
-        this.resetDemoDataBtn.addEventListener('click', () => {
-          this.showConfirm('Reload Demo Data', 'Reset project to sample Storage Unit 402 data with realistic sales and expenses?', () => {
-            this.state = JSON.parse(JSON.stringify(INITIAL_DEMO_STATE));
-            this.saveState();
-            this.renderAll();
-            this.showToast('Sample project data reloaded');
-          });
-        });
-
-        this.clearAllDataBtn.addEventListener('click', () => {
-          this.showConfirm('Clear All Data', 'Erase all projects and start completely fresh?', () => {
-            const freshProject = {
-              id: 'proj_' + Date.now(),
-              name: 'My New Storage Flip',
-              created: new Date().toISOString().split('T')[0],
-              partners: [
-                { id: 'p1', name: 'Partner 1', split: 50, venmo: '' },
-                { id: 'p2', name: 'Partner 2', split: 50, venmo: '' }
-              ],
-              items: [],
-              expenses: [],
-              settlements: []
-            };
-            this.state = {
-              activeProjectId: freshProject.id,
-              activeUserId: 'p1',
-              projects: [freshProject]
-            };
-            this.saveState();
-            this.renderAll();
-            this.showToast('All data cleared');
-          }, true);
-        });
-
         // Add / Edit Partner Modal & Split Evenly
         this.addPartnerBtn.addEventListener('click', () => this.openPartnerModal(null));
         if (this.closePartnerModalBtn) this.closePartnerModalBtn.addEventListener('click', () => this.partnerModal.classList.add('hidden'));
