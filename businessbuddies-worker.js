@@ -36,6 +36,20 @@ function jsonResponse(data, status = 200) {
   });
 }
 
+
+function generateRoomCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let out = 'BB-';
+  for (let i = 0; i < 6; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out;
+}
+
+function generateSecret() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
@@ -156,6 +170,102 @@ Return ONLY valid JSON (no markdown fences) with this exact shape:
       return jsonResponse({ found: false, code });
     }
 
-    return jsonResponse({ ok: true, service: 'businessbuddies-worker', version: '1.0.0' });
+    // --- 2-PERSON QR PARTNER SYNC (KV: BB_SYNC_DB) ---
+    if (url.pathname === '/sync/create' && request.method === 'POST') {
+      if (!checkEdgeRateLimit(ip, 'sync', 30)) {
+        return jsonResponse({ error: 'Rate limit exceeded.' }, 429);
+      }
+      if (!env.BB_SYNC_DB) {
+        return jsonResponse({ error: 'Worker missing BB_SYNC_DB KV namespace binding.' }, 500);
+      }
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return jsonResponse({ error: 'Invalid JSON.' }, 400);
+      }
+      if (!body.project || !body.project.id) {
+        return jsonResponse({ error: 'Missing project payload.' }, 400);
+      }
+
+      const code = generateRoomCode();
+      const syncSecret = generateSecret();
+      const record = {
+        code,
+        syncSecret,
+        version: 1,
+        updatedAt: new Date().toISOString(),
+        project: body.project,
+      };
+      await env.BB_SYNC_DB.put(`room:${code}`, JSON.stringify(record));
+      return jsonResponse({ ok: true, code, syncSecret, version: 1, updatedAt: record.updatedAt });
+    }
+
+    if (url.pathname === '/sync/pull' && request.method === 'GET') {
+      if (!checkEdgeRateLimit(ip, 'sync', 60)) {
+        return jsonResponse({ error: 'Rate limit exceeded.' }, 429);
+      }
+      if (!env.BB_SYNC_DB) {
+        return jsonResponse({ error: 'Worker missing BB_SYNC_DB KV namespace binding.' }, 500);
+      }
+      const code = (url.searchParams.get('code') || '').trim().toUpperCase();
+      const secret = (url.searchParams.get('secret') || '').trim();
+      if (!code || !secret) {
+        return jsonResponse({ error: 'Missing code or secret.' }, 400);
+      }
+      const record = await env.BB_SYNC_DB.get(`room:${code}`, 'json');
+      if (!record) {
+        return jsonResponse({ error: 'Sync room not found.' }, 404);
+      }
+      if (record.syncSecret !== secret) {
+        return jsonResponse({ error: 'Invalid sync secret.' }, 403);
+      }
+      return jsonResponse({
+        ok: true,
+        code: record.code,
+        version: record.version,
+        updatedAt: record.updatedAt,
+        project: record.project,
+      });
+    }
+
+    if (url.pathname === '/sync/push' && request.method === 'POST') {
+      if (!checkEdgeRateLimit(ip, 'sync', 60)) {
+        return jsonResponse({ error: 'Rate limit exceeded.' }, 429);
+      }
+      if (!env.BB_SYNC_DB) {
+        return jsonResponse({ error: 'Worker missing BB_SYNC_DB KV namespace binding.' }, 500);
+      }
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return jsonResponse({ error: 'Invalid JSON.' }, 400);
+      }
+      const code = (body.code || '').trim().toUpperCase();
+      const secret = (body.secret || '').trim();
+      if (!code || !secret || !body.project) {
+        return jsonResponse({ error: 'Missing code, secret, or project.' }, 400);
+      }
+      const existing = await env.BB_SYNC_DB.get(`room:${code}`, 'json');
+      if (!existing) {
+        return jsonResponse({ error: 'Sync room not found.' }, 404);
+      }
+      if (existing.syncSecret !== secret) {
+        return jsonResponse({ error: 'Invalid sync secret.' }, 403);
+      }
+      const nextVersion = (existing.version || 1) + 1;
+      const updated = {
+        code,
+        syncSecret: secret,
+        version: nextVersion,
+        updatedAt: new Date().toISOString(),
+        project: body.project,
+      };
+      await env.BB_SYNC_DB.put(`room:${code}`, JSON.stringify(updated));
+      return jsonResponse({ ok: true, code, version: nextVersion, updatedAt: updated.updatedAt });
+    }
+
+    return jsonResponse({ ok: true, service: 'businessbuddies-worker', version: '1.1.0' });
   },
 };

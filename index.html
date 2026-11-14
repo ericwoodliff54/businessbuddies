@@ -66,6 +66,7 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3/dist/iife/polyfill.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950 pb-16">
 
@@ -362,6 +363,59 @@
         <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
           <span class="text-xs text-slate-400">Total Profit Allocation:</span>
           <span id="partnerTotalPercentage" class="text-xs font-bold mono text-emerald-400">100%</span>
+        </div>
+      </div>
+
+      <!-- 2-Person QR Partner Sync (Cloudflare KV) -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+              <span>🤝</span> 2-Person QR Partner Sync
+            </h3>
+            <p class="text-[11px] text-slate-400">Share this project's live inventory, expenses, and waterfall ledger with your partner.</p>
+          </div>
+          <span id="syncStatusPill" class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Not Linked</span>
+        </div>
+
+        <div id="syncUnlinkedBox" class="flex flex-wrap gap-2">
+          <button type="button" id="createSyncRoomBtn" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1.5">
+            <span>📱</span> Create Sync QR
+          </button>
+          <button type="button" id="scanJoinSyncBtn" class="px-3.5 py-2 rounded-xl bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-200 border border-indigo-500/40 text-xs font-bold transition flex items-center gap-1.5">
+            <span>📷</span> Scan Partner QR
+          </button>
+          <button type="button" id="manualJoinSyncBtn" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition">
+            Enter Code
+          </button>
+        </div>
+
+        <div id="joinSyncScannerBox" class="hidden rounded-xl overflow-hidden border border-indigo-500/40 bg-black relative">
+          <video id="joinSyncVideo" playsinline muted class="w-full h-48 object-cover"></video>
+          <div class="flex items-center justify-between px-3 py-1.5 bg-slate-900/90 text-[11px] text-slate-300">
+            <span>Point camera at partner's BusinessBuddies QR...</span>
+            <button type="button" id="stopJoinSyncScannerBtn" class="text-rose-400 font-semibold">Stop</button>
+          </div>
+        </div>
+
+        <div id="manualJoinBox" class="hidden flex flex-col sm:flex-row gap-2">
+          <input type="text" id="manualJoinTokenInput" placeholder="Paste invite token (BB-XXXXXX:secret)" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white mono placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+          <button type="button" id="submitManualJoinBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shrink-0">Join Ledger</button>
+        </div>
+
+        <div id="syncLinkedBox" class="hidden space-y-3 pt-1">
+          <div class="flex flex-col sm:flex-row items-center gap-4 p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <div id="syncQrContainer" class="bg-white p-2 rounded-lg shrink-0"></div>
+            <div class="min-w-0 flex-1 space-y-1.5 text-center sm:text-left">
+              <div class="text-[11px] text-slate-400">Room Code: <span id="syncRoomCodeLabel" class="text-emerald-400 font-bold mono"></span></div>
+              <div class="text-[10px] text-slate-500" id="syncLastUpdatedLabel">Synced just now</div>
+              <div class="flex flex-wrap justify-center sm:justify-start gap-2 pt-1">
+                <button type="button" id="syncNowBtn" class="px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold transition">↻ Sync Now</button>
+                <button type="button" id="copySyncTokenBtn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold transition">Copy Invite Token</button>
+                <button type="button" id="unlinkSyncBtn" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[11px] font-semibold transition">Unlink</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1058,11 +1112,18 @@
         return JSON.parse(JSON.stringify(INITIAL_DEMO_STATE));
       }
 
-      saveState() {
+      saveState(skipRemotePush = false) {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
         } catch (e) {
           console.error('Failed to save to localStorage:', e);
+        }
+        if (!skipRemotePush) {
+          const proj = this.getActiveProject();
+          if (proj && proj.sync && proj.sync.code && proj.sync.secret && this.getWorkerUrl()) {
+            clearTimeout(this.syncPushTimer);
+            this.syncPushTimer = setTimeout(() => this.pushActiveProjectSync(true), 1200);
+          }
         }
       }
 
@@ -1153,6 +1214,27 @@
         this.barcodeVideo = document.getElementById('barcodeVideo');
         this.barcodeScannerStatus = document.getElementById('barcodeScannerStatus');
         this.aiScanReceiptBtn = document.getElementById('aiScanReceiptBtn');
+        this.syncStatusPill = document.getElementById('syncStatusPill');
+        this.syncUnlinkedBox = document.getElementById('syncUnlinkedBox');
+        this.syncLinkedBox = document.getElementById('syncLinkedBox');
+        this.createSyncRoomBtn = document.getElementById('createSyncRoomBtn');
+        this.scanJoinSyncBtn = document.getElementById('scanJoinSyncBtn');
+        this.manualJoinSyncBtn = document.getElementById('manualJoinSyncBtn');
+        this.joinSyncScannerBox = document.getElementById('joinSyncScannerBox');
+        this.joinSyncVideo = document.getElementById('joinSyncVideo');
+        this.stopJoinSyncScannerBtn = document.getElementById('stopJoinSyncScannerBtn');
+        this.manualJoinBox = document.getElementById('manualJoinBox');
+        this.manualJoinTokenInput = document.getElementById('manualJoinTokenInput');
+        this.submitManualJoinBtn = document.getElementById('submitManualJoinBtn');
+        this.syncQrContainer = document.getElementById('syncQrContainer');
+        this.syncRoomCodeLabel = document.getElementById('syncRoomCodeLabel');
+        this.syncLastUpdatedLabel = document.getElementById('syncLastUpdatedLabel');
+        this.syncNowBtn = document.getElementById('syncNowBtn');
+        this.copySyncTokenBtn = document.getElementById('copySyncTokenBtn');
+        this.unlinkSyncBtn = document.getElementById('unlinkSyncBtn');
+        this.joinSyncStream = null;
+        this.joinSyncLoopId = null;
+        this.syncPushTimer = null;
         this.scannerStream = null;
         this.scannerLoopId = null;
         this.scannerIdleTimer = null;
@@ -1677,9 +1759,44 @@
         if (this.aiScanReceiptBtn) {
           this.aiScanReceiptBtn.addEventListener('click', () => this.scanReceiptWithAI());
         }
+        if (this.createSyncRoomBtn) this.createSyncRoomBtn.addEventListener('click', () => this.createSyncRoom());
+        if (this.scanJoinSyncBtn) this.scanJoinSyncBtn.addEventListener('click', () => this.startJoinSyncScanner());
+        if (this.stopJoinSyncScannerBtn) this.stopJoinSyncScannerBtn.addEventListener('click', () => this.stopJoinSyncScanner());
+        if (this.manualJoinSyncBtn) {
+          this.manualJoinSyncBtn.addEventListener('click', () => this.manualJoinBox.classList.toggle('hidden'));
+        }
+        if (this.submitManualJoinBtn) {
+          this.submitManualJoinBtn.addEventListener('click', () => this.joinSyncFromToken(this.manualJoinTokenInput.value));
+        }
+        if (this.syncNowBtn) this.syncNowBtn.addEventListener('click', () => this.pullActiveProjectSync(false));
+        if (this.copySyncTokenBtn) {
+          this.copySyncTokenBtn.addEventListener('click', () => {
+            const p = this.getActiveProject();
+            if (p.sync) {
+              const token = `${p.sync.code}:${p.sync.secret}`;
+              navigator.clipboard?.writeText(token).then(() => this.showToast('Invite token copied', '📋')).catch(() => this.showToast(token, '📋'));
+            }
+          });
+        }
+        if (this.unlinkSyncBtn) {
+          this.unlinkSyncBtn.addEventListener('click', () => {
+            const p = this.getActiveProject();
+            delete p.sync;
+            this.saveState(true);
+            this.renderSyncStatus();
+            this.showToast('Unlinked partner sync', '🔓');
+          });
+        }
+
         document.addEventListener('visibilitychange', () => {
-          if (document.hidden) this.stopBarcodeScanner();
+          if (document.hidden) {
+            this.stopBarcodeScanner();
+            this.stopJoinSyncScanner();
+          } else {
+            this.pullActiveProjectSync(true);
+          }
         });
+        setTimeout(() => this.pullActiveProjectSync(true), 1600);
 
         if (this.exportCsvBtn) {
           this.exportCsvBtn.addEventListener('click', () => this.exportProjectCSV());
@@ -2031,6 +2148,193 @@
           btn.disabled = false;
           btn.innerHTML = origHtml;
         }
+      }
+
+      renderSyncStatus() {
+        if (!this.syncStatusPill) return;
+        const proj = this.getActiveProject();
+        if (proj.sync && proj.sync.code && proj.sync.secret) {
+          this.syncStatusPill.textContent = `Linked • ${proj.sync.code}`;
+          this.syncStatusPill.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+          this.syncUnlinkedBox.classList.add('hidden');
+          this.manualJoinBox.classList.add('hidden');
+          this.syncLinkedBox.classList.remove('hidden');
+          this.syncRoomCodeLabel.textContent = proj.sync.code;
+          this.syncLastUpdatedLabel.textContent = proj.sync.updatedAt
+            ? `Last synced: ${new Date(proj.sync.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} (v${proj.sync.version || 1})`
+            : 'Synced';
+
+          if (typeof window.qrcode === 'function' && this.syncQrContainer) {
+            const qr = window.qrcode(0, 'M');
+            qr.addData(`BB_SYNC:${proj.sync.code}:${proj.sync.secret}`);
+            qr.make();
+            this.syncQrContainer.innerHTML = qr.createImgTag(4, 2);
+          }
+        } else {
+          this.syncStatusPill.textContent = 'Not Linked';
+          this.syncStatusPill.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+          this.syncUnlinkedBox.classList.remove('hidden');
+          this.syncLinkedBox.classList.add('hidden');
+        }
+      }
+
+      async createSyncRoom() {
+        const workerUrl = this.getWorkerUrl();
+        if (!workerUrl) {
+          this.showToast('Save your Cloudflare Worker URL first', '⚠️');
+          return;
+        }
+        const proj = this.getActiveProject();
+        const cleanProj = JSON.parse(JSON.stringify(proj));
+        delete cleanProj.sync;
+        try {
+          const res = await fetch(`${workerUrl}/sync/create`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project: cleanProj })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) throw new Error(data.error || 'Failed to create sync room');
+          proj.sync = { code: data.code, secret: data.syncSecret, version: data.version, updatedAt: data.updatedAt };
+          this.saveState(true);
+          this.renderSyncStatus();
+          this.showToast(`Sync room ${data.code} created!`, '🤝');
+        } catch (err) {
+          this.showToast('Sync error: ' + err.message, '⚠️');
+        }
+      }
+
+      async joinSyncFromToken(rawInput) {
+        const workerUrl = this.getWorkerUrl();
+        if (!workerUrl) {
+          this.showToast('Save your Cloudflare Worker URL first', '⚠️');
+          return;
+        }
+        const cleaned = (rawInput || '').trim().replace(/^BB_SYNC:/i, '');
+        const parts = cleaned.split(':');
+        if (parts.length !== 2 || !parts[0] || !parts[1]) {
+          this.showToast('Invalid invite format (use BB-XXXXXX:secret)', '⚠️');
+          return;
+        }
+        const [code, secret] = [parts[0].trim().toUpperCase(), parts[1].trim()];
+        try {
+          const res = await fetch(`${workerUrl}/sync/pull?code=${encodeURIComponent(code)}&secret=${encodeURIComponent(secret)}`);
+          const data = await res.json();
+          if (!res.ok || !data.ok || !data.project) throw new Error(data.error || 'Could not join room');
+
+          const incoming = data.project;
+          incoming.sync = { code, secret, version: data.version, updatedAt: data.updatedAt };
+          const idx = this.state.projects.findIndex(p => p.id === incoming.id);
+          if (idx >= 0) {
+            this.state.projects[idx] = incoming;
+          } else {
+            this.state.projects.push(incoming);
+          }
+          this.state.activeProjectId = incoming.id;
+          this.saveState(true);
+          this.renderAll();
+          this.showToast(`Joined synced ledger ${code}!`, '🤝');
+        } catch (err) {
+          this.showToast('Join failed: ' + err.message, '⚠️');
+        }
+      }
+
+      async pullActiveProjectSync(silent = false) {
+        const workerUrl = this.getWorkerUrl();
+        const proj = this.getActiveProject();
+        if (!workerUrl || !proj || !proj.sync || !proj.sync.code || !proj.sync.secret) return;
+        try {
+          const res = await fetch(`${workerUrl}/sync/pull?code=${encodeURIComponent(proj.sync.code)}&secret=${encodeURIComponent(proj.sync.secret)}`);
+          const data = await res.json();
+          if (!res.ok || !data.ok || !data.project) throw new Error(data.error || 'Pull failed');
+          if ((data.version || 0) > (proj.sync.version || 0)) {
+            const updated = data.project;
+            updated.sync = { code: proj.sync.code, secret: proj.sync.secret, version: data.version, updatedAt: data.updatedAt };
+            const idx = this.state.projects.findIndex(p => p.id === proj.id);
+            if (idx >= 0) this.state.projects[idx] = updated;
+            this.saveState(true);
+            this.renderAll();
+            if (!silent) this.showToast(`Synced v${data.version} from partner`, '↻');
+          } else if (!silent) {
+            this.showToast('Ledger already up to date', '✓');
+          }
+        } catch (err) {
+          if (!silent) this.showToast('Sync pull failed: ' + err.message, '⚠️');
+        }
+      }
+
+      async pushActiveProjectSync(silent = false) {
+        const workerUrl = this.getWorkerUrl();
+        const proj = this.getActiveProject();
+        if (!workerUrl || !proj || !proj.sync || !proj.sync.code || !proj.sync.secret) return;
+        const cleanProj = JSON.parse(JSON.stringify(proj));
+        delete cleanProj.sync;
+        try {
+          const res = await fetch(`${workerUrl}/sync/push`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: proj.sync.code, secret: proj.sync.secret, project: cleanProj })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            proj.sync.version = data.version;
+            proj.sync.updatedAt = data.updatedAt;
+            this.saveState(true);
+            this.renderSyncStatus();
+            if (!silent) this.showToast('Pushed update to partner', '✓');
+          }
+        } catch {}
+      }
+
+      async startJoinSyncScanner() {
+        if (this.joinSyncStream) {
+          this.stopJoinSyncScanner();
+          return;
+        }
+        if (!('BarcodeDetector' in window)) {
+          this.showToast('QR scanner unavailable on this browser', '⚠️');
+          return;
+        }
+        try {
+          this.joinSyncScannerBox.classList.remove('hidden');
+          this.joinSyncStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+            audio: false
+          });
+          this.joinSyncVideo.srcObject = this.joinSyncStream;
+          await this.joinSyncVideo.play();
+          const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+          const scanLoop = async () => {
+            if (!this.joinSyncStream) return;
+            try {
+              const codes = await detector.detect(this.joinSyncVideo);
+              if (codes && codes.length > 0 && codes[0].rawValue.startsWith('BB_SYNC:')) {
+                const raw = codes[0].rawValue;
+                this.stopJoinSyncScanner();
+                await this.joinSyncFromToken(raw);
+                return;
+              }
+            } catch {}
+            this.joinSyncLoopId = requestAnimationFrame(scanLoop);
+          };
+          this.joinSyncLoopId = requestAnimationFrame(scanLoop);
+        } catch {
+          this.stopJoinSyncScanner();
+          this.showToast('Camera permission denied', '⚠️');
+        }
+      }
+
+      stopJoinSyncScanner() {
+        if (this.joinSyncLoopId) {
+          cancelAnimationFrame(this.joinSyncLoopId);
+          this.joinSyncLoopId = null;
+        }
+        if (this.joinSyncStream) {
+          this.joinSyncStream.getTracks().forEach(t => t.stop());
+          this.joinSyncStream = null;
+        }
+        if (this.joinSyncVideo) this.joinSyncVideo.srcObject = null;
+        if (this.joinSyncScannerBox) this.joinSyncScannerBox.classList.add('hidden');
       }
 
       // --- FINANCIAL SETTLEMENT CALCULATOR (WATERFALL RULES) ---
@@ -2634,6 +2938,7 @@
       }
 
       renderPartners() {
+        this.renderSyncStatus();
         const project = this.getActiveProject();
         this.partnersListContainer.innerHTML = '';
 
