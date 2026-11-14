@@ -3751,18 +3751,16 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch((err) => {
+        navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then((reg) => {
+          reg.update().catch(() => {});
+        }).catch((err) => {
           console.warn('SW registration failed:', err);
         });
         let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
           if (refreshing) return;
           refreshing = true;
-          const toast = document.createElement('button');
-          toast.textContent = 'New update ready — Tap to refresh';
-          toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-sky-600 text-white text-xs font-bold shadow-lg';
-          toast.onclick = () => window.location.reload();
-          document.body.appendChild(toast);
+          window.location.reload();
         });
       });
     }
