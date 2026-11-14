@@ -7,14 +7,14 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
     .mono {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'DM Mono', monospace;
     }
     /* Smooth custom scrollbars */
     ::-webkit-scrollbar {
@@ -199,7 +199,7 @@
         <div id="settlementCard" class="bg-slate-950/80 rounded-xl p-3.5 border border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex items-start gap-3">
             <div id="settlementIconBox" class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5">
-              ⚖️
+              
             </div>
             <div>
               <div class="text-[11px] uppercase tracking-wider font-bold text-indigo-300" id="settlementSubtitle">Current Settlement Balance</div>
@@ -230,7 +230,7 @@
             <!-- Dynamically populated via JS -->
           </div>
           <div class="text-[11px] text-slate-400 bg-slate-900/60 p-2 rounded-lg border border-slate-800/80 leading-relaxed">
-            💡 <strong>Waterfall Rule:</strong> Out-of-pocket expenses (like U-Hauls & unit bids) are fully reimbursed to whoever paid them <em>before</em> the remaining profit pot is divided according to your split percentage.
+            <strong>Waterfall Rule:</strong> Out-of-pocket expenses (like U-Hauls & unit bids) are fully reimbursed to whoever paid them <em>before</em> the remaining profit pot is divided according to your split percentage.
           </div>
         </div>
       </div>
@@ -239,18 +239,18 @@
     <!-- 2. NAVIGATION TABS -->
     <nav class="flex items-center gap-1.5 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800 shadow-sm overflow-x-auto text-xs font-medium">
       <button id="tabInventoryBtn" class="tab-btn flex-1 py-2 px-3 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold flex items-center justify-center gap-1.5 transition whitespace-nowrap">
-        <span>📦 Items for Sale</span>
+        <span>Items for Sale</span>
         <span id="tabCountInventory" class="px-1.5 py-0.2 rounded-full bg-emerald-500/30 text-emerald-200 text-[10px] font-bold">0</span>
       </button>
       <button id="tabExpensesBtn" class="tab-btn flex-1 py-2 px-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 flex items-center justify-center gap-1.5 transition whitespace-nowrap">
-        <span>🧾 Expenses & Receipts</span>
+        <span>Expenses & Receipts</span>
         <span id="tabCountExpenses" class="px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300 text-[10px] font-bold">0</span>
       </button>
       <button id="tabLedgerBtn" class="tab-btn flex-1 py-2 px-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 flex items-center justify-center gap-1.5 transition whitespace-nowrap">
-        <span>⚖️ Split Ledger</span>
+        <span>Split Ledger</span>
       </button>
       <button id="tabPartnersBtn" class="tab-btn flex-1 py-2 px-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 flex items-center justify-center gap-1.5 transition whitespace-nowrap">
-        <span>👥 Partners</span>
+        <span>Partners</span>
       </button>
     </nav>
 
@@ -281,7 +281,7 @@
 
       <!-- Empty State -->
       <div id="emptyInventoryState" class="hidden text-center py-12 px-4 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40">
-        <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-800/80 flex items-center justify-center text-2xl mb-3">📦</div>
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-800/80 flex items-center justify-center text-2xl mb-3">Item</div>
         <h3 class="text-sm font-semibold text-white">No items found in this view</h3>
         <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Take photos of items found in storage units, garage sales, or thrift hauls and set your target prices.</p>
         <button id="emptyStateAddBtn" class="mt-4 px-3.5 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold hover:bg-emerald-500/30 transition">
@@ -311,7 +311,7 @@
 
       <!-- Empty State -->
       <div id="emptyExpensesState" class="hidden text-center py-12 px-4 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40">
-        <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-800/80 flex items-center justify-center text-2xl mb-3">🧾</div>
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-800/80 flex items-center justify-center text-2xl mb-3">Receipt</div>
         <h3 class="text-sm font-semibold text-white">No expenses logged yet</h3>
         <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Log unit bid costs, U-Haul rentals, gas, packing bins, and platform fees.</p>
       </div>
@@ -326,7 +326,7 @@
             <p class="text-xs text-slate-400">Complete transparent view of who paid for what and who collected cash.</p>
           </div>
           <button id="exportCsvBtn" type="button" class="px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition flex items-center gap-1.5">
-            <span>⬇️</span> Export CSV
+            <span></span> Export CSV
           </button>
         </div>
 
@@ -356,14 +356,19 @@
     <!-- ==================== TAB 4: PARTNERS & SPLITS ==================== -->
     <section id="panelPartners" class="hidden space-y-4">
       <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-4">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h2 class="text-sm font-bold text-white">Project Partners & Agreed Splits</h2>
-            <p class="text-xs text-slate-400">Set the profit percentage for each partner on this project.</p>
+            <h2 class="text-sm font-bold text-white">Partners & Profit Splits</h2>
+            <p class="text-xs text-slate-400">Add, customize, and switch active partners for this project.</p>
           </div>
-          <button id="addPartnerBtn" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition">
-            + Add Partner
-          </button>
+          <div class="flex items-center gap-2">
+            <button id="splitEvenlyBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 border border-slate-700 transition">
+              Split Evenly
+            </button>
+            <button id="addPartnerBtn" type="button" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition">
+              + Add Partner
+            </button>
+          </div>
         </div>
 
         <div id="partnersListContainer" class="space-y-3">
@@ -381,7 +386,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
-              <span>🤝</span> 2-Person QR Partner Sync
+              <span></span> 2-Person QR Partner Sync
             </h3>
             <p class="text-[11px] text-slate-400">Share this project's live inventory, expenses, and waterfall ledger with your partner.</p>
           </div>
@@ -390,10 +395,10 @@
 
         <div id="syncUnlinkedBox" class="flex flex-wrap gap-2">
           <button type="button" id="createSyncRoomBtn" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1.5">
-            <span>📱</span> Create Sync QR
+            <span></span> Create Sync QR
           </button>
           <button type="button" id="scanJoinSyncBtn" class="px-3.5 py-2 rounded-xl bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-200 border border-indigo-500/40 text-xs font-bold transition flex items-center gap-1.5">
-            <span>📷</span> Scan Partner QR
+            <span>Photo</span> Scan Partner QR
           </button>
           <button type="button" id="manualJoinSyncBtn" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition">
             Enter Code
@@ -420,24 +425,12 @@
               <div class="text-[11px] text-slate-400">Room Code: <span id="syncRoomCodeLabel" class="text-emerald-400 font-bold mono"></span></div>
               <div class="text-[10px] text-slate-500" id="syncLastUpdatedLabel">Synced just now</div>
               <div class="flex flex-wrap justify-center sm:justify-start gap-2 pt-1">
-                <button type="button" id="syncNowBtn" class="px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold transition">↻ Sync Now</button>
+                <button type="button" id="syncNowBtn" class="px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold transition">Sync Now</button>
                 <button type="button" id="copySyncTokenBtn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold transition">Copy Invite Token</button>
                 <button type="button" id="unlinkSyncBtn" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[11px] font-semibold transition">Unlink</button>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Cloudflare Worker Endpoint (OCR & Barcode Lookup) -->
-      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-2.5">
-        <div>
-          <h3 class="text-xs font-bold text-white">Cloudflare Worker Endpoint (AI Receipt OCR & Barcode Lookup)</h3>
-          <p class="text-[11px] text-slate-400">Deploy <code class="text-emerald-400">businessbuddies-worker.js</code> with your <code class="text-emerald-400">GEMINI_API_KEY</code> secret and paste its URL here.</p>
-        </div>
-        <div class="flex gap-2">
-          <input type="url" id="workerUrlInput" placeholder="https://businessbuddies.your-subdomain.workers.dev" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
-          <button type="button" id="saveWorkerUrlBtn" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shrink-0">Save</button>
         </div>
       </div>
 
@@ -449,7 +442,7 @@
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <button id="replaySplashBtn" class="px-3 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/30 text-xs font-semibold transition">
-            ✨ Replay Splash Screen
+            Replay Splash Screen
           </button>
           <button id="resetDemoDataBtn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
             Reload Sample Locker
@@ -470,9 +463,9 @@
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <h3 id="itemModalTitle" class="text-sm font-bold text-white flex items-center gap-2">
-          <span>📦</span> Add Item to Project
+          <span>Item</span> Add Item to Project
         </h3>
-        <button id="closeItemModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+        <button id="closeItemModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">Close</button>
       </div>
 
       <form id="itemForm" class="space-y-3.5 text-xs">
@@ -480,22 +473,22 @@
 
         <!-- Quick Demo Presets (for instant POC testing) -->
         <div>
-          <label class="block text-[11px] font-semibold text-slate-400 mb-1.5">⚡ Quick Demo Autofill (1-Tap):</label>
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1.5">Quick Demo Autofill (1-Tap):</label>
           <div class="grid grid-cols-2 gap-1.5">
             <button type="button" class="preset-item-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="DeWalt 20V Max Cordless Drill Kit" data-price="75.00" data-platform="Facebook Marketplace">
-              <span class="font-bold text-slate-200 block truncate">🛠️ DeWalt 20V Drill</span>
+              <span class="font-bold text-slate-200 block truncate"> DeWalt 20V Drill</span>
               <span class="text-[10px] text-emerald-400 mono">$75.00 • FB Market</span>
             </button>
             <button type="button" class="preset-item-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="Nintendo 64 Console + 2 Controllers" data-price="130.00" data-platform="eBay">
-              <span class="font-bold text-slate-200 block truncate">🎮 Nintendo 64 Bundle</span>
+              <span class="font-bold text-slate-200 block truncate">Nintendo 64 Bundle</span>
               <span class="text-[10px] text-emerald-400 mono">$130.00 • eBay</span>
             </button>
             <button type="button" class="preset-item-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="Vintage Cast Iron Skillet #8 Griswold" data-price="95.00" data-platform="eBay">
-              <span class="font-bold text-slate-200 block truncate">🍳 Griswold Skillet #8</span>
+              <span class="font-bold text-slate-200 block truncate">Griswold Skillet #8</span>
               <span class="text-[10px] text-emerald-400 mono">$95.00 • eBay</span>
             </button>
             <button type="button" class="preset-item-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="Toro 21-inch Self-Propelled Lawnmower" data-price="160.00" data-platform="OfferUp">
-              <span class="font-bold text-slate-200 block truncate">🚜 Toro Lawnmower</span>
+              <span class="font-bold text-slate-200 block truncate">Toro Lawnmower</span>
               <span class="text-[10px] text-emerald-400 mono">$160.00 • OfferUp</span>
             </button>
           </div>
@@ -506,7 +499,7 @@
           <div class="flex items-center justify-between mb-1">
             <label for="itemInputTitle" class="block font-semibold text-slate-300">Item Title / Description *</label>
             <button type="button" id="toggleBarcodeScannerBtn" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition flex items-center gap-1">
-              <span>📷</span> Scan Barcode / ISBN
+              <span>Photo</span> Scan Barcode / ISBN
             </button>
           </div>
           <div id="barcodeScannerBox" class="hidden mb-2 rounded-xl overflow-hidden border border-emerald-500/40 bg-black relative">
@@ -555,7 +548,7 @@
           <div>
             <label class="block font-semibold text-slate-300 mb-1">Photo / Camera</label>
             <label class="flex items-center justify-center gap-1.5 w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl px-3 py-2 text-slate-300 cursor-pointer transition">
-              <span>📷 Snap Photo</span>
+              <span>Snap Photo</span>
               <input type="file" id="itemInputPhoto" accept="image/*" class="hidden">
             </label>
           </div>
@@ -591,16 +584,16 @@
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <span>💰</span> Record Sale
+          <span></span> Record Sale
         </h3>
-        <button id="closeMarkSoldModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+        <button id="closeMarkSoldModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">Close</button>
       </div>
 
       <form id="markSoldForm" class="space-y-3.5 text-xs">
         <input type="hidden" id="soldItemId" value="">
 
         <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-3">
-          <div id="soldItemThumb" class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-lg">📦</div>
+          <div id="soldItemThumb" class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-lg">Item</div>
           <div class="min-w-0 flex-1">
             <h4 id="soldItemTitle" class="font-bold text-white truncate text-xs">Item Name</h4>
             <div class="text-[11px] text-slate-400 mt-0.5">Target: <span id="soldItemTargetPrice" class="mono text-slate-300">$0.00</span></div>
@@ -668,30 +661,30 @@
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <span>🧾</span> Log Project Expense / Receipt
+          <span>Receipt</span> Log Project Expense / Receipt
         </h3>
-        <button id="closeExpenseModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+        <button id="closeExpenseModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">Close</button>
       </div>
 
       <form id="expenseForm" class="space-y-3.5 text-xs">
         <!-- Quick Demo Expense Presets -->
         <div>
-          <label class="block text-[11px] font-semibold text-slate-400 mb-1.5">⚡ Quick Presets (1-Tap):</label>
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1.5">Quick Presets (1-Tap):</label>
           <div class="grid grid-cols-2 gap-1.5">
             <button type="button" class="preset-exp-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="Storage Unit 402 Winning Bid" data-amount="500.00" data-cat="Acquisition / Bid">
-              <span class="font-bold text-slate-200 block truncate">🏢 Unit 402 Auction Bid</span>
+              <span class="font-bold text-slate-200 block truncate">Unit 402 Auction Bid</span>
               <span class="text-[10px] text-rose-400 mono">$500.00</span>
             </button>
             <button type="button" class="preset-exp-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="U-Haul 10ft Cargo Van & Mileage" data-amount="100.00" data-cat="Transportation / Gas">
-              <span class="font-bold text-slate-200 block truncate">🚚 U-Haul Truck Rental</span>
+              <span class="font-bold text-slate-200 block truncate">U-Haul Truck Rental</span>
               <span class="text-[10px] text-rose-400 mono">$100.00</span>
             </button>
             <button type="button" class="preset-exp-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="Home Depot Heavy Duty Storage Totes (4)" data-amount="56.80" data-cat="Supplies & Boxes">
-              <span class="font-bold text-slate-200 block truncate">📦 4x Storage Totes</span>
+              <span class="font-bold text-slate-200 block truncate">4x Storage Totes</span>
               <span class="text-[10px] text-rose-400 mono">$56.80</span>
             </button>
             <button type="button" class="preset-exp-btn p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition" data-title="Lock Cut Fee & Replacement Padlock" data-amount="25.00" data-cat="Supplies & Boxes">
-              <span class="font-bold text-slate-200 block truncate">🔒 New Padlock & Cut</span>
+              <span class="font-bold text-slate-200 block truncate">New Padlock & Cut</span>
               <span class="text-[10px] text-rose-400 mono">$25.00</span>
             </button>
           </div>
@@ -733,7 +726,7 @@
           <div>
             <label class="block font-semibold text-slate-300 mb-1">Receipt Photo</label>
             <label class="flex items-center justify-center gap-1.5 w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl px-3 py-2 text-slate-300 cursor-pointer transition">
-              <span>🧾 Snap Slip</span>
+              <span>Snap Slip</span>
               <input type="file" id="expInputPhoto" accept="image/*" class="hidden">
             </label>
           </div>
@@ -750,12 +743,12 @@
             <button type="button" id="removeReceiptBtn" class="text-slate-500 hover:text-rose-400 text-xs px-2">Remove</button>
           </div>
           <button type="button" id="aiScanReceiptBtn" class="w-full py-2 px-3 rounded-lg bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-200 border border-indigo-500/40 text-xs font-bold transition flex items-center justify-center gap-1.5">
-            <span>✨</span> AI Auto-Fill from Receipt
+            <span></span> AI Auto-Fill from Receipt
           </button>
         </div>
 
         <p class="text-[11px] text-indigo-300/80 bg-indigo-950/40 border border-indigo-900/60 p-2.5 rounded-xl">
-          ✨ This expense will directly reduce the project's profit pot, and the partner selected will be reimbursed before any net profits are split.
+          This expense will directly reduce the project's profit pot, and the partner selected will be reimbursed before any net profits are split.
         </p>
 
         <div class="pt-2 flex items-center justify-end gap-2">
@@ -771,9 +764,9 @@
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <span>📁</span> Projects & Settings
+          <span></span> Projects & Settings
         </h3>
-        <button id="closeProjectModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+        <button id="closeProjectModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">Close</button>
       </div>
 
       <!-- Current Project Name -->
@@ -807,9 +800,9 @@
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <span>🤝</span> Settle Up Project
+          <span></span> Settle Up Project
         </h3>
-        <button id="closeSettleModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+        <button id="closeSettleModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">Close</button>
       </div>
 
       <div class="space-y-3 text-xs">
@@ -825,7 +818,7 @@
 
         <!-- Venmo Deep Link option -->
         <a id="venmoDeepLink" href="#" target="_blank" class="block w-full text-center py-2.5 px-4 rounded-xl bg-[#008CFF]/20 hover:bg-[#008CFF]/30 border border-[#008CFF]/40 text-[#008CFF] font-bold text-xs transition">
-          💸 Open Venmo (Pre-Filled)
+          Open Venmo (Pre-Filled)
         </a>
 
         <div class="pt-2 flex items-center justify-end gap-2">
@@ -843,7 +836,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-5 space-y-3.5 shadow-2xl relative">
       <div class="flex items-center gap-2.5">
         <div id="dialogIconBox" class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold shrink-0">
-          💬
+          
         </div>
         <h4 id="dialogTitle" class="text-sm font-bold text-white">Confirmation</h4>
       </div>
@@ -860,7 +853,7 @@
 
   <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white px-4 py-2.5 rounded-xl border border-slate-700 shadow-2xl flex items-center gap-2.5 text-xs font-semibold">
-    <span id="toastIcon">✓</span>
+    <span id="toastIcon">Done</span>
     <span id="toastMessage">Action completed</span>
   </div>
 
@@ -1248,6 +1241,17 @@
         this.proPlanLabel = document.getElementById('proPlanLabel');
         this.startTrialBtn = document.getElementById('startTrialBtn');
         this.restoreProBtn = document.getElementById('restoreProBtn');
+        this.splitEvenlyBtn = document.getElementById('splitEvenlyBtn');
+        this.partnerModal = document.getElementById('partnerModal');
+        this.partnerForm = document.getElementById('partnerForm');
+        this.partnerModalTitle = document.getElementById('partnerModalTitle');
+        this.partnerEditId = document.getElementById('partnerEditId');
+        this.partnerInputName = document.getElementById('partnerInputName');
+        this.partnerInputSplit = document.getElementById('partnerInputSplit');
+        this.partnerInputColor = document.getElementById('partnerInputColor');
+        this.partnerInputVenmo = document.getElementById('partnerInputVenmo');
+        this.closePartnerModalBtn = document.getElementById('closePartnerModalBtn');
+        this.cancelPartnerModalBtn = document.getElementById('cancelPartnerModalBtn');
         this.joinSyncStream = null;
         this.joinSyncLoopId = null;
         this.syncPushTimer = null;
@@ -1336,7 +1340,7 @@
         this.toastMessage = document.getElementById('toastMessage');
       }
 
-      showToast(msg, icon = '✓') {
+      showToast(msg, icon = 'Done') {
         this.toastMessage.textContent = msg;
         document.getElementById('toastIcon').textContent = icon;
         this.toast.classList.remove('translate-y-16', 'opacity-0');
@@ -1349,7 +1353,7 @@
         this.dialogTitle.textContent = title;
         this.dialogMessage.textContent = message;
         this.dialogInputWrapper.classList.add('hidden');
-        this.dialogIconBox.textContent = isDanger ? '⚠️' : '❓';
+        this.dialogIconBox.textContent = isDanger ? '' : '';
         this.dialogIconBox.className = isDanger 
           ? 'w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm font-bold shrink-0'
           : 'w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold shrink-0';
@@ -1368,7 +1372,7 @@
         this.dialogMessage.textContent = message;
         this.dialogInputWrapper.classList.remove('hidden');
         this.dialogTextInput.value = defaultValue || '';
-        this.dialogIconBox.textContent = '✏️';
+        this.dialogIconBox.textContent = '';
         this.dialogIconBox.className = 'w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm font-bold shrink-0';
         this.dialogConfirmBtn.className = 'px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-md shadow-emerald-500/20';
 
@@ -1428,7 +1432,7 @@
           this.state.activeUserId = project.partners[nextIdx].id;
           this.saveState();
           this.renderHeader();
-          this.showToast(`Switched active profile to ${project.partners[nextIdx].name}`, '👤');
+          this.showToast(`Switched active profile to ${project.partners[nextIdx].name}`);
         });
 
         // Project settings / selector modal
@@ -1449,7 +1453,7 @@
             this.getActiveProject().name = val;
             this.saveState();
             this.renderHeader();
-            this.showToast('Project renamed', '✓');
+            this.showToast('Project renamed', 'Done');
           }
         });
 
@@ -1472,7 +1476,7 @@
             this.saveState();
             this.projectModal.classList.add('hidden');
             this.renderAll();
-            this.showToast('Created new project: ' + newProj.name, '📁');
+            this.showToast('Created new project: ' + newProj.name);
           });
         });
 
@@ -1499,7 +1503,7 @@
           const project = this.getActiveProject();
           const math = this.calculateSettlement(project);
           if (math.status === 'balanced') {
-            this.showToast('Already squared up!', '✓');
+            this.showToast('Already squared up!', 'Done');
             this.settleModal.classList.add('hidden');
             return;
           }
@@ -1518,7 +1522,7 @@
           this.saveState();
           this.settleModal.classList.add('hidden');
           this.renderAll();
-          this.showToast(`Recorded settlement: ${math.payer.name} paid ${math.payee.name} $${math.balance.toFixed(2)}`, '🤝');
+          this.showToast(`Recorded settlement: ${math.payer.name} paid ${math.payee.name} $${math.balance.toFixed(2)}`);
         });
 
         // Inventory filters
@@ -1542,7 +1546,7 @@
         const openItemModal = () => {
           this.itemForm.reset();
           this.itemEditId.value = '';
-          this.itemModalTitle.innerHTML = '<span>📦</span> Add Item to Project';
+          this.itemModalTitle.innerHTML = '<span>Item</span> Add Item to Project';
           this.photoPreviewBox.classList.add('hidden');
           this.photoPreviewImg.src = '';
           this.populatePartnerDropdown(this.itemInputAddedBy);
@@ -1561,7 +1565,7 @@
             this.itemInputPrice.value = btn.dataset.price;
             this.itemInputPlatform.value = btn.dataset.platform;
             this.itemInputNotes.value = 'Found in unit inspection, great condition.';
-            this.showToast('Autofilled: ' + btn.dataset.title, '⚡');
+            this.showToast('Autofilled: ' + btn.dataset.title);
           });
         });
 
@@ -1575,7 +1579,7 @@
               this.photoPreviewName.textContent = file.name + ' (compressed)';
               this.photoPreviewBox.classList.remove('hidden');
             } catch (err) {
-              this.showToast('Could not process photo', '⚠️');
+              this.showToast('Could not process photo');
             }
           }
         });
@@ -1613,7 +1617,7 @@
                 this.photoCache.set(key, rawPhoto);
                 MediaIDB.put(key, rawPhoto).catch(console.error);
               }
-              this.showToast('Item updated', '✓');
+              this.showToast('Item updated', 'Done');
             }
           } else {
             // New item
@@ -1642,7 +1646,7 @@
               notes
             };
             project.items.unshift(newItem);
-            this.showToast('Added item to inventory', '📦');
+            this.showToast('Added item to inventory', 'Item');
           }
 
           this.saveState();
@@ -1673,7 +1677,7 @@
             this.saveState();
             this.markSoldModal.classList.add('hidden');
             this.renderAll();
-            this.showToast(`Sold for $${item.soldPrice.toFixed(2)}! Profit pot updated.`, '💰');
+            this.showToast(`Sold for $${item.soldPrice.toFixed(2)}! Profit pot updated.`);
           }
         });
 
@@ -1696,7 +1700,7 @@
             this.expInputTitle.value = btn.dataset.title;
             this.expInputAmount.value = btn.dataset.amount;
             this.expInputCategory.value = btn.dataset.cat;
-            this.showToast('Autofilled: ' + btn.dataset.title, '⚡');
+            this.showToast('Autofilled: ' + btn.dataset.title);
           });
         });
 
@@ -1709,7 +1713,7 @@
               this.receiptPreviewName.textContent = file.name + ' (compressed)';
               this.receiptPreviewBox.classList.remove('hidden');
             } catch (err) {
-              this.showToast('Could not process receipt photo', '⚠️');
+              this.showToast('Could not process receipt photo');
             }
           }
         });
@@ -1750,7 +1754,7 @@
           this.saveState();
           this.expenseModal.classList.add('hidden');
           this.renderAll();
-          this.showToast('Logged expense of $' + amount.toFixed(2), '🧾');
+          this.showToast('Logged expense of $' + amount.toFixed(2), 'Receipt');
         });
 
         if (this.workerUrlInput) {
@@ -1760,7 +1764,7 @@
           this.saveWorkerUrlBtn.addEventListener('click', () => {
             const val = this.workerUrlInput.value.trim().replace(/\/+$/, '');
             localStorage.setItem('businessbuddies_worker_url', val);
-            this.showToast(val ? 'Worker URL saved' : 'Worker URL cleared', '✓');
+            this.showToast(val ? 'Worker URL saved' : 'Worker URL cleared', 'Done');
           });
         }
         if (this.toggleBarcodeScannerBtn) {
@@ -1790,7 +1794,7 @@
             const p = this.getActiveProject();
             if (p.sync) {
               const token = `${p.sync.code}:${p.sync.secret}`;
-              navigator.clipboard?.writeText(token).then(() => this.showToast('Invite token copied', '📋')).catch(() => this.showToast(token, '📋'));
+              navigator.clipboard?.writeText(token).then(() => this.showToast('Invite token copied')).catch(() => this.showToast(token));
             }
           });
         }
@@ -1800,7 +1804,7 @@
             delete p.sync;
             this.saveState(true);
             this.renderSyncStatus();
-            this.showToast('Unlinked partner sync', '🔓');
+            this.showToast('Unlinked partner sync');
           });
         }
 
@@ -1823,12 +1827,12 @@
             }
             this.renderTierPill();
             this.proModal.classList.add('hidden');
-            this.showToast('7-Day Pro Trial activated!', '🎉');
+            this.showToast('7-Day Pro Trial activated!');
           });
         }
         if (this.restoreProBtn) {
           this.restoreProBtn.addEventListener('click', () => {
-            this.showToast('Store purchase restore connects via RevenueCat in native build', 'ℹ️');
+            this.showToast('Store purchase restore connects via RevenueCat in native build');
           });
         }
 
@@ -1843,7 +1847,7 @@
             project.settlements = [];
             this.saveState();
             this.renderAll();
-            this.showToast('Settlement history cleared', '✓');
+            this.showToast('Settlement history cleared', 'Done');
           }, true);
         });
 
@@ -1853,7 +1857,7 @@
             this.state = JSON.parse(JSON.stringify(INITIAL_DEMO_STATE));
             this.saveState();
             this.renderAll();
-            this.showToast('Sample project data reloaded', '🔄');
+            this.showToast('Sample project data reloaded');
           });
         });
 
@@ -1878,26 +1882,64 @@
             };
             this.saveState();
             this.renderAll();
-            this.showToast('All data cleared', '🗑️');
+            this.showToast('All data cleared');
           }, true);
         });
 
-        // Add Partner
-        this.addPartnerBtn.addEventListener('click', () => {
-          this.showPrompt('Add Partner', 'Enter the name of the new project partner:', 'Sam', (name) => {
+        // Add / Edit Partner Modal & Split Evenly
+        this.addPartnerBtn.addEventListener('click', () => this.openPartnerModal(null));
+        if (this.closePartnerModalBtn) this.closePartnerModalBtn.addEventListener('click', () => this.partnerModal.classList.add('hidden'));
+        if (this.cancelPartnerModalBtn) this.cancelPartnerModalBtn.addEventListener('click', () => this.partnerModal.classList.add('hidden'));
+        if (this.splitEvenlyBtn) {
+          this.splitEvenlyBtn.addEventListener('click', () => {
             const project = this.getActiveProject();
-            const newId = 'p_' + Date.now();
-            project.partners.push({
-              id: newId,
-              name: name,
-              split: 0,
-              venmo: ''
+            const n = project.partners.length;
+            if (!n) return;
+            const base = Math.floor(100 / n);
+            let rem = 100 - base * n;
+            project.partners.forEach((p, idx) => {
+              p.split = base + (idx < rem ? 1 : 0);
             });
             this.saveState();
-            this.renderPartners();
-            this.showToast('Added partner ' + name, '👥');
+            this.renderAll();
+            this.showToast('Splits balanced to 100%');
           });
-        });
+        }
+        if (this.partnerForm) {
+          this.partnerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const project = this.getActiveProject();
+            const editId = this.partnerEditId.value;
+            const name = this.partnerInputName.value.trim();
+            const split = Math.max(0, Math.min(100, parseInt(this.partnerInputSplit.value, 10) || 0));
+            const color = this.partnerInputColor.value || 'emerald';
+            const venmo = this.partnerInputVenmo.value.trim().replace(/^@/, '');
+            if (!name) return;
+
+            if (editId) {
+              const p = project.partners.find(x => x.id === editId);
+              if (p) {
+                p.name = name;
+                p.split = split;
+                p.color = color;
+                p.venmo = venmo;
+                this.showToast('Updated partner ' + name);
+              }
+            } else {
+              project.partners.push({
+                id: 'p_' + Date.now(),
+                name,
+                split,
+                color,
+                venmo
+              });
+              this.showToast('Added partner ' + name);
+            }
+            this.saveState();
+            this.partnerModal.classList.add('hidden');
+            this.renderAll();
+          });
+        }
       }
 
       populatePartnerDropdown(selectEl) {
@@ -2021,7 +2063,7 @@
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        this.showToast('Exported project CSV', '⬇️');
+        this.showToast('Exported project CSV');
       }
 
       async toggleBarcodeScanner() {
@@ -2030,7 +2072,7 @@
           return;
         }
         if (!('BarcodeDetector' in window)) {
-          this.showToast('Barcode scanner unavailable on this browser', '⚠️');
+          this.showToast('Barcode scanner unavailable on this browser');
           return;
         }
         try {
@@ -2052,7 +2094,7 @@
           clearTimeout(this.scannerIdleTimer);
           this.scannerIdleTimer = setTimeout(() => {
             this.stopBarcodeScanner();
-            this.showToast('Scanner auto-paused after 90s', '📷');
+            this.showToast('Scanner auto-paused after 90s', 'Photo');
           }, 90000);
 
           const detector = new window.BarcodeDetector({
@@ -2066,7 +2108,7 @@
               if (codes && codes.length > 0) {
                 const rawCode = codes[0].rawValue;
                 this.stopBarcodeScanner();
-                this.showToast('Scanned: ' + rawCode, '📷');
+                this.showToast('Scanned: ' + rawCode, 'Photo');
                 const notePrefix = `Barcode: ${rawCode}`;
                 if (!this.itemInputNotes.value.includes(rawCode)) {
                   this.itemInputNotes.value = this.itemInputNotes.value
@@ -2082,7 +2124,7 @@
           this.scannerLoopId = requestAnimationFrame(scanFrame);
         } catch (err) {
           this.stopBarcodeScanner();
-          this.showToast('Camera permission denied or unavailable', '⚠️');
+          this.showToast('Camera permission denied or unavailable');
         }
       }
 
@@ -2109,7 +2151,7 @@
               const data = await res.json();
               if (data.found && data.title) {
                 this.itemInputTitle.value = data.title;
-                this.showToast('Found: ' + data.title, '✓');
+                this.showToast('Found: ' + data.title, 'Done');
                 return;
               }
             }
@@ -2123,7 +2165,7 @@
               const book = await olRes.json();
               if (book && book.title) {
                 this.itemInputTitle.value = book.title;
-                this.showToast('Book found: ' + book.title, '📚');
+                this.showToast('Book found: ' + book.title);
                 return;
               }
             }
@@ -2142,19 +2184,19 @@
         }
         const workerUrl = this.getWorkerUrl();
         if (!workerUrl) {
-          this.showToast('Set your Cloudflare Worker URL in Partners tab first', '⚠️');
+          this.showToast('Set your Cloudflare Worker URL in Partners tab first');
           return;
         }
         const imgData = this.receiptPreviewImg?.src || '';
         if (!imgData.startsWith('data:image/')) {
-          this.showToast('Attach a receipt photo first', '⚠️');
+          this.showToast('Attach a receipt photo first');
           return;
         }
 
         const btn = this.aiScanReceiptBtn;
         const origHtml = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span>⏳</span> Scanning receipt with Gemini...';
+        btn.innerHTML = '<span></span> Scanning receipt with Gemini...';
 
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 25000);
@@ -2186,10 +2228,10 @@
           const prevOcr = parseInt(localStorage.getItem('businessbuddies_ocr_count') || '0', 10);
           localStorage.setItem('businessbuddies_ocr_count', String(prevOcr + 1));
           this.renderTierPill();
-          this.showToast('Receipt auto-filled!', '✨');
+          this.showToast('Receipt auto-filled!');
         } catch (err) {
           clearTimeout(timer);
-          this.showToast(err.name === 'AbortError' ? 'Receipt scan timed out (25s)' : ('OCR error: ' + err.message), '⚠️');
+          this.showToast(err.name === 'AbortError' ? 'Receipt scan timed out (25s)' : ('OCR error: ' + err.message));
         } finally {
           btn.disabled = false;
           btn.innerHTML = origHtml;
@@ -2231,7 +2273,7 @@
         }
         const workerUrl = this.getWorkerUrl();
         if (!workerUrl) {
-          this.showToast('Save your Cloudflare Worker URL first', '⚠️');
+          this.showToast('Save your Cloudflare Worker URL first');
           return;
         }
         const proj = this.getActiveProject();
@@ -2248,22 +2290,22 @@
           proj.sync = { code: data.code, secret: data.syncSecret, version: data.version, updatedAt: data.updatedAt };
           this.saveState(true);
           this.renderSyncStatus();
-          this.showToast(`Sync room ${data.code} created!`, '🤝');
+          this.showToast(`Sync room ${data.code} created!`);
         } catch (err) {
-          this.showToast('Sync error: ' + err.message, '⚠️');
+          this.showToast('Sync error: ' + err.message);
         }
       }
 
       async joinSyncFromToken(rawInput) {
         const workerUrl = this.getWorkerUrl();
         if (!workerUrl) {
-          this.showToast('Save your Cloudflare Worker URL first', '⚠️');
+          this.showToast('Save your Cloudflare Worker URL first');
           return;
         }
         const cleaned = (rawInput || '').trim().replace(/^BB_SYNC:/i, '');
         const parts = cleaned.split(':');
         if (parts.length !== 2 || !parts[0] || !parts[1]) {
-          this.showToast('Invalid invite format (use BB-XXXXXX:secret)', '⚠️');
+          this.showToast('Invalid invite format (use BB-XXXXXX:secret)');
           return;
         }
         const [code, secret] = [parts[0].trim().toUpperCase(), parts[1].trim()];
@@ -2283,9 +2325,9 @@
           this.state.activeProjectId = incoming.id;
           this.saveState(true);
           this.renderAll();
-          this.showToast(`Joined synced ledger ${code}!`, '🤝');
+          this.showToast(`Joined synced ledger ${code}!`);
         } catch (err) {
-          this.showToast('Join failed: ' + err.message, '⚠️');
+          this.showToast('Join failed: ' + err.message);
         }
       }
 
@@ -2306,10 +2348,10 @@
             this.renderAll();
             if (!silent) this.showToast(`Synced v${data.version} from partner`, '↻');
           } else if (!silent) {
-            this.showToast('Ledger already up to date', '✓');
+            this.showToast('Ledger already up to date', 'Done');
           }
         } catch (err) {
-          if (!silent) this.showToast('Sync pull failed: ' + err.message, '⚠️');
+          if (!silent) this.showToast('Sync pull failed: ' + err.message);
         }
       }
 
@@ -2331,7 +2373,7 @@
             proj.sync.updatedAt = data.updatedAt;
             this.saveState(true);
             this.renderSyncStatus();
-            if (!silent) this.showToast('Pushed update to partner', '✓');
+            if (!silent) this.showToast('Pushed update to partner', 'Done');
           }
         } catch {}
       }
@@ -2342,7 +2384,7 @@
           return;
         }
         if (!('BarcodeDetector' in window)) {
-          this.showToast('QR scanner unavailable on this browser', '⚠️');
+          this.showToast('QR scanner unavailable on this browser');
           return;
         }
         try {
@@ -2370,7 +2412,7 @@
           this.joinSyncLoopId = requestAnimationFrame(scanLoop);
         } catch {
           this.stopJoinSyncScanner();
-          this.showToast('Camera permission denied', '⚠️');
+          this.showToast('Camera permission denied');
         }
       }
 
@@ -2517,7 +2559,7 @@
 
         if (math.status === 'balanced') {
           this.modalSettleAmount.textContent = '$0.00';
-          this.modalSettleDescription.textContent = '🎉 All partners are completely squared up!';
+          this.modalSettleDescription.textContent = 'All partners are completely squared up!';
           this.venmoDeepLink.classList.add('hidden');
         } else {
           this.modalSettleAmount.textContent = `$${math.balance.toFixed(2)}`;
@@ -2525,7 +2567,7 @@
 
           if (math.payee && math.payee.venmo) {
             this.venmoDeepLink.href = `https://venmo.com/${math.payee.venmo}?txn=pay&amount=${math.balance.toFixed(2)}&note=${encodeURIComponent('BusinessBuddies: ' + project.name)}`;
-            this.venmoDeepLink.textContent = `💸 Pay ${math.payee.name} via Venmo ($${math.balance.toFixed(2)})`;
+            this.venmoDeepLink.textContent = `Pay ${math.payee.name} via Venmo ($${math.balance.toFixed(2)})`;
             this.venmoDeepLink.classList.remove('hidden');
           } else {
             this.venmoDeepLink.classList.add('hidden');
@@ -2566,12 +2608,12 @@
 
       openProModal(reason = '') {
         this.renderTierPill();
-        if (reason) this.showToast(reason, '⭐');
+        if (reason) this.showToast(reason);
         if (this.proModal) this.proModal.classList.remove('hidden');
       }
 
       getWorkerUrl() {
-        return (localStorage.getItem('businessbuddies_worker_url') || '').trim().replace(/\/+$/, '');
+        return (localStorage.getItem('businessbuddies_worker_url') || 'https://businessbuddies-worker.ericwoodliff.workers.dev').trim().replace(/\/+$/, '');
       }
 
       renderAll() {
@@ -2616,7 +2658,7 @@
           this.elSettlementIconBox.className = 'w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5';
           this.elSettlementSubtitle.textContent = 'Settlement Status';
           this.elSettlementSubtitle.className = 'text-[11px] uppercase tracking-wider font-bold text-emerald-400';
-          this.elSettlementStatement.textContent = '🤝 All partners are squared up! Zero balances owed.';
+          this.elSettlementStatement.textContent = 'All partners are squared up! Zero balances owed.';
           this.elSettleUpActionBtn.classList.add('hidden');
         } else {
           this.elSettlementIconBox.className = 'w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5';
@@ -2706,8 +2748,8 @@
           const isExpanded = this.expandedItemId === item.id;
 
           const statusBadge = isSold
-            ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">💰 SOLD</span>`
-            : `<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">📦 FOR SALE</span>`;
+            ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">SOLD</span>`
+            : `<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">FOR SALE</span>`;
 
           const priceBadge = isSold
             ? `<div class="text-right">
@@ -2721,7 +2763,7 @@
 
           const photoHtml = item.photo
             ? `<img src="${item.photo.startsWith('idb:') ? (this.photoCache.get(item.photo.slice(4)) || '') : item.photo}" data-idb-photo="${item.photo.startsWith('idb:') ? item.photo : ''}" alt="${item.title}" class="w-12 h-12 rounded-lg object-cover border border-slate-700 shrink-0">`
-            : `<div class="w-12 h-12 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xl shrink-0">📦</div>`;
+            : `<div class="w-12 h-12 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xl shrink-0">Item</div>`;
 
           card.innerHTML = `
             <!-- Collapsed Header Row -->
@@ -2748,7 +2790,7 @@
 
             <!-- Expandable Drawer Details -->
             <div class="${isExpanded ? 'block' : 'hidden'} px-3.5 pb-3.5 pt-1 border-t border-slate-800/80 bg-slate-950/40 text-xs space-y-3">
-              ${item.notes ? `<div class="text-[11px] text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">📝 <strong>Notes:</strong> ${item.notes}</div>` : ''}
+              ${item.notes ? `<div class="text-[11px] text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800"><strong>Notes:</strong> ${item.notes}</div>` : ''}
 
               ${isSold ? `
                 <div class="grid grid-cols-2 gap-2 text-[11px] bg-emerald-950/20 p-2.5 rounded-lg border border-emerald-900/40">
@@ -2775,11 +2817,11 @@
                 <div>
                   ${!isSold ? `
                     <button class="mark-sold-btn px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md shadow-emerald-500/20 transition flex items-center gap-1.5" data-id="${item.id}">
-                      <span>💰 Mark as Sold</span>
+                      <span>Mark as Sold</span>
                     </button>
                   ` : `
                     <button class="mark-unsold-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition" data-id="${item.id}">
-                      ↺ Move Back to Active
+                      Move Back to Active
                     </button>
                   `}
                 </div>
@@ -2836,7 +2878,7 @@
               project.items = project.items.filter(i => i.id !== item.id);
               this.saveState();
               this.renderAll();
-              this.showToast('Item deleted', '🗑️');
+              this.showToast('Item deleted');
             }, true);
           });
 
@@ -2867,7 +2909,7 @@
         if (item.photo) {
           this.soldItemThumb.innerHTML = `<img src="${item.photo.startsWith('idb:') ? (this.photoCache.get(item.photo.slice(4)) || '') : item.photo}" data-idb-photo="${item.photo.startsWith('idb:') ? item.photo : ''}" class="w-full h-full object-cover rounded-lg">`;
         } else {
-          this.soldItemThumb.innerHTML = '📦';
+          this.soldItemThumb.innerHTML = 'Item';
         }
 
         const soldImg = this.soldItemThumb.querySelector('img[data-idb-photo]');
@@ -2879,7 +2921,7 @@
 
       openEditItemModal(item) {
         this.itemEditId.value = item.id;
-        this.itemModalTitle.innerHTML = '<span>✏️</span> Edit Item';
+        this.itemModalTitle.innerHTML = '<span></span> Edit Item';
         this.itemInputTitle.value = item.title;
         this.itemInputPrice.value = item.targetPrice;
         this.itemInputPlatform.value = item.platform || 'Facebook Marketplace';
@@ -2923,7 +2965,7 @@
           card.innerHTML = `
             <div class="flex items-center gap-3 min-w-0">
               <div class="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg shrink-0">
-                🧾
+                Receipt
               </div>
               <div class="min-w-0">
                 <div class="flex items-center gap-2 mb-0.5">
@@ -2939,7 +2981,7 @@
 
             <div class="flex items-center gap-3 shrink-0">
               <span class="text-sm sm:text-base font-extrabold text-rose-400 mono">-$${exp.amount.toFixed(2)}</span>
-              <button class="delete-exp-btn text-slate-500 hover:text-rose-400 p-1" data-id="${exp.id}" title="Delete expense">✕</button>
+              <button class="delete-exp-btn text-slate-500 hover:text-rose-400 p-1" data-id="${exp.id}" title="Delete expense">Close</button>
             </div>
           `;
 
@@ -2948,7 +2990,7 @@
               project.expenses = project.expenses.filter(e => e.id !== exp.id);
               this.saveState();
               this.renderAll();
-              this.showToast('Expense removed', '🗑️');
+              this.showToast('Expense removed');
             }, true);
           });
 
@@ -3022,39 +3064,88 @@
         }
       }
 
+      openPartnerModal(partner = null) {
+        if (!this.partnerModal) return;
+        if (partner) {
+          this.partnerModalTitle.textContent = 'Customize Partner';
+          this.partnerEditId.value = partner.id;
+          this.partnerInputName.value = partner.name || '';
+          this.partnerInputSplit.value = partner.split ?? 0;
+          this.partnerInputColor.value = partner.color || 'emerald';
+          this.partnerInputVenmo.value = partner.venmo || '';
+        } else {
+          this.partnerModalTitle.textContent = 'Add Partner';
+          this.partnerEditId.value = '';
+          this.partnerInputName.value = '';
+          this.partnerInputSplit.value = '0';
+          this.partnerInputColor.value = 'indigo';
+          this.partnerInputVenmo.value = '';
+        }
+        this.partnerModal.classList.remove('hidden');
+      }
+
       renderPartners() {
         this.renderSyncStatus();
         const project = this.getActiveProject();
         this.partnersListContainer.innerHTML = '';
 
+        const colorMap = {
+          emerald: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+          indigo: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
+          amber: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+          cyan: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
+          rose: 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+        };
+
         let totalSplit = 0;
 
         project.partners.forEach(partner => {
           totalSplit += partner.split;
+          const isActive = partner.id === this.state.activeUserId;
+          const badgeCls = colorMap[partner.color] || colorMap.emerald;
           const row = document.createElement('div');
-          row.className = 'p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3 text-xs';
+          row.className = `p-3 rounded-xl bg-slate-950 border ${isActive ? 'border-emerald-500/50' : 'border-slate-800'} flex flex-wrap items-center justify-between gap-3 text-xs`;
 
           row.innerHTML = `
             <div class="flex items-center gap-2.5 min-w-0">
-              <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center font-bold shrink-0">
+              <div class="w-9 h-9 rounded-full ${badgeCls} border flex items-center justify-center font-bold shrink-0">
                 ${partner.name.charAt(0).toUpperCase()}
               </div>
               <div class="min-w-0">
-                <span class="font-bold text-white block truncate">${partner.name}</span>
-                <span class="text-[10px] text-slate-500">${partner.venmo ? '@' + partner.venmo : 'No Venmo set'}</span>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-white truncate">${partner.name}</span>
+                  ${isActive ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Active</span>' : ''}
+                </div>
+                <span class="text-[10px] text-slate-500">${partner.venmo ? '@' + partner.venmo : 'No payment handle set'}</span>
               </div>
             </div>
 
-            <div class="flex items-center gap-3 shrink-0">
-              <div class="flex items-center gap-1.5">
-                <input type="number" min="0" max="100" value="${partner.split}" class="partner-split-input w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-center font-bold text-white mono focus:outline-none focus:border-emerald-500" data-id="${partner.id}">
+            <div class="flex items-center gap-2 shrink-0">
+              ${!isActive ? `<button type="button" class="set-active-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold border border-slate-700 transition">Set Active</button>` : ''}
+              <button type="button" class="edit-partner-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold border border-slate-700 transition">Edit</button>
+              <div class="flex items-center gap-1">
+                <input type="number" min="0" max="100" value="${partner.split}" class="partner-split-input w-14 bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1 text-center font-bold text-white mono focus:outline-none focus:border-emerald-500" data-id="${partner.id}">
                 <span class="text-slate-400 font-bold">%</span>
               </div>
               ${project.partners.length > 2 ? `
-                <button class="delete-partner-btn text-slate-500 hover:text-rose-400 p-1" data-id="${partner.id}">✕</button>
+                <button type="button" class="delete-partner-btn text-slate-500 hover:text-rose-400 px-1.5 py-1 text-xs font-semibold" data-id="${partner.id}">Remove</button>
               ` : ''}
             </div>
           `;
+
+          const setActiveBtn = row.querySelector('.set-active-btn');
+          if (setActiveBtn) {
+            setActiveBtn.addEventListener('click', () => {
+              this.state.activeUserId = partner.id;
+              this.saveState();
+              this.renderAll();
+              this.showToast('Active user: ' + partner.name);
+            });
+          }
+
+          row.querySelector('.edit-partner-btn').addEventListener('click', () => {
+            this.openPartnerModal(partner);
+          });
 
           const splitInput = row.querySelector('.partner-split-input');
           splitInput.addEventListener('change', (e) => {
@@ -3101,7 +3192,7 @@
             this.saveState();
             this.projectModal.classList.add('hidden');
             this.renderAll();
-            this.showToast('Loaded project: ' + p.name, '📁');
+            this.showToast('Loaded project: ' + p.name);
           });
           this.projectListContainer.appendChild(btn);
         });
@@ -3113,6 +3204,47 @@
       window.app = new AppController();
     });
   </script>
+  <!-- ADD / CUSTOMIZE PARTNER MODAL -->
+  <div id="partnerModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <form id="partnerForm" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="partnerModalTitle" class="text-base font-bold text-white">Customize Partner</h3>
+        <button type="button" id="closePartnerModalBtn" class="text-slate-400 hover:text-white text-sm px-2 py-1">Close</button>
+      </div>
+      <input type="hidden" id="partnerEditId" value="">
+      <div class="space-y-3 text-xs">
+        <div>
+          <label for="partnerInputName" class="block font-semibold text-slate-300 mb-1">Partner Name *</label>
+          <input type="text" id="partnerInputName" required placeholder="e.g. Alex, Jordan, Sam" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="partnerInputSplit" class="block font-semibold text-slate-300 mb-1">Profit Split (%) *</label>
+            <input type="number" id="partnerInputSplit" min="0" max="100" required placeholder="50" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white mono focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label for="partnerInputColor" class="block font-semibold text-slate-300 mb-1">Badge Color</label>
+            <select id="partnerInputColor" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+              <option value="emerald">Emerald</option>
+              <option value="indigo">Indigo</option>
+              <option value="amber">Amber</option>
+              <option value="cyan">Cyan</option>
+              <option value="rose">Rose</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="partnerInputVenmo" class="block font-semibold text-slate-300 mb-1">Payment Handle (Venmo / Zelle / CashApp)</label>
+          <input type="text" id="partnerInputVenmo" placeholder="e.g. alex-resell (optional)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" id="cancelPartnerModalBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">Cancel</button>
+        <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">Save Partner</button>
+      </div>
+    </form>
+  </div>
+
   <!-- PRO UPGRADE / PAYWALL MODAL (RevenueCat Ready) -->
   <div id="proModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
@@ -3122,14 +3254,14 @@
           <h3 class="text-lg font-extrabold text-white mt-1.5">Sync & Automate Your Hustle</h3>
           <p class="text-xs text-slate-400 mt-0.5">Built for reselling partners, storage-unit buyers, and flea-market teams.</p>
         </div>
-        <button type="button" id="closeProModalBtn" class="text-slate-400 hover:text-white text-lg leading-none px-1">✕</button>
+        <button type="button" id="closeProModalBtn" class="text-slate-400 hover:text-white text-lg leading-none px-1">Close</button>
       </div>
 
       <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2 text-xs text-slate-300">
-        <div class="flex items-center gap-2"><span class="text-emerald-400">✓</span> <span><strong>2-Person QR Partner Sync</strong> across phones via Cloudflare KV</span></div>
-        <div class="flex items-center gap-2"><span class="text-emerald-400">✓</span> <span><strong>Unlimited AI Receipt OCR</strong> (Free includes 3 starter scans)</span></div>
-        <div class="flex items-center gap-2"><span class="text-emerald-400">✓</span> <span><strong>3+ Partners & Unlimited Projects</strong> per haul</span></div>
-        <div class="flex items-center gap-2"><span class="text-emerald-400">✓</span> <span><strong>One-Tap CSV & Tax-Summary Export</strong></span></div>
+        <div class="flex items-center gap-2"><span class="text-emerald-400">Done</span> <span><strong>2-Person QR Partner Sync</strong> across phones via Cloudflare KV</span></div>
+        <div class="flex items-center gap-2"><span class="text-emerald-400">Done</span> <span><strong>Unlimited AI Receipt OCR</strong> (Free includes 3 starter scans)</span></div>
+        <div class="flex items-center gap-2"><span class="text-emerald-400">Done</span> <span><strong>3+ Partners & Unlimited Projects</strong> per haul</span></div>
+        <div class="flex items-center gap-2"><span class="text-emerald-400">Done</span> <span><strong>One-Tap CSV & Tax-Summary Export</strong></span></div>
       </div>
 
       <div id="proStatusBanner" class="text-xs text-center text-slate-400 bg-slate-950/60 border border-slate-800 rounded-xl p-2.5">
