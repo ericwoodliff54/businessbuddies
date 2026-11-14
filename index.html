@@ -57,6 +57,14 @@
       }
     }
   </script>
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <style>
+    @media (max-width: 768px) {
+      input, select, textarea {
+        font-size: 16px !important;
+      }
+    }
+  </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950 pb-16">
 
@@ -306,9 +314,14 @@
     <!-- ==================== TAB 3: SETTLEMENT LEDGER ==================== -->
     <section id="panelLedger" class="hidden space-y-4">
       <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-4">
-        <div>
-          <h2 class="text-sm font-bold text-white">Partnership Financial Breakdown</h2>
-          <p class="text-xs text-slate-400">Complete transparent view of who paid for what and who collected cash.</p>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-sm font-bold text-white">Partnership Financial Breakdown</h2>
+            <p class="text-xs text-slate-400">Complete transparent view of who paid for what and who collected cash.</p>
+          </div>
+          <button id="exportCsvBtn" type="button" class="px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition flex items-center gap-1.5">
+            <span>⬇️</span> Export CSV
+          </button>
         </div>
 
         <div id="ledgerPartnerCards" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -862,6 +875,84 @@
       ]
     };
 
+    // --- INDEXEDDB PHOTO STORAGE & CANVAS COMPRESSION ---
+    const MediaIDB = {
+      dbPromise: null,
+      open() {
+        if (this.dbPromise) return this.dbPromise;
+        this.dbPromise = new Promise((resolve, reject) => {
+          const req = indexedDB.open('businessbuddies_media_db', 1);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('photos')) {
+              db.createObjectStore('photos');
+            }
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+        return this.dbPromise;
+      },
+      async put(key, dataUrl) {
+        const db = await this.open();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('photos', 'readwrite');
+          tx.objectStore('photos').put(dataUrl, key);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => reject(tx.error);
+        });
+      },
+      async get(key) {
+        const db = await this.open();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('photos', 'readonly');
+          const req = tx.objectStore('photos').get(key);
+          req.onsuccess = () => resolve(req.result || '');
+          req.onerror = () => reject(req.error);
+        });
+      },
+      async remove(key) {
+        const db = await this.open();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('photos', 'readwrite');
+          tx.objectStore('photos').delete(key);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => reject(tx.error);
+        });
+      }
+    };
+
+    function compressImageFile(file, maxDim = 1200, quality = 0.82) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Failed to read image file'));
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onerror = () => resolve(event.target.result);
+          img.onload = () => {
+            let { width, height } = img;
+            if (width > maxDim || height > maxDim) {
+              if (width >= height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
     // --- APP CONTROLLER ---
     class AppController {
       constructor() {
@@ -870,8 +961,10 @@
         this.expandedItemId = null;
         this.mathDrawerOpen = false;
         this.dialogCallback = null;
+        this.photoCache = new Map();
 
         this.initDOMElements();
+        this.migrateLegacyPhotos();
         this.initSplashScreen();
         this.attachEventListeners();
         this.renderAll();
@@ -1018,6 +1111,7 @@
         this.ledgerPartnerCards = document.getElementById('ledgerPartnerCards');
         this.settlementHistoryContainer = document.getElementById('settlementHistoryContainer');
         this.clearSettlementHistoryBtn = document.getElementById('clearSettlementHistoryBtn');
+        this.exportCsvBtn = document.getElementById('exportCsvBtn');
         this.partnersListContainer = document.getElementById('partnersListContainer');
         this.partnerTotalPercentage = document.getElementById('partnerTotalPercentage');
         this.addPartnerBtn = document.getElementById('addPartnerBtn');
@@ -1271,6 +1365,8 @@
           const entry = {
             id: 'set_' + Date.now(),
             date: new Date().toISOString().split('T')[0],
+            fromId: math.payer.id,
+            toId: math.payee.id,
             from: math.payer.name,
             to: math.payee.name,
             amount: math.balance,
@@ -1327,17 +1423,18 @@
           });
         });
 
-        // Photo Upload Handling
-        this.itemInputPhoto.addEventListener('change', (e) => {
+        // Photo Upload Handling (Compressed JPEG -> IndexedDB on save)
+        this.itemInputPhoto.addEventListener('change', async (e) => {
           const file = e.target.files[0];
           if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              this.photoPreviewImg.src = event.target.result;
-              this.photoPreviewName.textContent = file.name;
+            try {
+              const compressed = await compressImageFile(file, 1200, 0.82);
+              this.photoPreviewImg.src = compressed;
+              this.photoPreviewName.textContent = file.name + ' (compressed)';
               this.photoPreviewBox.classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
+            } catch (err) {
+              this.showToast('Could not process photo', '⚠️');
+            }
           }
         });
         this.removePhotoBtn.addEventListener('click', () => {
@@ -1357,7 +1454,7 @@
           const platform = this.itemInputPlatform.value;
           const addedBy = this.itemInputAddedBy.value;
           const notes = this.itemInputNotes.value.trim();
-          const photo = this.photoPreviewImg.src || '';
+          const rawPhoto = this.photoPreviewImg.src || '';
 
           if (editId) {
             // Edit existing
@@ -1368,13 +1465,26 @@
               item.platform = platform;
               item.addedBy = addedBy;
               item.notes = notes;
-              if (photo) item.photo = photo;
+              if (rawPhoto && rawPhoto.startsWith('data:image/')) {
+                const key = 'item_' + item.id;
+                item.photo = 'idb:' + key;
+                this.photoCache.set(key, rawPhoto);
+                MediaIDB.put(key, rawPhoto).catch(console.error);
+              }
               this.showToast('Item updated', '✓');
             }
           } else {
             // New item
+            const newId = 'item_' + Date.now();
+            let photoRef = '';
+            if (rawPhoto && rawPhoto.startsWith('data:image/')) {
+              const key = 'item_' + newId;
+              photoRef = 'idb:' + key;
+              this.photoCache.set(key, rawPhoto);
+              MediaIDB.put(key, rawPhoto).catch(console.error);
+            }
             const newItem = {
-              id: 'item_' + Date.now(),
+              id: newId,
               title,
               targetPrice,
               soldPrice: null,
@@ -1386,7 +1496,7 @@
               status: 'active',
               dateAdded: new Date().toISOString().split('T')[0],
               dateSold: null,
-              photo,
+              photo: photoRef,
               notes
             };
             project.items.unshift(newItem);
@@ -1447,16 +1557,17 @@
           });
         });
 
-        this.expInputPhoto.addEventListener('change', (e) => {
+        this.expInputPhoto.addEventListener('change', async (e) => {
           const file = e.target.files[0];
           if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              this.receiptPreviewImg.src = event.target.result;
-              this.receiptPreviewName.textContent = file.name;
+            try {
+              const compressed = await compressImageFile(file, 1200, 0.82);
+              this.receiptPreviewImg.src = compressed;
+              this.receiptPreviewName.textContent = file.name + ' (compressed)';
               this.receiptPreviewBox.classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
+            } catch (err) {
+              this.showToast('Could not process receipt photo', '⚠️');
+            }
           }
         });
         this.removeReceiptBtn.addEventListener('click', () => {
@@ -1472,10 +1583,18 @@
           const amount = parseFloat(this.expInputAmount.value) || 0;
           const paidBy = this.expInputPaidBy.value;
           const category = this.expInputCategory.value;
-          const receiptPhoto = this.receiptPreviewImg.src || '';
+          const rawReceipt = this.receiptPreviewImg.src || '';
+          const newExpId = 'exp_' + Date.now();
+          let receiptPhoto = '';
+          if (rawReceipt && rawReceipt.startsWith('data:image/')) {
+            const key = 'exp_' + newExpId;
+            receiptPhoto = 'idb:' + key;
+            this.photoCache.set(key, rawReceipt);
+            MediaIDB.put(key, rawReceipt).catch(console.error);
+          }
 
           const newExp = {
-            id: 'exp_' + Date.now(),
+            id: newExpId,
             title,
             amount,
             paidBy,
@@ -1490,6 +1609,10 @@
           this.renderAll();
           this.showToast('Logged expense of $' + amount.toFixed(2), '🧾');
         });
+
+        if (this.exportCsvBtn) {
+          this.exportCsvBtn.addEventListener('click', () => this.exportProjectCSV());
+        }
 
         // Clear settlement activity history
         this.clearSettlementHistoryBtn.addEventListener('click', () => {
@@ -1566,6 +1689,115 @@
         });
       }
 
+      async resolvePhotoSrc(ref) {
+        if (!ref) return '';
+        if (!ref.startsWith('idb:')) return ref;
+        const key = ref.slice(4);
+        if (this.photoCache.has(key)) return this.photoCache.get(key);
+        try {
+          const data = await MediaIDB.get(key);
+          if (data) this.photoCache.set(key, data);
+          return data || '';
+        } catch (e) {
+          return '';
+        }
+      }
+
+      async migrateLegacyPhotos() {
+        let changed = false;
+        for (const proj of (this.state.projects || [])) {
+          for (const item of (proj.items || [])) {
+            if (item.photo && item.photo.startsWith('data:image/')) {
+              const key = 'item_' + item.id;
+              this.photoCache.set(key, item.photo);
+              await MediaIDB.put(key, item.photo).catch(() => {});
+              item.photo = 'idb:' + key;
+              changed = true;
+            }
+          }
+          for (const exp of (proj.expenses || [])) {
+            if (exp.receiptPhoto && exp.receiptPhoto.startsWith('data:image/')) {
+              const key = 'exp_' + exp.id;
+              this.photoCache.set(key, exp.receiptPhoto);
+              await MediaIDB.put(key, exp.receiptPhoto).catch(() => {});
+              exp.receiptPhoto = 'idb:' + key;
+              changed = true;
+            }
+          }
+        }
+        if (changed) {
+          this.saveState();
+          this.renderAll();
+        }
+      }
+
+      exportProjectCSV() {
+        const project = this.getActiveProject();
+        const math = this.calculateSettlement(project);
+        const esc = (v) => {
+          const s = String(v ?? '');
+          return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+        };
+        const partnerName = (id) => {
+          const p = project.partners.find(x => x.id === id);
+          return p ? p.name : '';
+        };
+
+        const rows = [];
+        rows.push(['BusinessBuddies Project Export', project.name, new Date().toISOString().split('T')[0]]);
+        rows.push(['Gross Sales (Net of Fees)', math.grossSales.toFixed(2), 'Total Expenses', math.totalExpenses.toFixed(2), 'Net Profit', math.netProfit.toFixed(2)]);
+        rows.push([]);
+
+        rows.push(['PARTNER WATERFALL SUMMARY']);
+        rows.push(['Partner', 'Split %', 'Expenses Reimbursed', 'Profit Share', 'Total Entitled', 'Cash Collected', 'Net Balance (+Owes / -Owed)']);
+        math.partnerStats.forEach(s => {
+          rows.push([s.name, s.split + '%', s.expensesPaid.toFixed(2), s.profitShare.toFixed(2), s.totalEntitled.toFixed(2), s.cashInHand.toFixed(2), s.netBalance.toFixed(2)]);
+        });
+        rows.push([]);
+
+        rows.push(['INVENTORY']);
+        rows.push(['ID', 'Title', 'Status', 'Platform', 'Target Price', 'Sold Price', 'Platform Fees', 'Net Sale', 'Added By', 'Sold By', 'Collected By', 'Date Added', 'Date Sold', 'Notes']);
+        project.items.forEach(i => {
+          const netSale = i.status === 'sold' && i.soldPrice !== null ? (i.soldPrice - (i.platformFees || 0)).toFixed(2) : '';
+          rows.push([
+            i.id, i.title, i.status, i.platform,
+            (i.targetPrice || 0).toFixed(2),
+            i.soldPrice !== null ? i.soldPrice.toFixed(2) : '',
+            (i.platformFees || 0).toFixed(2),
+            netSale,
+            partnerName(i.addedBy), partnerName(i.soldBy), partnerName(i.collectedBy),
+            i.dateAdded || '', i.dateSold || '', i.notes || ''
+          ]);
+        });
+        rows.push([]);
+
+        rows.push(['EXPENSES']);
+        rows.push(['ID', 'Date', 'Category', 'Title', 'Paid By', 'Amount']);
+        project.expenses.forEach(e => {
+          rows.push([e.id, e.date || '', e.category || '', e.title, partnerName(e.paidBy), (e.amount || 0).toFixed(2)]);
+        });
+        rows.push([]);
+
+        rows.push(['SETTLEMENT HISTORY']);
+        rows.push(['ID', 'Date', 'From', 'To', 'Amount', 'Notes']);
+        project.settlements.forEach(s => {
+          rows.push([s.id, s.date || '', s.from, s.to, (s.amount || 0).toFixed(2), s.notes || '']);
+        });
+
+        const csvContent = rows.map(r => r.map(esc).join(',')).join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const safeName = project.name.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
+        a.href = url;
+        a.download = `BusinessBuddies_${safeName || 'Project'}_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        this.showToast('Exported project CSV', '⬇️');
+      }
+
       // --- FINANCIAL SETTLEMENT CALCULATOR (WATERFALL RULES) ---
       calculateSettlement(project) {
         // 1. Calculate Gross Sales
@@ -1609,12 +1841,12 @@
 
         // 3. Adjust for manual settlements recorded in history
         project.settlements.forEach(s => {
-          const payer = project.partners.find(p => p.name === s.from);
-          const payee = project.partners.find(p => p.name === s.to);
+          const payer = project.partners.find(p => (s.fromId && p.id === s.fromId) || p.name === s.from);
+          const payee = project.partners.find(p => (s.toId && p.id === s.toId) || p.name === s.to);
           if (payer && payee) {
-            // Payer transferred cash to payee
-            collectedByPartner[payer.id] += s.amount;
-            collectedByPartner[payee.id] -= s.amount;
+            // Payer handed cash to payee: payer holds LESS cash, payee holds MORE cash
+            collectedByPartner[payer.id] -= s.amount;
+            collectedByPartner[payee.id] += s.amount;
           }
         });
 
@@ -1647,37 +1879,46 @@
           };
         });
 
-        // 6. Determine 2-party settlement recommendation (simplest pair)
-        let payer = null;
-        let payee = null;
-        let balance = 0;
+        // 6. Determine multi-partner settlement transfers (supports 2, 3, or more partners)
+        const debtors = partnerStats
+          .filter(p => p.netBalance > 0.01)
+          .map(p => ({ partner: p, remaining: p.netBalance }))
+          .sort((a, b) => b.remaining - a.remaining);
+        const creditors = partnerStats
+          .filter(p => p.netBalance < -0.01)
+          .map(p => ({ partner: p, remaining: Math.abs(p.netBalance) }))
+          .sort((a, b) => b.remaining - a.remaining);
 
-        if (partnerStats.length === 2) {
-          const p1 = partnerStats[0];
-          const p2 = partnerStats[1];
-
-          if (Math.abs(p1.netBalance) > 0.01) {
-            if (p1.netBalance > 0) {
-              payer = p1;
-              payee = p2;
-              balance = p1.netBalance;
-            } else {
-              payer = p2;
-              payee = p1;
-              balance = p2.netBalance;
-            }
+        const transfers = [];
+        let di = 0, ci = 0;
+        while (di < debtors.length && ci < creditors.length) {
+          const d = debtors[di];
+          const c = creditors[ci];
+          const amt = Math.min(d.remaining, c.remaining);
+          if (amt > 0.01) {
+            transfers.push({ from: d.partner, to: c.partner, amount: Math.round(amt * 100) / 100 });
           }
+          d.remaining -= amt;
+          c.remaining -= amt;
+          if (d.remaining <= 0.01) di++;
+          if (c.remaining <= 0.01) ci++;
         }
+
+        const primary = transfers[0] || null;
+        const payer = primary ? primary.from : null;
+        const payee = primary ? primary.to : null;
+        const balance = primary ? primary.amount : 0;
 
         return {
           grossSales,
           totalExpenses,
           netProfit,
           partnerStats,
+          transfers,
           payer,
           payee,
-          balance: Math.abs(balance),
-          status: Math.abs(balance) < 0.01 ? 'balanced' : 'unsettled'
+          balance,
+          status: transfers.length === 0 ? 'balanced' : 'unsettled'
         };
       }
 
@@ -1751,9 +1992,11 @@
           this.elSettleUpActionBtn.classList.add('hidden');
         } else {
           this.elSettlementIconBox.className = 'w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-sm font-bold shrink-0 mt-0.5';
-          this.elSettlementSubtitle.textContent = 'Action Required to Settle';
+          this.elSettlementSubtitle.textContent = math.transfers.length > 1 ? `Action Required (${math.transfers.length} Transfers)` : 'Action Required to Settle';
           this.elSettlementSubtitle.className = 'text-[11px] uppercase tracking-wider font-bold text-indigo-300';
-          this.elSettlementStatement.innerHTML = `<span class="text-indigo-400 font-bold">${math.payer.name}</span> pays <span class="text-emerald-400 font-bold">${math.payee.name}</span> <span class="mono text-white font-extrabold">$${math.balance.toFixed(2)}</span> to square up.`;
+          this.elSettlementStatement.innerHTML = math.transfers
+            .map(t => `<span class="text-indigo-400 font-bold">${t.from.name}</span> pays <span class="text-emerald-400 font-bold">${t.to.name}</span> <span class="mono text-white font-extrabold">$${t.amount.toFixed(2)}</span>`)
+            .join('<br>');
           this.elSettleUpActionBtn.classList.remove('hidden');
         }
 
@@ -1849,7 +2092,7 @@
                </div>`;
 
           const photoHtml = item.photo
-            ? `<img src="${item.photo}" alt="${item.title}" class="w-12 h-12 rounded-lg object-cover border border-slate-700 shrink-0">`
+            ? `<img src="${item.photo.startsWith('idb:') ? (this.photoCache.get(item.photo.slice(4)) || '') : item.photo}" data-idb-photo="${item.photo.startsWith('idb:') ? item.photo : ''}" alt="${item.title}" class="w-12 h-12 rounded-lg object-cover border border-slate-700 shrink-0">`
             : `<div class="w-12 h-12 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xl shrink-0">📦</div>`;
 
           card.innerHTML = `
@@ -1971,6 +2214,12 @@
 
           this.inventoryContainer.appendChild(card);
         });
+      this.inventoryContainer.querySelectorAll('img[data-idb-photo]').forEach(imgEl => {
+          const ref = imgEl.getAttribute('data-idb-photo');
+          if (ref && !imgEl.getAttribute('src')) {
+            this.resolvePhotoSrc(ref).then(src => { if (src) imgEl.src = src; });
+          }
+        });
       }
 
       openMarkSoldModal(item) {
@@ -1988,11 +2237,15 @@
         this.soldInputCollectedBy.value = this.state.activeUserId;
 
         if (item.photo) {
-          this.soldItemThumb.innerHTML = `<img src="${item.photo}" class="w-full h-full object-cover rounded-lg">`;
+          this.soldItemThumb.innerHTML = `<img src="${item.photo.startsWith('idb:') ? (this.photoCache.get(item.photo.slice(4)) || '') : item.photo}" data-idb-photo="${item.photo.startsWith('idb:') ? item.photo : ''}" class="w-full h-full object-cover rounded-lg">`;
         } else {
           this.soldItemThumb.innerHTML = '📦';
         }
 
+        const soldImg = this.soldItemThumb.querySelector('img[data-idb-photo]');
+        if (soldImg && !soldImg.getAttribute('src')) {
+          this.resolvePhotoSrc(soldImg.getAttribute('data-idb-photo')).then(src => { if (src) soldImg.src = src; });
+        }
         this.markSoldModal.classList.remove('hidden');
       }
 
@@ -2008,7 +2261,7 @@
         this.itemInputAddedBy.value = item.addedBy || this.state.activeUserId;
 
         if (item.photo) {
-          this.photoPreviewImg.src = item.photo;
+          this.resolvePhotoSrc(item.photo).then(src => { this.photoPreviewImg.src = src; });
           this.photoPreviewName.textContent = 'Existing photo attached';
           this.photoPreviewBox.classList.remove('hidden');
         } else {
@@ -2230,6 +2483,25 @@
     window.addEventListener('DOMContentLoaded', () => {
       window.app = new AppController();
     });
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch((err) => {
+          console.warn('SW registration failed:', err);
+        });
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return;
+          refreshing = true;
+          const toast = document.createElement('button');
+          toast.textContent = 'New update ready — Tap to refresh';
+          toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-emerald-500 text-slate-950 text-xs font-bold shadow-lg';
+          toast.onclick = () => window.location.reload();
+          document.body.appendChild(toast);
+        });
+      });
+    }
   </script>
 </body>
 </html>
