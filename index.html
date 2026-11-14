@@ -1686,7 +1686,7 @@
           this.expenseForm.reset();
           this.receiptPreviewBox.classList.add('hidden');
           this.receiptPreviewImg.src = '';
-          this.populatePartnerDropdown(this.expInputPaidBy);
+          this.populatePartnerDropdown(this.expInputPaidBy, 'expense');
           this.expInputPaidBy.value = this.state.activeUserId;
           this.expenseModal.classList.remove('hidden');
         };
@@ -1942,15 +1942,21 @@
         }
       }
 
-      populatePartnerDropdown(selectEl) {
+      populatePartnerDropdown(selectEl, mode = 'name') {
         const project = this.getActiveProject();
         selectEl.innerHTML = '';
         project.partners.forEach(p => {
           const opt = document.createElement('option');
           opt.value = p.id;
-          opt.textContent = `${p.name} (${p.split}%)`;
+          opt.textContent = mode === 'expense' ? `${p.name} (Paid 100%)` : p.name;
           selectEl.appendChild(opt);
         });
+        if (mode === 'expense' && project.partners.length > 1) {
+          const splitOpt = document.createElement('option');
+          splitOpt.value = 'split_all';
+          splitOpt.textContent = 'Split Evenly (All Partners)';
+          selectEl.appendChild(splitOpt);
+        }
       }
 
       async resolvePhotoSrc(ref) {
@@ -2465,7 +2471,12 @@
         let totalExpenses = 0;
         project.expenses.forEach(exp => {
           totalExpenses += exp.amount;
-          if (exp.paidBy && expensesByPartner[exp.paidBy] !== undefined) {
+          if (exp.paidBy === 'split_all' && project.partners.length > 0) {
+            const share = exp.amount / project.partners.length;
+            project.partners.forEach(p => {
+              expensesByPartner[p.id] += share;
+            });
+          } else if (exp.paidBy && expensesByPartner[exp.paidBy] !== undefined) {
             expensesByPartner[exp.paidBy] += exp.amount;
           }
         });
@@ -2960,7 +2971,7 @@
           card.className = 'bg-slate-900 rounded-xl border border-slate-800 p-3.5 flex items-center justify-between gap-3 shadow-sm';
 
           const payer = project.partners.find(p => p.id === exp.paidBy);
-          const payerName = payer ? payer.name : 'Partner';
+          const payerName = exp.paidBy === 'split_all' ? 'All Partners (Split Evenly)' : (payer ? payer.name : 'Partner');
 
           card.innerHTML = `
             <div class="flex items-center gap-3 min-w-0">
@@ -2974,7 +2985,7 @@
                 </div>
                 <h4 class="text-xs sm:text-sm font-semibold text-white truncate">${exp.title}</h4>
                 <div class="text-[10px] text-slate-400 mt-0.5">
-                  Paid out-of-pocket by <span class="text-indigo-300 font-bold">${payerName}</span> (100% reimbursed)
+                  ${exp.paidBy === 'split_all' ? 'Shared expense — <span class="text-indigo-300 font-bold">Split evenly</span>' : `Paid 100% by <span class="text-indigo-300 font-bold">${payerName}</span> (reimbursed)`}
                 </div>
               </div>
             </div>

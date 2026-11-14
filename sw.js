@@ -1,4 +1,4 @@
-const CACHE_NAME = 'businessbuddies-v7';
+const CACHE_NAME = 'businessbuddies-v8';
 const ASSETS = [
   './',
   './index.html',
