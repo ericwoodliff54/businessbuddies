@@ -65,6 +65,7 @@
       }
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3/dist/iife/polyfill.min.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950 pb-16">
 
@@ -364,6 +365,18 @@
         </div>
       </div>
 
+      <!-- Cloudflare Worker Endpoint (OCR & Barcode Lookup) -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-2.5">
+        <div>
+          <h3 class="text-xs font-bold text-white">Cloudflare Worker Endpoint (AI Receipt OCR & Barcode Lookup)</h3>
+          <p class="text-[11px] text-slate-400">Deploy <code class="text-emerald-400">businessbuddies-worker.js</code> with your <code class="text-emerald-400">GEMINI_API_KEY</code> secret and paste its URL here.</p>
+        </div>
+        <div class="flex gap-2">
+          <input type="url" id="workerUrlInput" placeholder="https://businessbuddies.your-subdomain.workers.dev" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          <button type="button" id="saveWorkerUrlBtn" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shrink-0">Save</button>
+        </div>
+      </div>
+
       <!-- Demo Data Controls -->
       <div class="bg-slate-900/60 rounded-2xl border border-slate-800/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div>
@@ -424,9 +437,24 @@
           </div>
         </div>
 
-        <!-- Title -->
+        <!-- Title + Barcode/ISBN Scanner -->
         <div>
-          <label for="itemInputTitle" class="block font-semibold text-slate-300 mb-1">Item Title / Description *</label>
+          <div class="flex items-center justify-between mb-1">
+            <label for="itemInputTitle" class="block font-semibold text-slate-300">Item Title / Description *</label>
+            <button type="button" id="toggleBarcodeScannerBtn" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition flex items-center gap-1">
+              <span>📷</span> Scan Barcode / ISBN
+            </button>
+          </div>
+          <div id="barcodeScannerBox" class="hidden mb-2 rounded-xl overflow-hidden border border-emerald-500/40 bg-black relative">
+            <video id="barcodeVideo" playsinline muted class="w-full h-44 object-cover"></video>
+            <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div class="w-3/4 h-16 border-2 border-emerald-400/80 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.35)]"></div>
+            </div>
+            <div class="flex items-center justify-between px-3 py-1.5 bg-slate-900/90 text-[11px] text-slate-300">
+              <span id="barcodeScannerStatus">Point camera at UPC or ISBN...</span>
+              <button type="button" id="stopBarcodeScannerBtn" class="text-rose-400 font-semibold">Stop</button>
+            </div>
+          </div>
           <input type="text" id="itemInputTitle" required placeholder="e.g. Vintage Leather Jacket, Makita Saw..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
         </div>
 
@@ -647,14 +675,19 @@
           </div>
         </div>
 
-        <!-- Receipt preview if attached -->
-        <div id="receiptPreviewBox" class="hidden p-2 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-3">
-          <img id="receiptPreviewImg" src="" alt="Receipt Preview" class="w-12 h-12 rounded-lg object-cover border border-slate-700">
-          <div class="min-w-0 flex-1">
-            <span class="text-[11px] font-semibold text-indigo-400 block">Receipt Slip Attached</span>
-            <span id="receiptPreviewName" class="text-[10px] text-slate-400 truncate block">receipt.jpg</span>
+        <!-- Receipt preview + AI OCR action -->
+        <div id="receiptPreviewBox" class="hidden p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+          <div class="flex items-center gap-3">
+            <img id="receiptPreviewImg" src="" alt="Receipt Preview" class="w-12 h-12 rounded-lg object-cover border border-slate-700">
+            <div class="min-w-0 flex-1">
+              <span class="text-[11px] font-semibold text-indigo-400 block">Receipt Slip Attached</span>
+              <span id="receiptPreviewName" class="text-[10px] text-slate-400 truncate block">receipt.jpg</span>
+            </div>
+            <button type="button" id="removeReceiptBtn" class="text-slate-500 hover:text-rose-400 text-xs px-2">Remove</button>
           </div>
-          <button type="button" id="removeReceiptBtn" class="text-slate-500 hover:text-rose-400 text-xs px-2">Remove</button>
+          <button type="button" id="aiScanReceiptBtn" class="w-full py-2 px-3 rounded-lg bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-200 border border-indigo-500/40 text-xs font-bold transition flex items-center justify-center gap-1.5">
+            <span>✨</span> AI Auto-Fill from Receipt
+          </button>
         </div>
 
         <p class="text-[11px] text-indigo-300/80 bg-indigo-950/40 border border-indigo-900/60 p-2.5 rounded-xl">
@@ -1112,6 +1145,17 @@
         this.settlementHistoryContainer = document.getElementById('settlementHistoryContainer');
         this.clearSettlementHistoryBtn = document.getElementById('clearSettlementHistoryBtn');
         this.exportCsvBtn = document.getElementById('exportCsvBtn');
+        this.workerUrlInput = document.getElementById('workerUrlInput');
+        this.saveWorkerUrlBtn = document.getElementById('saveWorkerUrlBtn');
+        this.toggleBarcodeScannerBtn = document.getElementById('toggleBarcodeScannerBtn');
+        this.stopBarcodeScannerBtn = document.getElementById('stopBarcodeScannerBtn');
+        this.barcodeScannerBox = document.getElementById('barcodeScannerBox');
+        this.barcodeVideo = document.getElementById('barcodeVideo');
+        this.barcodeScannerStatus = document.getElementById('barcodeScannerStatus');
+        this.aiScanReceiptBtn = document.getElementById('aiScanReceiptBtn');
+        this.scannerStream = null;
+        this.scannerLoopId = null;
+        this.scannerIdleTimer = null;
         this.partnersListContainer = document.getElementById('partnersListContainer');
         this.partnerTotalPercentage = document.getElementById('partnerTotalPercentage');
         this.addPartnerBtn = document.getElementById('addPartnerBtn');
@@ -1504,6 +1548,7 @@
           }
 
           this.saveState();
+          this.stopBarcodeScanner();
           this.itemModal.classList.add('hidden');
           this.renderAll();
         });
@@ -1608,6 +1653,32 @@
           this.expenseModal.classList.add('hidden');
           this.renderAll();
           this.showToast('Logged expense of $' + amount.toFixed(2), '🧾');
+        });
+
+        if (this.workerUrlInput) {
+          this.workerUrlInput.value = this.getWorkerUrl();
+        }
+        if (this.saveWorkerUrlBtn && this.workerUrlInput) {
+          this.saveWorkerUrlBtn.addEventListener('click', () => {
+            const val = this.workerUrlInput.value.trim().replace(/\/+$/, '');
+            localStorage.setItem('businessbuddies_worker_url', val);
+            this.showToast(val ? 'Worker URL saved' : 'Worker URL cleared', '✓');
+          });
+        }
+        if (this.toggleBarcodeScannerBtn) {
+          this.toggleBarcodeScannerBtn.addEventListener('click', () => this.toggleBarcodeScanner());
+        }
+        if (this.stopBarcodeScannerBtn) {
+          this.stopBarcodeScannerBtn.addEventListener('click', () => this.stopBarcodeScanner());
+        }
+        if (this.cancelItemModalBtn) {
+          this.cancelItemModalBtn.addEventListener('click', () => this.stopBarcodeScanner());
+        }
+        if (this.aiScanReceiptBtn) {
+          this.aiScanReceiptBtn.addEventListener('click', () => this.scanReceiptWithAI());
+        }
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) this.stopBarcodeScanner();
         });
 
         if (this.exportCsvBtn) {
@@ -1798,6 +1869,170 @@
         this.showToast('Exported project CSV', '⬇️');
       }
 
+      async toggleBarcodeScanner() {
+        if (this.scannerStream) {
+          this.stopBarcodeScanner();
+          return;
+        }
+        if (!('BarcodeDetector' in window)) {
+          this.showToast('Barcode scanner unavailable on this browser', '⚠️');
+          return;
+        }
+        try {
+          this.barcodeScannerBox.classList.remove('hidden');
+          this.barcodeScannerStatus.textContent = 'Starting camera...';
+          this.scannerStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+              advanced: [{ focusMode: 'continuous' }]
+            },
+            audio: false
+          });
+          this.barcodeVideo.srcObject = this.scannerStream;
+          await this.barcodeVideo.play();
+          this.barcodeScannerStatus.textContent = 'Point camera at UPC or ISBN...';
+
+          clearTimeout(this.scannerIdleTimer);
+          this.scannerIdleTimer = setTimeout(() => {
+            this.stopBarcodeScanner();
+            this.showToast('Scanner auto-paused after 90s', '📷');
+          }, 90000);
+
+          const detector = new window.BarcodeDetector({
+            formats: ['upc_a', 'upc_e', 'ean_13', 'ean_8', 'code_128', 'code_39', 'qr_code']
+          });
+
+          const scanFrame = async () => {
+            if (!this.scannerStream) return;
+            try {
+              const codes = await detector.detect(this.barcodeVideo);
+              if (codes && codes.length > 0) {
+                const rawCode = codes[0].rawValue;
+                this.stopBarcodeScanner();
+                this.showToast('Scanned: ' + rawCode, '📷');
+                const notePrefix = `Barcode: ${rawCode}`;
+                if (!this.itemInputNotes.value.includes(rawCode)) {
+                  this.itemInputNotes.value = this.itemInputNotes.value
+                    ? `${notePrefix} | ${this.itemInputNotes.value}`
+                    : notePrefix;
+                }
+                await this.lookupBarcodeTitle(rawCode);
+                return;
+              }
+            } catch {}
+            this.scannerLoopId = requestAnimationFrame(scanFrame);
+          };
+          this.scannerLoopId = requestAnimationFrame(scanFrame);
+        } catch (err) {
+          this.stopBarcodeScanner();
+          this.showToast('Camera permission denied or unavailable', '⚠️');
+        }
+      }
+
+      stopBarcodeScanner() {
+        clearTimeout(this.scannerIdleTimer);
+        if (this.scannerLoopId) {
+          cancelAnimationFrame(this.scannerLoopId);
+          this.scannerLoopId = null;
+        }
+        if (this.scannerStream) {
+          this.scannerStream.getTracks().forEach(t => t.stop());
+          this.scannerStream = null;
+        }
+        if (this.barcodeVideo) this.barcodeVideo.srcObject = null;
+        if (this.barcodeScannerBox) this.barcodeScannerBox.classList.add('hidden');
+      }
+
+      async lookupBarcodeTitle(code) {
+        const workerUrl = this.getWorkerUrl();
+        if (workerUrl) {
+          try {
+            const res = await fetch(`${workerUrl}/lookup-barcode?code=${encodeURIComponent(code)}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.found && data.title) {
+                this.itemInputTitle.value = data.title;
+                this.showToast('Found: ' + data.title, '✓');
+                return;
+              }
+            }
+          } catch {}
+        }
+        // Direct Open Library fallback for 10/13-digit ISBNs
+        if (/^(978|979)\d{10}$/.test(code) || /^\d{9}[0-9X]$/.test(code)) {
+          try {
+            const olRes = await fetch(`https://openlibrary.org/isbn/${code}.json`);
+            if (olRes.ok) {
+              const book = await olRes.json();
+              if (book && book.title) {
+                this.itemInputTitle.value = book.title;
+                this.showToast('Book found: ' + book.title, '📚');
+                return;
+              }
+            }
+          } catch {}
+        }
+        if (!this.itemInputTitle.value.trim()) {
+          this.itemInputTitle.value = `Scanned Item (${code})`;
+        }
+      }
+
+      async scanReceiptWithAI() {
+        const workerUrl = this.getWorkerUrl();
+        if (!workerUrl) {
+          this.showToast('Set your Cloudflare Worker URL in Partners tab first', '⚠️');
+          return;
+        }
+        const imgData = this.receiptPreviewImg?.src || '';
+        if (!imgData.startsWith('data:image/')) {
+          this.showToast('Attach a receipt photo first', '⚠️');
+          return;
+        }
+
+        const btn = this.aiScanReceiptBtn;
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Scanning receipt with Gemini...';
+
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 25000);
+        try {
+          const res = await fetch(`${workerUrl}/audit-receipt`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({ imageBase64: imgData, mimeType: 'image/jpeg' })
+          });
+          clearTimeout(timer);
+          const data = await res.json();
+          if (!res.ok || !data.receipt) {
+            throw new Error(data.error || 'OCR failed');
+          }
+          const r = data.receipt;
+          if (r.summaryTitle || r.merchant) {
+            this.expInputTitle.value = r.summaryTitle || r.merchant;
+          }
+          if (typeof r.total === 'number' && r.total > 0) {
+            this.expInputAmount.value = r.total.toFixed(2);
+          }
+          if (r.category) {
+            const opts = Array.from(this.expInputCategory.options).map(o => o.value);
+            if (opts.includes(r.category)) {
+              this.expInputCategory.value = r.category;
+            }
+          }
+          this.showToast('Receipt auto-filled!', '✨');
+        } catch (err) {
+          clearTimeout(timer);
+          this.showToast(err.name === 'AbortError' ? 'Receipt scan timed out (25s)' : ('OCR error: ' + err.message), '⚠️');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+        }
+      }
+
       // --- FINANCIAL SETTLEMENT CALCULATOR (WATERFALL RULES) ---
       calculateSettlement(project) {
         // 1. Calculate Gross Sales
@@ -1947,6 +2182,10 @@
       }
 
       // --- RENDER FUNCTIONS ---
+      getWorkerUrl() {
+        return (localStorage.getItem('businessbuddies_worker_url') || '').trim().replace(/\/+$/, '');
+      }
+
       renderAll() {
         this.renderHeader();
         this.renderHeroAndSettlement();
