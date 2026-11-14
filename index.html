@@ -274,6 +274,17 @@
         </div>
       </div>
 
+      <!-- Breakeven Progress Bar -->
+      <div id="breakevenCard" class="mt-3 pt-3 border-t border-slate-800/70 space-y-1.5">
+        <div class="flex items-center justify-between text-[11px]">
+          <span class="font-semibold text-slate-400 uppercase tracking-wider">Breakeven Progress</span>
+          <span id="breakevenStatusText" class="font-bold mono text-sky-400">$0.00 / $0.00 (0%)</span>
+        </div>
+        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+          <div id="breakevenBarFill" class="h-full rounded-full bg-gradient-to-r from-sky-500 to-blue-400 transition-all duration-500" style="width: 0%"></div>
+        </div>
+      </div>
+
       <!-- Live Settlement ("Square Up") Card -->
       <div class="mt-4 pt-1">
         <div id="settlementCard" class="bg-slate-950/80 rounded-xl p-3.5 border border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -351,6 +362,12 @@
         </button>
       </div>
 
+      <!-- Inventory Search -->
+      <div class="relative">
+        <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <input type="search" id="inventorySearchInput" placeholder="Search items, notes, platform, or who holds it..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 transition">
+      </div>
+
       <!-- Inventory List Container -->
       <div id="inventoryContainer" class="space-y-2.5">
         <!-- Rendered via JS -->
@@ -402,9 +419,14 @@
             <h2 class="text-sm font-bold text-white">Partnership Financial Breakdown</h2>
             <p class="text-xs text-slate-400">Complete transparent view of who paid for what and who collected cash.</p>
           </div>
-          <button id="exportCsvBtn" type="button" class="px-3 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 text-xs font-semibold transition flex items-center gap-1.5">
-            <span></span> Export CSV
-          </button>
+          <div class="flex items-center gap-2">
+            <button id="shareSummaryBtn" type="button" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition">
+              Share Summary
+            </button>
+            <button id="exportCsvBtn" type="button" class="px-3 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 text-xs font-semibold transition">
+              Export CSV
+            </button>
+          </div>
         </div>
 
         <div id="ledgerPartnerCards" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -596,7 +618,7 @@
           </div>
         </div>
 
-        <!-- Added By & Item Photo -->
+        <!-- Added By, Held By & Item Photo -->
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label for="itemInputAddedBy" class="block font-semibold text-slate-300 mb-1">Added By Partner</label>
@@ -605,22 +627,34 @@
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Photo / Camera</label>
-            <label class="flex items-center justify-center gap-1.5 w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl px-3 py-2 text-slate-300 cursor-pointer transition">
-              <span>Snap Photo</span>
-              <input type="file" id="itemInputPhoto" accept="image/*" class="hidden">
-            </label>
+            <label for="itemInputHeldBy" class="block font-semibold text-slate-300 mb-1">Held / Stored By</label>
+            <select id="itemInputHeldBy" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sky-500 transition">
+              <!-- Dynamically populated -->
+            </select>
           </div>
         </div>
 
-        <!-- Photo preview if uploaded -->
-        <div id="photoPreviewBox" class="hidden p-2 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-3">
-          <img id="photoPreviewImg" src="" alt="Item Preview" class="w-12 h-12 rounded-lg object-cover border border-slate-700">
-          <div class="min-w-0 flex-1">
-            <span class="text-[11px] font-semibold text-sky-400 block">Photo Attached</span>
-            <span id="photoPreviewName" class="text-[10px] text-slate-400 truncate block">image.jpg</span>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Item Photo</label>
+          <label class="flex items-center justify-center gap-2 w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 font-semibold cursor-pointer transition">
+            <span>Snap or Upload Item Photo</span>
+            <input type="file" id="itemInputPhoto" accept="image/*" class="hidden">
+          </label>
+        </div>
+
+        <!-- Photo preview + AI Identify -->
+        <div id="photoPreviewBox" class="hidden p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+          <div class="flex items-center gap-3">
+            <img id="photoPreviewImg" src="" alt="Item Preview" class="w-12 h-12 rounded-lg object-cover border border-slate-700">
+            <div class="min-w-0 flex-1">
+              <span class="text-[11px] font-semibold text-sky-400 block">Photo Attached</span>
+              <span id="photoPreviewName" class="text-[10px] text-slate-400 truncate block">image.jpg</span>
+            </div>
+            <button type="button" id="removePhotoBtn" class="text-slate-500 hover:text-rose-400 text-xs px-2">Remove</button>
           </div>
-          <button type="button" id="removePhotoBtn" class="text-slate-500 hover:text-rose-400 text-xs px-2">Remove</button>
+          <button type="button" id="aiIdentifyItemBtn" class="w-full py-2 px-3 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition">
+            AI Identify & Price from Photo
+          </button>
         </div>
 
         <!-- Notes -->
@@ -725,6 +759,27 @@
 
       <form id="expenseForm" class="space-y-3.5 text-xs">
         <input type="hidden" id="expEditId" value="">
+        <!-- Mileage Reimbursement Helper -->
+        <div class="rounded-xl bg-slate-950 border border-slate-800 p-2.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-300">Driving / Pickup Run?</span>
+            <button type="button" id="toggleMileageHelperBtn" class="text-[11px] font-bold text-sky-400 hover:text-sky-300">Open Mileage Calculator</button>
+          </div>
+          <div id="mileageHelperBox" class="hidden grid grid-cols-3 gap-2 pt-1">
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-0.5">Miles</label>
+              <input type="number" step="0.1" min="0" id="mileageMilesInput" placeholder="25" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-white mono text-xs">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-0.5">Rate ($/mi)</label>
+              <input type="number" step="0.01" min="0" id="mileageRateInput" value="0.70" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-white mono text-xs">
+            </div>
+            <div class="flex items-end">
+              <button type="button" id="applyMileageBtn" class="w-full py-1.5 px-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-[11px] transition">Apply</button>
+            </div>
+          </div>
+        </div>
+
         <div>
           <label for="expInputTitle" class="block font-semibold text-slate-300 mb-1">Expense Description *</label>
           <input type="text" id="expInputTitle" required placeholder="e.g. U-Haul rental, storage fee, gas..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
@@ -1342,6 +1397,18 @@
         this.settlementHistoryContainer = document.getElementById('settlementHistoryContainer');
         this.clearSettlementHistoryBtn = document.getElementById('clearSettlementHistoryBtn');
         this.exportCsvBtn = document.getElementById('exportCsvBtn');
+        this.shareSummaryBtn = document.getElementById('shareSummaryBtn');
+        this.breakevenStatusText = document.getElementById('breakevenStatusText');
+        this.breakevenBarFill = document.getElementById('breakevenBarFill');
+        this.inventorySearchInput = document.getElementById('inventorySearchInput');
+        this.itemInputHeldBy = document.getElementById('itemInputHeldBy');
+        this.aiIdentifyItemBtn = document.getElementById('aiIdentifyItemBtn');
+        this.toggleMileageHelperBtn = document.getElementById('toggleMileageHelperBtn');
+        this.mileageHelperBox = document.getElementById('mileageHelperBox');
+        this.mileageMilesInput = document.getElementById('mileageMilesInput');
+        this.mileageRateInput = document.getElementById('mileageRateInput');
+        this.applyMileageBtn = document.getElementById('applyMileageBtn');
+        this.searchQuery = '';
         this.toggleBarcodeScannerBtn = document.getElementById('toggleBarcodeScannerBtn');
         this.stopBarcodeScannerBtn = document.getElementById('stopBarcodeScannerBtn');
         this.barcodeScannerBox = document.getElementById('barcodeScannerBox');
@@ -1694,6 +1761,10 @@
           this.photoPreviewImg.src = '';
           this.populatePartnerDropdown(this.itemInputAddedBy);
           this.itemInputAddedBy.value = this.state.activeUserId;
+          if (this.itemInputHeldBy) {
+            this.populatePartnerDropdown(this.itemInputHeldBy);
+            this.itemInputHeldBy.value = this.state.activeUserId;
+          }
           this.itemModal.classList.remove('hidden');
         };
         this.openAddItemModalBtn.addEventListener('click', openItemModal);
@@ -1753,6 +1824,7 @@
               item.targetPrice = targetPrice;
               item.platform = platform;
               item.addedBy = addedBy;
+              item.heldBy = this.itemInputHeldBy ? this.itemInputHeldBy.value : addedBy;
               item.notes = notes;
               if (rawPhoto && rawPhoto.startsWith('data:image/')) {
                 const key = 'item_' + item.id;
@@ -1780,6 +1852,7 @@
               platformFees: 0,
               platform,
               addedBy,
+              heldBy: this.itemInputHeldBy ? this.itemInputHeldBy.value : addedBy,
               soldBy: null,
               collectedBy: null,
               status: 'active',
@@ -2070,6 +2143,43 @@
           this.useRecommendedSettleBtn.addEventListener('click', () => {
             if (this.settleInputAmount) this.settleInputAmount.value = this.recommendedSettleAmount.toFixed(2);
             this.updateSettlePaymentLink();
+          });
+        }
+
+        if (this.inventorySearchInput) {
+          this.inventorySearchInput.addEventListener('input', (e) => {
+            this.searchQuery = (e.target.value || '').trim().toLowerCase();
+            this.renderInventory();
+          });
+        }
+        if (this.aiIdentifyItemBtn) {
+          this.aiIdentifyItemBtn.addEventListener('click', () => this.identifyItemWithAI());
+        }
+        if (this.shareSummaryBtn) {
+          this.shareSummaryBtn.addEventListener('click', () => this.shareSettlementSummary());
+        }
+        if (this.toggleMileageHelperBtn && this.mileageHelperBox) {
+          this.toggleMileageHelperBtn.addEventListener('click', () => {
+            this.mileageHelperBox.classList.toggle('hidden');
+            const savedRate = localStorage.getItem('businessbuddies_mileage_rate');
+            if (savedRate && this.mileageRateInput) this.mileageRateInput.value = savedRate;
+          });
+        }
+        if (this.applyMileageBtn) {
+          this.applyMileageBtn.addEventListener('click', () => {
+            const miles = parseFloat(this.mileageMilesInput?.value) || 0;
+            const rate = parseFloat(this.mileageRateInput?.value) || 0.70;
+            if (miles <= 0) {
+              this.showToast('Enter miles driven first');
+              return;
+            }
+            localStorage.setItem('businessbuddies_mileage_rate', rate.toFixed(2));
+            const amt = Math.round(miles * rate * 100) / 100;
+            this.expInputTitle.value = `Mileage Reimbursement (${miles} mi @ $${rate.toFixed(2)}/mi)`;
+            this.expInputAmount.value = amt.toFixed(2);
+            this.expInputAmount.dispatchEvent(new Event('input'));
+            this.mileageHelperBox.classList.add('hidden');
+            this.showToast(`Applied $${amt.toFixed(2)} mileage`);
           });
         }
 
@@ -2766,6 +2876,83 @@
         }
       }
 
+      async identifyItemWithAI() {
+        const workerUrl = this.getWorkerUrl();
+        const imgData = this.photoPreviewImg?.src || '';
+        if (!imgData.startsWith('data:image/')) {
+          this.showToast('Attach an item photo first');
+          return;
+        }
+        const btn = this.aiIdentifyItemBtn;
+        const orig = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Identifying item with Gemini...';
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 25000);
+        try {
+          const res = await fetch(`${workerUrl}/identify-item`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({ imageBase64: imgData, mimeType: 'image/jpeg' })
+          });
+          clearTimeout(timer);
+          const data = await res.json();
+          if (!res.ok || !data.item) throw new Error(data.error || 'Identify failed');
+          const it = data.item;
+          if (it.title) this.itemInputTitle.value = it.title;
+          if (typeof it.suggestedPrice === 'number' && it.suggestedPrice > 0) {
+            this.itemInputPrice.value = it.suggestedPrice.toFixed(2);
+          }
+          if (it.platform) {
+            const opts = Array.from(this.itemInputPlatform.options).map(o => o.value);
+            if (opts.includes(it.platform)) this.itemInputPlatform.value = it.platform;
+          }
+          if (it.conditionNotes) this.itemInputNotes.value = it.conditionNotes;
+          this.triggerFeedback('success');
+          this.showToast('Item identified & priced!');
+        } catch (err) {
+          clearTimeout(timer);
+          this.showToast(err.name === 'AbortError' ? 'Item lookup timed out (25s)' : ('AI error: ' + err.message));
+        } finally {
+          btn.disabled = false;
+          btn.textContent = orig;
+        }
+      }
+
+      async shareSettlementSummary() {
+        const project = this.getActiveProject();
+        const math = this.calculateSettlement(project);
+        const lines = [
+          `BusinessBuddies Summary: ${project.name}`,
+          `Gross Sales (Net of Fees): $${math.grossSales.toFixed(2)}`,
+          `Total Expenses: $${math.totalExpenses.toFixed(2)}`,
+          `Net Profit Pot: $${math.netProfit.toFixed(2)}`,
+          ''
+        ];
+        if (math.transfers.length === 0) {
+          lines.push('Status: All partners are squared up ($0.00 owed).');
+        } else {
+          lines.push('Recommended Transfers:');
+          math.transfers.forEach(t => {
+            lines.push(`- ${t.from.name} pays ${t.to.name} $${t.amount.toFixed(2)}`);
+          });
+        }
+        const summaryText = lines.join('\n');
+        if (navigator.share) {
+          try {
+            await navigator.share({ title: `${project.name} Settlement`, text: summaryText });
+            return;
+          } catch {}
+        }
+        try {
+          await navigator.clipboard.writeText(summaryText);
+          this.showToast('Settlement summary copied to clipboard');
+        } catch {
+          this.showToast('Summary ready in Ledger');
+        }
+      }
+
       // --- FINANCIAL SETTLEMENT CALCULATOR (WATERFALL RULES) ---
       calculateSettlement(project) {
         // 1. Calculate Gross Sales
@@ -3116,6 +3303,22 @@
         this.elHeroTotalExpenses.textContent = `$${math.totalExpenses.toFixed(2)}`;
         this.elHeroNetProfit.textContent = `$${math.netProfit.toFixed(2)}`;
 
+        if (this.breakevenStatusText && this.breakevenBarFill) {
+          if (math.totalExpenses <= 0) {
+            this.breakevenStatusText.textContent = 'No expenses yet';
+            this.breakevenBarFill.style.width = math.grossSales > 0 ? '100%' : '0%';
+          } else {
+            const pct = Math.min(100, Math.max(0, Math.round((math.grossSales / math.totalExpenses) * 100)));
+            this.breakevenBarFill.style.width = pct + '%';
+            if (math.grossSales >= math.totalExpenses) {
+              this.breakevenStatusText.textContent = `Breakeven Reached (+$${math.netProfit.toFixed(2)} net)`;
+            } else {
+              const left = math.totalExpenses - math.grossSales;
+              this.breakevenStatusText.textContent = `$${math.grossSales.toFixed(2)} / $${math.totalExpenses.toFixed(2)} (${pct}% — $${left.toFixed(2)} to go)`;
+            }
+          }
+        }
+
         if (math.netProfit >= 0) {
           this.elHeroNetProfit.className = 'text-3xl sm:text-4xl font-extrabold text-sky-400 mono tracking-tight';
           this.elHeroProfitBadge.textContent = 'Profitable';
@@ -3250,7 +3453,7 @@
                   </div>
                   <h4 class="text-xs sm:text-sm font-semibold text-white truncate">${item.title}</h4>
                   <div class="text-[10px] text-slate-500 mt-0.5">
-                    Added by <span class="text-slate-300 font-medium">${addedByName}</span> • ${item.dateAdded}
+                    Added by <span class="text-slate-300 font-medium">${addedByName}</span> • Held by <span class="text-sky-300 font-medium">${(project.partners.find(p => p.id === (item.heldBy || item.addedBy))?.name) || addedByName}</span> • ${item.dateAdded}
                   </div>
                 </div>
               </div>
@@ -3294,7 +3497,7 @@
                     </button>
                   ` : `
                     <button class="mark-unsold-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition" data-id="${item.id}">
-                      Move Back to Active
+                      Return / Refund
                     </button>
                   `}
                 </div>
@@ -3327,14 +3530,30 @@
           if (markUnsoldBtn) {
             markUnsoldBtn.addEventListener('click', (e) => {
               e.stopPropagation();
-              item.status = 'active';
-              item.soldPrice = null;
-              item.soldBy = null;
-              item.collectedBy = null;
-              item.dateSold = null;
-              this.saveState();
-              this.renderAll();
-              this.showToast('Item moved back to active inventory', '↺');
+              this.showPrompt('Return / Refund Item', 'Optional: enter any return shipping or lost fee ($) to log as an expense (leave 0 for clean reversal):', '0.00', (feeStr) => {
+                const feeLoss = Math.round((parseFloat(feeStr) || 0) * 100) / 100;
+                item.status = 'active';
+                item.soldPrice = null;
+                item.platformFees = 0;
+                item.soldBy = null;
+                item.collectedBy = null;
+                item.dateSold = null;
+                if (feeLoss > 0) {
+                  project.expenses.push({
+                    id: 'exp_' + Date.now(),
+                    title: `Return / Refund Fee: ${item.title}`,
+                    amount: feeLoss,
+                    paidBy: this.state.activeUserId,
+                    paidShares: { [this.state.activeUserId]: feeLoss },
+                    category: 'Return Fee',
+                    date: new Date().toISOString().split('T')[0],
+                    receiptPhoto: ''
+                  });
+                }
+                this.saveState();
+                this.renderAll();
+                this.showToast(feeLoss > 0 ? `Reversed sale & logged $${feeLoss.toFixed(2)} return fee` : 'Sale reversed — item back in inventory');
+              });
             });
           }
 
@@ -3402,6 +3621,10 @@
 
         this.populatePartnerDropdown(this.itemInputAddedBy);
         this.itemInputAddedBy.value = item.addedBy || this.state.activeUserId;
+        if (this.itemInputHeldBy) {
+          this.populatePartnerDropdown(this.itemInputHeldBy);
+          this.itemInputHeldBy.value = item.heldBy || item.addedBy || this.state.activeUserId;
+        }
 
         if (item.photo) {
           this.resolvePhotoSrc(item.photo).then(src => { this.photoPreviewImg.src = src; });

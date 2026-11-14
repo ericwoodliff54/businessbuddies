@@ -135,6 +135,76 @@ Return ONLY valid JSON (no markdown fences) with this exact shape:
       }
     }
 
+    if (url.pathname === '/identify-item' && request.method === 'POST') {
+      if (!checkEdgeRateLimit(ip, 'identify-item', 18)) {
+        return jsonResponse({ error: 'Rate limit exceeded. Please wait a minute.' }, 429);
+      }
+      if (!env.GEMINI_API_KEY) {
+        return jsonResponse({ error: 'Worker missing GEMINI_API_KEY secret.' }, 500);
+      }
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return jsonResponse({ error: 'Invalid JSON body.' }, 400);
+      }
+      const rawBase64 = (body.imageBase64 || '').replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
+      const mimeType = body.mimeType || 'image/jpeg';
+      if (!rawBase64) {
+        return jsonResponse({ error: 'Missing imageBase64.' }, 400);
+      }
+
+      const prompt = `Identify this secondhand / resale item from the photo for an online marketplace listing.
+Return ONLY valid JSON (no markdown fences) with this exact shape:
+{
+  "title": "Concise 4-8 word listing title with brand/model if visible",
+  "suggestedPrice": 0.00,
+  "platform": "One of: Facebook Marketplace | eBay | OfferUp | Mercari",
+  "conditionNotes": "Brief 1-sentence condition & selling note"
+}`;
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 25000);
+      try {
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { text: prompt },
+                    { inline_data: { mime_type: mimeType, data: rawBase64 } },
+                  ],
+                },
+              ],
+              generationConfig: {
+                temperature: 0.2,
+                responseMimeType: 'application/json',
+              },
+            }),
+          }
+        );
+        clearTimeout(timer);
+        if (!geminiRes.ok) {
+          const errText = await geminiRes.text();
+          return jsonResponse({ error: 'Gemini API error', detail: errText.slice(0, 200) }, 502);
+        }
+        const data = await geminiRes.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+        const cleaned = text.replace(/^```json\s*|```$/g, '').trim();
+        const parsed = JSON.parse(cleaned);
+        return jsonResponse({ ok: true, item: parsed });
+      } catch (err) {
+        clearTimeout(timer);
+        const msg = err.name === 'AbortError' ? 'Item lookup timed out after 25s.' : err.message;
+        return jsonResponse({ error: msg }, 504);
+      }
+    }
+
     if (url.pathname === '/lookup-barcode' && request.method === 'GET') {
       if (!checkEdgeRateLimit(ip, 'lookup-barcode', 25)) {
         return jsonResponse({ error: 'Rate limit exceeded.' }, 429);
@@ -266,6 +336,6 @@ Return ONLY valid JSON (no markdown fences) with this exact shape:
       return jsonResponse({ ok: true, code, version: nextVersion, updatedAt: updated.updatedAt });
     }
 
-    return jsonResponse({ ok: true, service: 'businessbuddies-worker', version: '1.1.0' });
+    return jsonResponse({ ok: true, service: 'businessbuddies-worker', version: '1.2.0' });
   },
 };
