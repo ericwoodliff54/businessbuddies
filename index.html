@@ -1531,13 +1531,6 @@
       }
 
       attachEventListeners() {
-        // Replay splash button
-        if (replayBtn) {
-          replayBtn.addEventListener('click', () => {
-            this.replaySplashScreen();
-          });
-        }
-
         // Dialog Modal Controls
         this.dialogCancelBtn.addEventListener('click', () => {
           this.dialogModal.classList.add('hidden');
