@@ -74,10 +74,13 @@
       border-color: #cbd5e1 !important;
     }
     body.light-mode .bg-slate-950,
+    body.light-mode .bg-slate-950\/90,
     body.light-mode .bg-slate-950\/80,
     body.light-mode .bg-slate-950\/60,
-    body.light-mode .bg-slate-950\/40 {
+    body.light-mode .bg-slate-950\/40,
+    body.light-mode #mathBreakdownDrawer {
       background-color: #f8fafc !important;
+      color: #0f172a !important;
     }
     body.light-mode .bg-slate-900,
     body.light-mode .bg-slate-900\/90,
@@ -1043,9 +1046,26 @@
             </select>
           </div>
         </div>
-        <div>
-          <label for="partnerInputVenmo" class="block font-semibold text-slate-300 mb-1">Payment Handle (Venmo / Zelle / CashApp)</label>
-          <input type="text" id="partnerInputVenmo" placeholder="e.g. alex-resell (optional)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-sky-500">
+        <div class="pt-1 border-t border-slate-800 space-y-2.5">
+          <div class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Settle-Up Payment Handles</div>
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label for="partnerInputVenmo" class="block font-semibold text-slate-300 mb-1">Venmo</label>
+              <input type="text" id="partnerInputVenmo" placeholder="@username" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-sky-500">
+            </div>
+            <div>
+              <label for="partnerInputCashApp" class="block font-semibold text-slate-300 mb-1">Cash App</label>
+              <input type="text" id="partnerInputCashApp" placeholder="$cashtag" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-sky-500">
+            </div>
+            <div>
+              <label for="partnerInputZelle" class="block font-semibold text-slate-300 mb-1">Zelle</label>
+              <input type="text" id="partnerInputZelle" placeholder="email or phone" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-sky-500">
+            </div>
+            <div>
+              <label for="partnerInputPaypal" class="block font-semibold text-slate-300 mb-1">PayPal</label>
+              <input type="text" id="partnerInputPaypal" placeholder="paypal.me name" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-sky-500">
+            </div>
+          </div>
         </div>
       </div>
       <div class="flex items-center justify-end gap-2 pt-2">
@@ -1479,6 +1499,9 @@
         this.partnerInputSplit = document.getElementById('partnerInputSplit');
         this.partnerInputColor = document.getElementById('partnerInputColor');
         this.partnerInputVenmo = document.getElementById('partnerInputVenmo');
+        this.partnerInputCashApp = document.getElementById('partnerInputCashApp');
+        this.partnerInputZelle = document.getElementById('partnerInputZelle');
+        this.partnerInputPaypal = document.getElementById('partnerInputPaypal');
         this.closePartnerModalBtn = document.getElementById('closePartnerModalBtn');
         this.cancelPartnerModalBtn = document.getElementById('cancelPartnerModalBtn');
         this.joinSyncStream = null;
@@ -2339,6 +2362,9 @@
             const split = Math.max(0, Math.min(100, Math.round((parseFloat(this.partnerInputSplit.value) || 0) * 100) / 100));
             const color = this.partnerInputColor.value || 'emerald';
             const venmo = this.partnerInputVenmo.value.trim().replace(/^@/, '');
+            const cashapp = (this.partnerInputCashApp?.value || '').trim().replace(/^\$/, '');
+            const zelle = (this.partnerInputZelle?.value || '').trim();
+            const paypal = (this.partnerInputPaypal?.value || '').trim().replace(/^@/, '');
             if (!name) return;
 
             if (editId) {
@@ -2348,6 +2374,9 @@
                 p.split = split;
                 p.color = color;
                 p.venmo = venmo;
+                p.cashapp = cashapp;
+                p.zelle = zelle;
+                p.paypal = paypal;
                 this.showToast('Updated partner ' + name);
               }
             } else {
@@ -2356,7 +2385,10 @@
                 name,
                 split,
                 color,
-                venmo
+                venmo,
+                cashapp,
+                zelle,
+                paypal
               });
               this.showToast('Added partner ' + name);
             }
@@ -3278,30 +3310,57 @@
           this.venmoDeepLink.classList.add('hidden');
           return;
         }
-        const handle = (payee.venmo || '').replace(/^[@$]/, '');
+        const rawPayee = project.partners.find(p => p.id === payee.id) || payee;
+        const venmoHandle = (rawPayee.venmo || '').replace(/^@/, '');
+        const cashAppHandle = (rawPayee.cashapp || '').replace(/^\$/, '');
+        const zelleHandle = rawPayee.zelle || '';
+        const paypalHandle = (rawPayee.paypal || '').replace(/^@/, '');
         const note = encodeURIComponent('BusinessBuddies: ' + project.name);
 
         this.venmoDeepLink.onclick = null;
-        if (method === 'Venmo' && handle) {
-          this.venmoDeepLink.href = `https://venmo.com/${handle}?txn=pay&amount=${amt.toFixed(2)}&note=${note}`;
-          this.venmoDeepLink.textContent = `Open Venmo (@${handle}) — $${amt.toFixed(2)}`;
+        if (method === 'Venmo') {
+          if (venmoHandle) {
+            this.venmoDeepLink.href = `https://venmo.com/${venmoHandle}?txn=pay&amount=${amt.toFixed(2)}&note=${note}`;
+            this.venmoDeepLink.textContent = `Open Venmo (@${venmoHandle}) — $${amt.toFixed(2)}`;
+          } else {
+            this.venmoDeepLink.href = '#';
+            this.venmoDeepLink.textContent = `Add ${payee.name}'s Venmo in Partners > Edit`;
+            this.venmoDeepLink.onclick = (e) => { e.preventDefault(); this.settleModal.classList.add('hidden'); this.openPartnerModal(rawPayee); };
+          }
           this.venmoDeepLink.classList.remove('hidden');
-        } else if (method === 'Cash App' && handle) {
-          this.venmoDeepLink.href = `https://cash.app/$${handle}/${amt.toFixed(2)}`;
-          this.venmoDeepLink.textContent = `Open Cash App ($${handle}) — $${amt.toFixed(2)}`;
+        } else if (method === 'Cash App') {
+          if (cashAppHandle) {
+            this.venmoDeepLink.href = `https://cash.app/$${cashAppHandle}/${amt.toFixed(2)}`;
+            this.venmoDeepLink.textContent = `Open Cash App ($${cashAppHandle}) — $${amt.toFixed(2)}`;
+          } else {
+            this.venmoDeepLink.href = '#';
+            this.venmoDeepLink.textContent = `Add ${payee.name}'s Cash App in Partners > Edit`;
+            this.venmoDeepLink.onclick = (e) => { e.preventDefault(); this.settleModal.classList.add('hidden'); this.openPartnerModal(rawPayee); };
+          }
           this.venmoDeepLink.classList.remove('hidden');
-        } else if (method === 'PayPal' && handle) {
-          this.venmoDeepLink.href = `https://paypal.me/${handle}/${amt.toFixed(2)}`;
-          this.venmoDeepLink.textContent = `Open PayPal (${handle}) — $${amt.toFixed(2)}`;
+        } else if (method === 'PayPal') {
+          if (paypalHandle) {
+            this.venmoDeepLink.href = `https://paypal.me/${paypalHandle}/${amt.toFixed(2)}`;
+            this.venmoDeepLink.textContent = `Open PayPal (${paypalHandle}) — $${amt.toFixed(2)}`;
+          } else {
+            this.venmoDeepLink.href = '#';
+            this.venmoDeepLink.textContent = `Add ${payee.name}'s PayPal in Partners > Edit`;
+            this.venmoDeepLink.onclick = (e) => { e.preventDefault(); this.settleModal.classList.add('hidden'); this.openPartnerModal(rawPayee); };
+          }
           this.venmoDeepLink.classList.remove('hidden');
         } else if (method === 'Zelle') {
           this.venmoDeepLink.href = '#';
-          this.venmoDeepLink.textContent = handle ? `Copy Zelle Info (${handle} — $${amt.toFixed(2)})` : `Zelle $${amt.toFixed(2)} to ${payee.name}`;
-          this.venmoDeepLink.onclick = (e) => {
-            e.preventDefault();
-            const info = handle ? `${handle} ($${amt.toFixed(2)})` : `${payee.name} ($${amt.toFixed(2)})`;
-            navigator.clipboard?.writeText(info).then(() => this.showToast('Copied Zelle info: ' + info)).catch(() => this.showToast(info));
-          };
+          if (zelleHandle) {
+            this.venmoDeepLink.textContent = `Copy Zelle Info (${zelleHandle} — $${amt.toFixed(2)})`;
+            this.venmoDeepLink.onclick = (e) => {
+              e.preventDefault();
+              const info = `${zelleHandle} ($${amt.toFixed(2)})`;
+              navigator.clipboard?.writeText(info).then(() => this.showToast('Copied Zelle info: ' + info)).catch(() => this.showToast(info));
+            };
+          } else {
+            this.venmoDeepLink.textContent = `Add ${payee.name}'s Zelle in Partners > Edit`;
+            this.venmoDeepLink.onclick = (e) => { e.preventDefault(); this.settleModal.classList.add('hidden'); this.openPartnerModal(rawPayee); };
+          }
           this.venmoDeepLink.classList.remove('hidden');
         } else {
           this.venmoDeepLink.classList.add('hidden');
@@ -3992,6 +4051,9 @@
           this.partnerInputSplit.value = partner.split ?? 0;
           this.partnerInputColor.value = partner.color || 'emerald';
           this.partnerInputVenmo.value = partner.venmo || '';
+          if (this.partnerInputCashApp) this.partnerInputCashApp.value = partner.cashapp || '';
+          if (this.partnerInputZelle) this.partnerInputZelle.value = partner.zelle || '';
+          if (this.partnerInputPaypal) this.partnerInputPaypal.value = partner.paypal || '';
         } else {
           this.partnerModalTitle.textContent = 'Add Partner';
           this.partnerEditId.value = '';
@@ -3999,6 +4061,9 @@
           this.partnerInputSplit.value = '0';
           this.partnerInputColor.value = 'indigo';
           this.partnerInputVenmo.value = '';
+          if (this.partnerInputCashApp) this.partnerInputCashApp.value = '';
+          if (this.partnerInputZelle) this.partnerInputZelle.value = '';
+          if (this.partnerInputPaypal) this.partnerInputPaypal.value = '';
         }
         this.partnerModal.classList.remove('hidden');
       }
@@ -4035,7 +4100,12 @@
                   <span class="font-bold text-white truncate">${partner.name}</span>
                   ${isActive ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">Active</span>' : ''}
                 </div>
-                <span class="text-[10px] text-slate-500">${partner.venmo ? '@' + partner.venmo : 'No payment handle set'}</span>
+                <span class="text-[10px] text-slate-500">${[
+                  partner.venmo ? 'Venmo: @' + partner.venmo : '',
+                  partner.cashapp ? 'Cash App: $' + partner.cashapp : '',
+                  partner.zelle ? 'Zelle: ' + partner.zelle : '',
+                  partner.paypal ? 'PayPal: ' + partner.paypal : ''
+                ].filter(Boolean).join(' • ') || 'Tap Edit to add Venmo / Cash App / Zelle'}</span>
               </div>
             </div>
 
